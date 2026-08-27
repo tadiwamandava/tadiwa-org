@@ -1,0 +1,45 @@
+---
+title: "DSP: Filter Design and Audio Denoising"
+pitch: Coursework projects in digital signal processing — filter design, DFT analysis, and audio denoising — that turn out to be the direct on-ramp to quantisation work.
+status: shipped
+started: "2026-01-15"
+finished: "2026-05-10"
+domains: ["dsp"]
+languages: ["MATLAB", "Python"]
+stack: ["NumPy", "SciPy"]
+hardestThing: >-
+  Moving from the textbook version of a filter to one that behaves on real,
+  noisy input — where the window choice, the transition-band width, and the
+  fixed-point representation all interact, and the spectrogram tells you
+  something the magnitude response did not.
+resumeBullets:
+  - >-
+    Designed and validated FIR and IIR filters in MATLAB and Python, analysing
+    magnitude response, transition-band width, and window choice against real
+    noisy audio rather than synthetic test signals.
+  - >-
+    Built a DFT-based spectral analysis and audio denoising pipeline, evaluating
+    results on spectrograms where the magnitude response alone was misleading.
+  # TODO(tadiwa): both bullets would be materially stronger with one measured
+  # number — SNR improvement in dB, filter order vs. stopband attenuation, or
+  # runtime on a fixed clip. Add it if you still have the project files.
+
+roleRelevance:
+  ml-infra: 1
+  firmware: 2
+  silicon-validation: 1
+---
+
+## Why this is on the site
+
+Signal processing is the most direct bridge between the coursework and the
+industry work I am aiming at. Fixed-point arithmetic, Q-formats, and the
+question of where numerical error concentrates are the daily material of on-device
+AI teams — the same discipline that shows up again in int8 and int4 quantisation
+on the inference engine, and again in CMSIS-NN kernels on a microcontroller.
+
+<Callout kind="note">
+This is coursework rather than independent work, and it is labelled that way on
+purpose. It earns its place by being the foundation the quantisation projects
+build on, not by pretending to be more than it is.
+</Callout>

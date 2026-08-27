@@ -1,0 +1,38 @@
+---
+title: Raft-Replicated Key-Value Store
+pitch: Consensus implemented against MIT 6.5840's adversarial test suite, then put in front of my own storage engine so a three-node cluster survives losing its leader mid-write.
+status: planned
+started: "2027-02-15"
+domains: ["systems"]
+languages: ["Go", "Rust"]
+stack: ["Raft", "Porcupine"]
+hardestThing: >-
+  The tests fail probabilistically — a bug can surface on run 40 of 50 — so the
+  only workable discipline is scripting `go test -race` in a hundred-iteration
+  loop from day one and logging every state transition with term and index, so a
+  failure is reconstructable rather than a mystery. The figure-8 case, where a
+  leader must not commit a prior term's entry by counting replicas, is the one
+  that teaches you why the paper is written the way it is.
+roleRelevance:
+  systems: 3
+  backend-infra: 3
+  ml-infra: 1
+---
+
+## Why distributed systems
+
+It is where undergraduate portfolios are weakest, which means demonstrated
+competence reads several years above your age. It is also the purest form of the
+system-level thinking that hiring managers say they are scanning for.
+
+## The arc
+
+Leader election, then log replication, then persistence, then a linearizable
+key-value service on top — each against a test harness explicitly designed to be
+adversarial about network partitions, reordering, and crashes.
+
+Then the part that makes it mine rather than a lab submission: put it in front of
+the LSM engine, so writes commit through consensus and my storage engine is the
+replicated state machine. The demo is killing the leader mid-write-storm on video
+and showing re-election with zero committed-write loss, backed by a
+linearizability checker rather than a claim.

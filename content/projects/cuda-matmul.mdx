@@ -1,0 +1,38 @@
+---
+title: CUDA Kernels, Chasing cuBLAS
+pitch: A matrix-multiply kernel optimised rung by rung toward cuBLAS, ending with the section that matters most — an honest account of why the last 15% is hard.
+status: planned
+started: "2027-05-01"
+domains: ["gpu", "ml-infra"]
+languages: ["CUDA C++"]
+stack: ["Nsight Compute", "PyTorch"]
+hardestThing: >-
+  Every rung of the optimisation ladder requires reading a profiler correctly
+  rather than guessing: deciding whether occupancy, memory throughput, or compute
+  utilisation is the binding constraint, and predicting the gain before
+  implementing the fix. Benchmarks also lie in specific ways here — measuring the
+  first launch, or never checking for kernel errors and timing a kernel that did
+  nothing.
+roleRelevance:
+  gpu: 3
+  ml-infra: 3
+  systems: 2
+---
+
+## The ladder
+
+Naive kernel → global-memory coalescing → shared-memory tiling → register
+blocking → vectorised loads and double buffering. Every rung benchmarked as a
+percentage of cuBLAS in a GFLOPS table.
+
+The target is 70–85%. Then the best section of the writeup: precisely why the
+remaining gap exists — occupancy against register pressure, instruction
+scheduling, and the microarchitectural tuning NVIDIA does not publish.
+Documented understanding of a gap signals more depth than any victory claim, and
+a suspiciously large one signals the opposite.
+
+## Phase two
+
+FlashAttention's forward pass from the paper — fused, memory-hierarchy-aware
+attention with online softmax rescaling — integrated as a PyTorch custom op and
+benchmarked end to end against the built-in scaled dot-product attention.
