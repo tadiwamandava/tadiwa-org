@@ -1,0 +1,241 @@
+/* ============================================================================
+   /resume — screen shell + print stylesheet.
+
+   Co-located rather than added to globals.css: none of this applies to any
+   other route, and App Router loads a route's CSS with the route. The print
+   block in particular has to reach outside the page (it hides the site chrome
+   the layout renders), so it uses :global — kept to three selectors, all
+   commented, because global rules from a leaf route are a debt.
+
+   ON PDF EXPORT: this stylesheet makes Cmd-P produce the document. Whether
+   there is ALSO a generated /resume.pdf — headless Chromium in CI, committed
+   as a static file, so the link in an application never depends on the reader
+   having a print dialog — is a separate decision, deferred. The print
+   stylesheet is a prerequisite for that path too, so it is not wasted either
+   way. See the note in page.tsx.
+   ========================================================================= */
+
+.page {
+  padding-block: 0;
+}
+
+/* The document itself. On screen it reads as a sheet: a bordered panel on the
+   page background, at the same measure as the rest of the site so it does not
+   look like a foreign object. In print it stops being a panel entirely. */
+.sheetWrap {
+  margin-inline: auto;
+  max-width: 48rem;
+  padding-inline: 1.25rem;
+  padding-block: 2.5rem 5rem;
+}
+
+@media (min-width: 640px) {
+  .sheetWrap {
+    padding-inline: 2rem;
+  }
+}
+
+.sheet {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background-color: var(--surface);
+  padding: 2.25rem 2rem;
+}
+
+@media (min-width: 640px) {
+  .sheet {
+    padding: 2.75rem 3rem;
+  }
+}
+
+/* Bullet marker. A hairline dash rather than a disc — matches the list style in
+   the prose block, and survives being scaled down to 9pt where a disc turns
+   into a smudge. Its own class so the print block can force it to ink black;
+   a background-color would otherwise be dropped by "no background graphics". */
+.tick {
+  position: absolute;
+  left: 0;
+  top: 0.72em;
+  display: block;
+  width: 0.45rem;
+  height: 1px;
+  background-color: var(--border-strong);
+}
+
+/* Secondary lines — dates, locations, org context. Tagged so the print block
+   can keep them a shade off black instead of flattening the whole hierarchy. */
+.meta {
+  font-variant-numeric: tabular-nums;
+}
+
+/* An unconfirmed fact. Loud by design, in both media. */
+.confirm {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 0.2em;
+}
+
+.printOnly {
+  display: none;
+}
+
+/* ============================================================================
+   PRINT
+
+   Target: one US Letter page, black on white, no site chrome, no orphaned
+   headings, and no entry split across a page break.
+   ========================================================================= */
+@media print {
+  @page {
+    size: letter;
+    margin: 0.55in;
+  }
+
+  /* 1. The page's own ground. The body carries bg-bg from the layout, which
+        would print as a cream wash on any printer with background graphics on. */
+  :global(html),
+  :global(body) {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  /* 2. Site chrome. The root layout renders the theme script, skip link,
+        <header> and <footer> as direct children of <body>, alongside <main>.
+        Hiding "every direct child that is not main" survives those moving
+        around, which naming them individually would not — and this route does
+        not own layout.tsx. */
+  :global(body > *:not(main)) {
+    display: none !important;
+  }
+
+  /* 3. <main> is a flex child in the layout; neither the flexing nor the
+        min-height means anything on paper. */
+  :global(main) {
+    flex: none !important;
+    display: block !important;
+  }
+
+  .noPrint {
+    display: none !important;
+  }
+
+  .printOnly {
+    display: revert !important;
+  }
+
+  .page,
+  .sheetWrap {
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: none !important;
+  }
+
+  .sheet {
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+    color: #000 !important;
+    /* Set in points, not rem: the browser's print root font-size is not the
+       screen's, and a résumé that comes out at 13pt is a two-page résumé. */
+    font-size: 9.3pt;
+    line-height: 1.36;
+  }
+
+  .sheet * {
+    color: #000 !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    /* Rules have to be pinned too. --border resolves to whichever theme the
+       reader had on screen, and a dark-theme visitor hitting Cmd-P would
+       otherwise get near-black hairlines on white paper. */
+    border-color: #c9c9c9 !important;
+  }
+
+  .sheet h1 {
+    font-size: 17.5pt;
+  }
+
+  .sheet h2 {
+    font-size: 7.6pt;
+    letter-spacing: 0.14em;
+  }
+
+  .sheet h3 {
+    font-size: 10pt;
+  }
+
+  /* ---- vertical rhythm, retuned for paper ------------------------------
+     Screen spacing is set in rem against a 15px root; on paper the type is
+     smaller and the page is finite, so every gap gets re-stated rather than
+     inherited. These are the numbers that decide one page vs. two. */
+  .sheet > header {
+    padding-bottom: 0.5rem !important;
+  }
+
+  .sheet ul li + li {
+    margin-top: 0.2rem !important;
+  }
+
+  .sheet ul {
+    margin-top: 0.3rem !important;
+  }
+
+  .entry + .entry {
+    margin-top: 0.65rem !important;
+  }
+
+  .meta,
+  .meta * {
+    /* Not pure black: the date column should recede on paper the same way it
+       recedes on screen, and 60% grey still clears a 300dpi laser. */
+    color: #3d3d3d !important;
+  }
+
+  .tick {
+    background-color: #000 !important;
+    /* Belt and braces: Chrome drops backgrounds unless the user ticks
+       "Background graphics", and this 1px rule is the bullet marker. */
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .confirm {
+    /* Colour is not available as a signal on a monochrome printer, so the
+       marker switches to weight. This has to survive printing — a résumé that
+       silently drops its own placeholders is the failure mode this whole file
+       exists to prevent. */
+    font-weight: 700 !important;
+    text-decoration: underline !important;
+    text-decoration-style: wavy !important;
+  }
+
+  .sheet a {
+    text-decoration: none !important;
+  }
+
+  /* Keep an entry whole. `break-inside` is the modern property; the
+     `page-break-inside` alias is still what Safari's print path honours. */
+  .entry {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* A section heading alone at the foot of a page is the classic print bug. */
+  .section h2 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .section + .section {
+    margin-top: 1rem !important;
+  }
+
+  .section > h2 {
+    margin-bottom: 0.4rem !important;
+    padding-bottom: 0.15rem !important;
+  }
+}

@@ -1,69 +1,136 @@
-import Image from "next/image";
+import Link from "next/link";
+import { Container, SectionHeading } from "@/components/ui";
+import { ProjectCard } from "@/components/project-card";
+import { PcbHero } from "@/components/pcb-hero";
+import { getFeaturedProjects, getAllProjects, getAllPosts } from "@/lib/content";
+import { SITE } from "@/lib/site";
 
-export default function Home() {
+export default function HomePage() {
+  const featured = getFeaturedProjects();
+  const fallback = featured.length > 0 ? featured : getAllProjects().slice(0, 6);
+  const posts = getAllPosts().slice(0, 3);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <>
+      {/* ---- hero -----------------------------------------------------------
+          No greeting, no "passionate developer". A screener has ~30 seconds and
+          spends them deciding whether this person does hard things. Lead with
+          the specific claim and let the projects underneath prove it. */}
+      <section className="border-b border-border">
+        <Container wide className="py-20 sm:py-28">
+          <div className="max-w-3xl">
+            <p className="font-mono text-xs tracking-[0.14em] text-accent uppercase">
+              {SITE.role}
+            </p>
+
+            <h1 className="mt-5 font-display text-display leading-[1.02] tracking-tight">
+              I build across the
+              <br />
+              hardware/software boundary.
+            </h1>
+
+            <p className="mt-7 max-w-2xl text-xl leading-relaxed text-muted">
+              Storage engines, RTOS kernels, RISC-V cores and the verification
+              rigs that prove them correct. I care most about the layer where
+              software stops being an abstraction and starts being a voltage.
+            </p>
+
+            <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-3">
+              <Link
+                href="/projects"
+                className="rounded bg-accent px-4 py-2 text-sm font-medium text-accent-contrast transition-colors hover:bg-accent-hover"
+              >
+                See the work
+              </Link>
+              <Link
+                href="/resume"
+                className="text-sm text-muted underline decoration-border underline-offset-4 transition-colors hover:text-accent"
+              >
+                Résumé
+              </Link>
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* ---- currently building --------------------------------------------
+          Recruiters track recency. Saying what is in flight — with the honest
+          "in progress" framing — beats a page of only-finished work. */}
+      <section className="border-b border-border bg-surface">
+        <Container wide className="py-4">
+          <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+            <span className="font-mono text-2xs tracking-[0.14em] text-subtle uppercase">
+              Now
+            </span>
+            <span className="text-muted">Building {SITE.nowBuilding}.</span>
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+        </Container>
+      </section>
+
+      {/* ---- the bench ------------------------------------------------------
+          The projects as one printed circuit board. Progressive enhancement:
+          this renders a server-side <ul> of project links, and only layers a
+          hand-written Canvas2D board over it once the chunk has loaded on a
+          wide-enough viewport. See src/components/pcb-hero.tsx. */}
+      <PcbHero />
+
+      <Container wide className="py-16">
+        <SectionHeading action={{ href: "/projects", label: "All projects" }}>
+          Selected work
+        </SectionHeading>
+
+        {fallback.length === 0 ? (
+          <EmptyState
+            what="projects"
+            hint="Add an .mdx file to content/projects/ — the schema in src/lib/content/schema.ts describes every field."
+          />
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {fallback.map((project) => (
+              <ProjectCard key={project.slug} project={project} />
+            ))}
+          </div>
+        )}
+      </Container>
+
+      {posts.length > 0 && (
+        <Container wide className="pb-20">
+          <SectionHeading action={{ href: "/writing", label: "All writing" }}>
+            Writing
+          </SectionHeading>
+          <ul className="divide-y divide-border border-y border-border">
+            {posts.map((post) => (
+              <li key={post.slug}>
+                <Link
+                  href={`/writing/${post.slug}`}
+                  className="group flex flex-col gap-1 py-4 sm:flex-row sm:items-baseline sm:justify-between sm:gap-8"
+                >
+                  <span className="font-display text-lg transition-colors group-hover:text-accent">
+                    {post.title}
+                  </span>
+                  <time
+                    dateTime={post.published}
+                    className="shrink-0 font-mono text-xs text-subtle tabular-nums"
+                  >
+                    {post.published}
+                  </time>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </Container>
+      )}
+    </>
+  );
+}
+
+function EmptyState({ what, hint }: { what: string; hint: string }) {
+  return (
+    <div className="rounded-lg border border-dashed border-border-strong p-10 text-center">
+      <p className="text-muted">No {what} yet.</p>
+      <p className="mx-auto mt-2 max-w-md font-mono text-xs leading-relaxed text-subtle">
+        {hint}
+      </p>
     </div>
   );
 }
