@@ -1,0 +1,53 @@
+---
+title: LLM Inference Engine
+pitch: GPT-2 inference written from scratch in C++ with no ML framework, optimised as a measured ladder from a naive forward pass to int4 quantisation.
+status: planned
+started: "2026-11-10"
+domains: ["ml-infra", "systems"]
+languages: ["C++", "Python"]
+stack: ["AVX2", "OpenMP", "Emscripten"]
+featured: true
+pinOrder: 3
+hardestThing: >-
+  The correctness bar comes before any optimisation: logits must match a
+  HuggingFace reference within floating-point tolerance on fixed prompts, checked
+  automatically in CI. Debugging a divergence at layer 3 of a transformer means
+  dumping intermediate tensors in the right order and knowing which of four
+  usual causes — layout, epsilon placement, mask sign, or head reshaping — you
+  are looking at.
+roleRelevance:
+  ml-infra: 3
+  gpu: 2
+  systems: 3
+  firmware: 1
+---
+
+## The distinction that matters
+
+"I called an LLM API" is worth approximately nothing — the market is saturated
+with wrapper apps. What is scarce is understanding what happens between the
+weights file and the token.
+
+## The ladder
+
+Optimisation as measured rungs, each with a tokens/sec number and an
+explanation, kept in a running `PERFORMANCE.md`:
+
+1. **Correct forward pass.** Embeddings, LayerNorm, multi-head attention, MLP
+   blocks, logits. Plain C++, no clever anything.
+2. **KV cache.** Typically the single largest win for generation. Derive why
+   before implementing it.
+3. **Matmul.** Loop reordering for cache locality, then blocking, then SIMD —
+   with an honest "mine vs. OpenBLAS" comparison rather than a victory claim.
+4. **Threading** across attention heads.
+5. **Quantisation.** int8 per-channel, then int4 grouped, reporting the whole
+   trade-off surface: model size, tokens/sec, perplexity delta.
+
+That last rung is the one that connects directly to on-device ML work — the same
+discipline as the CMSIS-NN kernels on the embedded side, at a different scale.
+
+## Where it ends up
+
+This engine is what will eventually run in your browser on this site, compiled
+to WebAssembly. Reading about an inference stack is one thing; watching one
+generate tokens in your own tab, with a live tokens/sec readout, is another.

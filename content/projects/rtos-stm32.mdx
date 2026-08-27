@@ -1,0 +1,47 @@
+---
+title: Bare-Metal RTOS on STM32
+pitch: A preemptive real-time kernel written from the reset vector up — no HAL, no generated code — with context-switch latency measured on a logic analyzer.
+status: planned
+started: "2026-10-15"
+domains: ["embedded"]
+languages: ["C", "ARM assembly"]
+stack: ["STM32F446", "arm-none-eabi-gcc", "OpenOCD", "GDB"]
+featured: true
+pinOrder: 2
+hardestThing: >-
+  The context switch. Fabricating a task's initial stack frame so the hardware's
+  exception-return machinery lands in a function that has never run, then
+  swapping stacks inside PendSV in assembly without corrupting the frame the CPU
+  stacked for you. Get one register or the xPSR Thumb bit wrong and it hard-faults
+  with no diagnostic beyond a program counter.
+roleRelevance:
+  firmware: 3
+  systems: 2
+  silicon-validation: 2
+  rtl-fpga: 1
+---
+
+## The plan
+
+Delete the vendor scaffolding and write what it was hiding: the linker script,
+the vector table, the reset handler that copies `.data` and zeroes `.bss`, and
+the clock-tree configuration — flash wait states before the frequency jump, or
+it faults.
+
+Then drivers straight from the reference manual: GPIO, UART with ring buffers,
+SysTick, I²C, SPI. **Every driver's first successful transaction gets captured on
+a logic analyzer and committed to the repo.** An annotated I²C trace showing
+start, address, ACK, and data phases is worth more than a paragraph claiming the
+driver works.
+
+Then the kernel: task control blocks, a context switch in PendSV, preemptive
+round-robin on the SysTick tick, blocking delays that consume zero cycles, and a
+mutex with priority inheritance — which means owning the priority-inversion story
+rather than reciting it.
+
+## Proof on wires
+
+Each task toggles a distinct GPIO. The logic analyzer captures the interleaving,
+and `DWT->CYCCNT` measures the switch cost in cycles. Both go in the README,
+because "it works" and "it switches in N cycles, here is the capture" are
+different claims.

@@ -1,0 +1,47 @@
+---
+title: LSM Storage Engine
+pitch: A crash-safe key-value store that real redis-cli connects to, with a log-structured merge tree underneath — the hard part is compaction that never loses a key.
+status: planned
+started: "2026-08-25"
+domains: ["systems"]
+languages: ["Rust"]
+stack: ["tokio", "proptest", "criterion"]
+featured: true
+pinOrder: 1
+hardestThing: >-
+  Compaction is where this class of project dies. Merging sorted files while
+  concurrent writes land, tombstones expire, and a crash can arrive between any
+  two syscalls means bugs corrupt data silently and surface hours later. The
+  mitigation is property-based testing from the first commit — random operation
+  sequences checked against a plain HashMap model — plus a manifest log so a
+  crash mid-compaction is replayable rather than fatal.
+roleRelevance:
+  systems: 3
+  backend-infra: 3
+  ml-infra: 1
+  generalist-swe: 2
+---
+
+## The plan
+
+A storage engine, built in four milestones, because it composes the four things
+every systems interview actually probes: data structures on disk, OS interfaces,
+concurrency, and performance measurement.
+
+1. **A RESP-speaking server.** Enough of the Redis wire protocol that the real
+   `redis-cli` connects and issues `GET`/`SET`/`DEL`. The moment an unmodified
+   client talks to your binary is the moment the project becomes demonstrable.
+2. **Persistence and crash recovery.** Write-ahead log, a configurable fsync
+   policy, and a test that `kill -9`s the server mid-write-storm and verifies
+   every acknowledged write survived. That test runs in CI.
+3. **The LSM tree.** Memtable, sorted immutable SSTables with sparse indexes,
+   bloom filters, and background compaction.
+4. **Concurrency.** Many clients, readers that don't block on compaction, and a
+   flamegraph identifying where the time actually goes.
+
+## Why this one
+
+Almost every backend I use sits on a storage engine I couldn't explain past a
+block diagram. The interesting problems — the durability-versus-throughput
+cliff, compaction without corruption, reads across immutable layers — only
+become real when you have to make them work.

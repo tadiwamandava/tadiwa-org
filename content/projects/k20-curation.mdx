@@ -1,0 +1,137 @@
+---
+title: K20 Content Curation Platform
+pitch: A production content-curation app for a real client, where the hard part was migrating a live JSX codebase to TypeScript without pausing feature delivery.
+status: shipped
+started: "2025-01-15"
+finished: "2025-08-30"
+domains: ["web", "ops"]
+languages: ["TypeScript", "JavaScript", "SQL"]
+stack: ["React", "AdonisJS", "PostgreSQL", "Vite"]
+featured: true
+pinOrder: 5
+sourceAvailable: false
+sourceNote: >-
+  Client-owned codebase, so there is no public repository. Everything below is
+  architecture and decision-making I can walk through in detail; happy to screen-share
+  the running application in an interview.
+
+hardestThing: >-
+  The codebase was plain JSX with no type coverage, already deployed and in use, and
+  the feature roadmap could not stop for a rewrite. The work was migrating it to
+  TypeScript incrementally — module by module, keeping the build green and the app
+  shipping the whole way — rather than doing the big-bang rewrite that usually
+  strands a project half-converted.
+
+metrics:
+  - value: "TODO"
+    label: "active users"
+    title: "CONFIRM: pull the real number before this goes live"
+  - value: "TODO"
+    label: "records curated"
+  - value: "8 mo"
+    label: "in production"
+
+decisions:
+  - made: Incremental TypeScript migration, file-by-file, with `allowJs` on
+    rejected: A big-bang rewrite on a long-lived branch
+    why: >-
+      A rewrite branch would have diverged from a codebase that was still shipping
+      features weekly, and every day of divergence made the merge worse. Keeping
+      `allowJs: true` meant typed and untyped modules coexisted, so every commit was
+      deployable and the migration could pause whenever a feature took priority.
+  - made: AdonisJS over a bare Express setup
+    rejected: Express with hand-assembled middleware, validation, and ORM
+    why: >-
+      A solo developer on a client deadline cannot also maintain a bespoke framework.
+      Adonis brought validation, migrations, and an ORM as one coherent piece with
+      one set of conventions. The cost is a smaller ecosystem than Express — a real
+      trade I would make again at this team size, and would reconsider on a team of five.
+  - made: PostgreSQL with explicit migrations from day one
+    rejected: A document store, or an ORM with auto-syncing schema
+    why: >-
+      The content model was relational — items, collections, tags, and curators with
+      real foreign keys between them. Auto-sync schema tools are pleasant until the
+      first production data migration, at which point the absence of a reviewable
+      migration history becomes the problem.
+
+wouldDoDifferently:
+  - >-
+    Turn on `strict` mode at the very start with the whole codebase in `allowJs`,
+    rather than enabling strictness per-module. Ratcheting strictness later meant
+    revisiting files I had already converted once.
+  - >-
+    Write the seed script in week one. I tested against hand-made data far longer than
+    I should have, which hid at least one ordering bug that only appeared with
+    realistic volume.
+  - >-
+    Instrument earlier. I had no request-latency visibility until late, so performance
+    conversations with the client were qualitative when they should have been numeric.
+
+resumeBullets:
+  - >-
+    TODO(tadiwa): rewrite with a real number — e.g. "Migrated a deployed 12k-line
+    React codebase from JSX to TypeScript incrementally, maintaining a green build and
+    weekly releases across the entire migration."
+  - >-
+    TODO(tadiwa): quantify — "Designed and shipped a PostgreSQL-backed curation
+    platform (React + AdonisJS) serving N users for a real client."
+
+roleRelevance:
+  generalist-swe: 3
+  backend-infra: 2
+  product: 3
+  systems: 1
+
+# No public artifacts: the codebase is client-owned and there is no deployed
+# URL I can share. `sourceNote` above says so explicitly rather than leaving a
+# reader to wonder why a shipped project has no repository link.
+artifacts: []
+---
+
+## What it is
+
+A content-curation platform built for a real client: curators sign in, pull items into
+collections, tag and order them, and publish the result to a public-facing view. React
+front end, AdonisJS API, PostgreSQL underneath, deployed and used in production.
+
+The interesting engineering was not the CRUD. It was that the application was already
+live when the largest change — full TypeScript adoption — had to happen.
+
+## The migration, concretely
+
+The starting point was a JSX codebase with no type coverage and an active feature
+roadmap. The approach:
+
+1. **Turn on `allowJs` and `checkJs: false`.** Both languages compile. Nothing breaks.
+2. **Convert leaf-first.** Utility modules and types have no internal dependents, so
+   converting them can't cascade. Each one lands as its own small, reviewable commit.
+3. **Model the domain before the components.** Once `Item`, `Collection`, `Tag`, and
+   `Curator` were real types, converting the components that consumed them became
+   mechanical — and the compiler started finding actual bugs rather than restating
+   what I already knew.
+4. **Ratchet, never loosen.** Once a module compiled under strict settings, it stayed
+   there.
+
+The payoff was the class of bug that stopped happening: the API returned nullable
+fields that the UI rendered unconditionally, and TypeScript surfaced every one of those
+sites at compile time instead of leaving them for a curator to find.
+
+## What production taught me
+
+Real users on a real deadline changed how I work more than any of the technical
+content did:
+
+- **A deploy is not a finish line.** The first week after launch produced more
+  requirements than the whole design phase — not because the design was wrong, but
+  because people only discover what they need once they can touch it.
+- **Client feedback is usually a symptom, not a diagnosis.** "The list feels slow" was
+  a rendering problem on one screen and a query problem on another. Both arrived
+  phrased identically.
+- **Boring is a feature.** Nothing about this stack is novel, and that was the correct
+  call: the novelty budget went into shipping and operating it, which is what the
+  client was actually paying for.
+
+<Callout kind="note">
+This codebase is client-owned, so there is no public repository. The architecture,
+the migration strategy, and every decision above are mine to discuss in detail.
+</Callout>

@@ -1,0 +1,28 @@
+---
+title: grep, Rebuilt and Benchmarked
+pitch: A working grep clone whose real deliverable is the benchmark section explaining, honestly, why ripgrep is still several times faster.
+status: planned
+started: "2026-09-20"
+domains: ["systems"]
+languages: ["Rust"]
+stack: ["memchr", "hyperfine", "cargo-flamegraph"]
+hardestThing: >-
+  Correctness is the easy half. The instructive half is profiling your own slow
+  implementation, predicting the hotspot before opening the flamegraph, being
+  wrong, and then following the measurement to memory-mapped I/O and
+  SIMD-accelerated literal search.
+roleRelevance:
+  systems: 2
+  generalist-swe: 1
+---
+
+## The point is the gap
+
+Anyone can reimplement `grep`. The value is in benchmarking it against system
+grep and ripgrep on a large corpus, implementing exactly one optimisation,
+re-measuring, and reporting the delta — then writing the section titled "why
+ripgrep still wins."
+
+Honest gap analysis reads as competence. A benchmark table where your toy
+implementation beats the state of the art reads as a methodology error, and an
+interviewer will find it.

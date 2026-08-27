@@ -1,0 +1,56 @@
+---
+title: RISC-V Core + Verification Environment
+pitch: A pipelined RV32I processor on an FPGA, plus the constrained-random verification rig that proves it correct — two artifacts, because verification is where the intern slots actually are.
+status: planned
+started: "2027-02-01"
+domains: ["silicon"]
+languages: ["SystemVerilog", "Python"]
+stack: ["Verilator", "Vivado", "Basys 3", "GTKWave"]
+featured: true
+pinOrder: 4
+hardestThing: >-
+  Forwarding and hazard logic in a five-stage pipeline produce bugs that only
+  appear for specific instruction adjacencies, which directed tests almost never
+  generate. The answer is differential testing: run thousands of random programs
+  against both the core and a reference instruction-set simulator, and diff the
+  architectural state after every retired instruction. The rig finds in minutes
+  what waveform-staring finds in days.
+roleRelevance:
+  design-verification: 3
+  rtl-fpga: 3
+  silicon-validation: 2
+  firmware: 1
+---
+
+## Why the verification half exists
+
+Roughly 60% of chip-design effort is verification, and the undergraduate
+pipeline into it is nearly empty — students consider it unglamorous, mostly
+without ever learning what it is. Verification is adversarial systems thinking:
+you are trying to break something on purpose, with evidence.
+
+So this project deliberately produces **two** things: a designed core, and a
+serious environment that proves it correct.
+
+## The rig
+
+- **A self-checking testbench.** The core runs alongside a reference ISS I write
+  in Python; every retired instruction's architectural state is compared
+  automatically.
+- **Constrained-random program generation.** Random-but-legal instruction
+  sequences — arithmetic first, then memory ops with address constraints, then
+  branches with bounded targets — thousands of programs a night in CI.
+- **Functional coverage.** Which opcodes, hazard patterns, and branch outcomes
+  the random tests have actually exercised, so generation can be steered at the
+  holes.
+- **Assertions** for the invariants: `x0` reads zero, no writeback conflicts, PC
+  alignment.
+
+That is UVM's methodology — stimulus, checking, coverage — without the UVM
+boilerplate, and it is describable in exactly those terms.
+
+## The log that matters
+
+Every bug the random tests catch that directed tests missed gets logged:
+symptom, cause, fix, lesson. That file is the most interview-useful artifact the
+project produces.
