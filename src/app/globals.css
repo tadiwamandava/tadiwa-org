@@ -1,26 +1,543 @@
 @import "tailwindcss";
 
+/* ============================================================================
+   TOKENS — the whole design system lives here.
+
+   PALETTE: slate + one teal.
+   A neutral slate ramp carries structure (roughly 60% white page / 30% light
+   grey surfaces) and a single teal accent carries action (roughly 10%). There
+   is no third hue. What is not carried by hue is carried by TONE — the only
+   channel that survives greyscale, colour-vision deficiency, cheap monitors
+   and print.
+
+   ONE DELIBERATE DEVIATION FROM THE BRIEF, and the reason for it:
+   the specified accent #0D9488 (teal-600) measures 3.74:1 on white. That
+   fails WCAG AA (4.5:1) in BOTH directions — as link text on the page, and as
+   a white button label on a teal fill. So `--accent` is teal-700 #0F766E
+   (5.47:1), which is visually the same colour at the 10% coverage an accent
+   gets, and legible. The brief's #0D9488 survives as `--accent-bright`, used
+   only where 3:1 is the real requirement: focus rings, chart bars, the status
+   dot — never for text.
+
+   Consequences worth knowing before you edit:
+     - `--status-*` are not three hues. `building` is the accent (it is the
+       live work, and the pill already pulses); `shipped` is the heaviest
+       neutral; `planned` is the lightest that still clears AA. The text label
+       in <StatusPill> names the state — colour only ranks them.
+     - `--chart-mine` / `--chart-reference` are an emphasis hierarchy, not a
+       categorical pair: the subject is saturated, the baseline is near-grey.
+
+   Structural rules (enforced by scripts/check-contrast.ts in CI):
+     - Every colour is defined on bare :root first (light).
+     - Dark overrides appear twice: under prefers-color-scheme (guarded so an
+       explicit light choice wins) and under [data-theme="dark"] (so the toggle
+       wins in both directions). The two blocks must be byte-identical.
+     - No colour gets its ONLY definition inside a media query.
+
+   Layering rules:
+     - Token blocks, @theme, @keyframes, @view-transition and the
+       reduced-motion reset stay UNLAYERED so they outrank everything.
+     - Element defaults live in @layer base and component classes in
+       @layer components, so Tailwind utilities (@layer utilities) can override
+       them. Unlayered CSS beats every layer — putting `h2 { font-family }` at
+       the top level silently defeats `class="font-mono"`.
+   ========================================================================= */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* --- surfaces: white page, two grey steps ---------------------------- */
+  --bg: #ffffff;
+  --surface: #f8fafc;
+  --surface-2: #f1f5f9;
+
+  /* --- text ------------------------------------------------------------ */
+  --text: #0f172a;
+  --text-muted: #475569;
+  --text-subtle: #55637a;
+
+  /* --- lines -----------------------------------------------------------
+     --border is a decorative hairline. --border-strong identifies a control
+     (inputs, toggles) and therefore clears WCAG 1.4.11's 3:1. Do not swap. */
+  --border: #e2e8f0;
+  --border-strong: #7c8ca1;
+
+  /* --- accent ---------------------------------------------------------- */
+  --accent: #0f766e;
+  --accent-hover: #115e59;
+  --accent-contrast: #ffffff;
+  --accent-subtle: #f0fdfa;
+  /* Brief's teal-600. Non-text use only — see the header. */
+  --accent-bright: #0d9488;
+
+  /* --- project status: ranked by tone, named by the label -------------- */
+  --status-shipped: #334155;
+  --status-building: #0f766e;
+  --status-planned: #55637a;
+
+  /* --- benchmark marks: emphasis hierarchy, not a categorical pair -----
+     A step darker than --accent on purpose. Against the near-grey baseline the
+     accent itself measured only ΔE 14.8, under the 15 floor the gate enforces;
+     teal-800 clears it at 20.8, and a deeper tone reads better as a large fill
+     than it would as link text. */
+  --chart-mine: #115e59;
+  --chart-reference: #7c8ca1;
+
+  --focus: #0f766e;
+
+  color-scheme: light;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
+/* System preference = dark, and the user has NOT explicitly chosen light. */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  :root:not([data-theme="light"]) {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --surface-2: #293548;
+
+    --text: #f8fafc;
+    --text-muted: #cbd5e1;
+    --text-subtle: #94a3b8;
+
+    --border: #334155;
+    --border-strong: #64748b;
+
+    --accent: #2dd4bf;
+    --accent-hover: #5eead4;
+    --accent-contrast: #0f172a;
+    --accent-subtle: #134e4a;
+    --accent-bright: #2dd4bf;
+
+    --status-shipped: #e2e8f0;
+    --status-building: #2dd4bf;
+    --status-planned: #94a3b8;
+
+    --chart-mine: #2dd4bf;
+    --chart-reference: #7c8ca1;
+
+    --focus: #2dd4bf;
+
+    color-scheme: dark;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Explicit dark choice always wins. Values duplicated on purpose — see header. */
+:root[data-theme="dark"] {
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --surface-2: #293548;
+
+  --text: #f8fafc;
+  --text-muted: #cbd5e1;
+  --text-subtle: #94a3b8;
+
+  --border: #334155;
+  --border-strong: #64748b;
+
+  --accent: #2dd4bf;
+  --accent-hover: #5eead4;
+  --accent-contrast: #0f172a;
+  --accent-subtle: #134e4a;
+  --accent-bright: #2dd4bf;
+
+  --status-shipped: #e2e8f0;
+  --status-building: #2dd4bf;
+  --status-planned: #94a3b8;
+
+  --chart-mine: #2dd4bf;
+  --chart-reference: #7c8ca1;
+
+  --focus: #2dd4bf;
+
+  color-scheme: dark;
+}
+
+/* ============================================================================
+   Expose tokens to Tailwind. `inline` keeps the var() reference live so the
+   theme switch is a single attribute change with no class churn.
+   ========================================================================= */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-text: var(--text);
+  --color-muted: var(--text-muted);
+  --color-subtle: var(--text-subtle);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-contrast: var(--accent-contrast);
+  --color-accent-subtle: var(--accent-subtle);
+  --color-accent-bright: var(--accent-bright);
+  --color-shipped: var(--status-shipped);
+  --color-building: var(--status-building);
+  --color-planned: var(--status-planned);
+  --color-chart-mine: var(--chart-mine);
+  --color-chart-reference: var(--chart-reference);
+
+  /* TYPE — Helvetica Neue, with a real fallback chain.
+     Deliberately NOT loaded via next/font: Helvetica Neue is a system face on
+     macOS/iOS and has no web-font equivalent worth shipping, so the site now
+     downloads ZERO font files. That removes ~90KB from the critical path and
+     eliminates font-swap layout shift entirely. Windows and Linux fall through
+     to Arial / Liberation Sans, which are metrically close enough that the
+     layout does not move. */
+  --font-sans:
+    "Helvetica Neue", Helvetica, Arial, "Segoe UI", Roboto, system-ui,
+    sans-serif;
+  --font-display: var(--font-sans);
+  --font-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+
+  /* Fluid type scale. Steps are ~1.2 minor third at the small end, opening to
+     ~1.33 at display sizes where the viewport can afford it. */
+  --text-2xs: 0.6875rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-lg: 1.0625rem;
+  --text-xl: clamp(1.1875rem, 0.4vw + 1.1rem, 1.375rem);
+  --text-2xl: clamp(1.4375rem, 0.9vw + 1.25rem, 1.75rem);
+  --text-3xl: clamp(1.75rem, 1.6vw + 1.4rem, 2.25rem);
+  --text-4xl: clamp(2.125rem, 2.8vw + 1.5rem, 3rem);
+  --text-display: clamp(2.5rem, 6.2vw + 0.9rem, 4.75rem);
+
+  --radius-sm: 4px;
+  --radius: 6px;
+  --radius-lg: 10px;
+
+  /* Content measure — ~68ch is the readable ceiling for long prose. */
+  --container-measure: 68ch;
+  --container-wide: 76rem;
+}
+
+/* ============================================================================
+   BASE — element defaults only.
+
+   This MUST be inside @layer base. Tailwind's utilities live in
+   @layer utilities, and unlayered CSS outranks every layer regardless of
+   specificity, so an unlayered `h2 { font-family: … }` beats `font-mono` on
+   an <h2> and there is no class you can add to win.
+   ========================================================================= */
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: 1.65;
+    font-feature-settings: "kern", "liga", "calt";
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Tabular numerals everywhere a number is compared to another number.
+     Benchmark tables are unreadable without this. */
+  .tnum,
+  table,
+  time,
+  [data-numeric] {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+
+  /* Display serif is the DEFAULT for headings, not a decree — section labels
+     opt out with `font-mono`, which works because this rule is layered. */
+  h1,
+  h2,
+  h3,
+  h4 {
+    /* A grotesque needs more negative tracking and more weight than the
+       serif it replaced, or large headings read loose and thin. */
+    font-family: var(--font-display);
+    font-weight: 700;
+    line-height: 1.08;
+    letter-spacing: -0.028em;
+    text-wrap: balance;
+  }
+
+  p,
+  li {
+    text-wrap: pretty;
+  }
+
+  code,
+  kbd,
+  pre,
+  samp {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+  }
+
+  a {
+    color: inherit;
+    text-underline-offset: 0.2em;
+    text-decoration-thickness: from-font;
+  }
+
+  /* ---- focus: visible, high-contrast, never removed --------------------- */
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  ::selection {
+    background-color: var(--accent-subtle);
+    color: var(--text);
+  }
+}
+
+/* ============================================================================
+   COMPONENTS
+
+   PROSE — hand-rolled instead of @tailwindcss/typography. The plugin is good,
+   but its defaults are recognisable on sight and the whole point of this site
+   is not looking like a template.
+
+   In @layer components so a utility on an element inside .prose still wins.
+   ========================================================================= */
+
+@layer components {
+  /* ---- skip link --------------------------------------------------------- */
+  .skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 100;
+    padding: 0.6rem 1rem;
+    background-color: var(--accent);
+    color: var(--accent-contrast);
+    border-radius: 0 0 var(--radius) 0;
+  }
+  .skip-link:focus {
+    left: 0;
+  }
+
+  .prose {
+    font-size: var(--text-lg);
+    line-height: 1.72;
+    color: var(--text);
+  }
+
+  .prose > * + * {
+    margin-top: 1.15em;
+  }
+
+  .prose h2 {
+    font-size: var(--text-2xl);
+    margin-top: 2.4em;
+    margin-bottom: 0.1em;
+    scroll-margin-top: 5rem; /* clears the sticky header on anchor jumps */
+  }
+
+  .prose h3 {
+    font-size: var(--text-xl);
+    margin-top: 1.9em;
+    margin-bottom: 0.1em;
+    scroll-margin-top: 5rem;
+  }
+
+  .prose h2 + *,
+  .prose h3 + * {
+    margin-top: 0.55em;
+  }
+
+  .prose a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in oklab, var(--accent) 35%, transparent);
+    transition: text-decoration-color 120ms ease;
+  }
+  .prose a:hover {
+    text-decoration-color: var(--accent);
+  }
+
+  /* Heading anchors: present for keyboard and mouse, quiet until hovered. */
+  .prose .heading-anchor {
+    color: var(--text-subtle);
+    text-decoration: none;
+    opacity: 0;
+    margin-left: 0.35em;
+    font-weight: 400;
+    transition: opacity 120ms ease;
+  }
+  .prose h2:hover .heading-anchor,
+  .prose h3:hover .heading-anchor,
+  .prose .heading-anchor:focus-visible {
+    opacity: 1;
+  }
+
+  .prose ul,
+  .prose ol {
+    padding-left: 1.35em;
+  }
+  .prose ul {
+    list-style: none;
+  }
+  .prose ul > li {
+    position: relative;
+  }
+  .prose ul > li::before {
+    content: "";
+    position: absolute;
+    left: -1em;
+    top: 0.72em;
+    width: 5px;
+    height: 1px;
+    background-color: var(--border-strong);
+  }
+  .prose ol {
+    list-style: decimal;
+  }
+  .prose ol > li::marker {
+    color: var(--text-subtle);
+    font-variant-numeric: tabular-nums;
+  }
+  .prose li + li {
+    margin-top: 0.4em;
+  }
+
+  .prose blockquote {
+    border-left: 2px solid var(--accent);
+    padding-left: 1.1em;
+    font-style: italic;
+    color: var(--text-muted);
+  }
+
+  .prose :not(pre) > code {
+    background-color: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.1em 0.34em;
+    font-size: 0.86em;
+    white-space: nowrap;
+  }
+
+  .prose pre {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1em 1.15em;
+    overflow-x: auto;
+    font-size: var(--text-sm);
+    line-height: 1.6;
+  }
+  .prose pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    white-space: pre;
+  }
+
+  .prose hr {
+    border: 0;
+    border-top: 1px solid var(--border);
+    margin: 2.5em 0;
+  }
+
+  .prose table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+  }
+  .prose th,
+  .prose td {
+    text-align: left;
+    padding: 0.5em 0.8em;
+    border-bottom: 1px solid var(--border);
+  }
+  .prose th {
+    font-weight: 600;
+    color: var(--text-muted);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* Any wide block scrolls inside itself. The page body must never scroll
+     horizontally — that is the most common mobile failure on portfolio
+     sites. */
+  .prose .scroll-x {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* ---- Shiki dual-theme ------------------------------------------------
+     rehype-pretty-code emits both palettes as custom properties; we pick one.
+     Highlighting is done at BUILD time, so this costs zero runtime JS. */
+  .prose pre code span {
+    color: var(--shiki-light);
+  }
+  :root[data-theme="dark"] .prose pre code span {
+    color: var(--shiki-dark);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .prose pre code span {
+      color: var(--shiki-dark);
+    }
+  }
+}
+
+/* ============================================================================
+   MOTION — every animation is opt-out. No exceptions.
+
+   Unlayered on purpose: the reduced-motion reset uses !important and must beat
+   any utility, and @keyframes are not subject to the cascade anyway.
+   ========================================================================= */
+
+/* Status dot on in-flight work. Decorative only; the label carries the meaning. */
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* ============================================================================
+   VIEW TRANSITIONS — progressive enhancement; absent support degrades to a
+   normal navigation with zero layout difference.
+   ========================================================================= */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 180ms;
+  animation-timing-function: cubic-bezier(0.2, 0, 0.13, 1);
 }
