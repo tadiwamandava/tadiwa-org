@@ -1,0 +1,41 @@
+[package]
+name = "hnsw"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+description = "Hierarchical Navigable Small World index, hand-written, compiled to WebAssembly for tadiwa.org"
+license = "MIT"
+publish = false
+
+[lib]
+# cdylib  -> the .wasm artefact wasm-bindgen post-processes
+# rlib    -> lets `cargo test` link the crate natively, so the algorithm is
+#            tested on the host at full speed instead of through a browser.
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+# The ONLY dependency, on purpose. The graph, the priority queues, the
+# neighbour-selection heuristic and the PRNG are all in this crate — a vector
+# index that `use`s someone else's vector index is not an artefact, it is a
+# wrapper. wasm-bindgen is here solely to marshal typed arrays across the
+# JS/WASM boundary, which is not the interesting part.
+wasm-bindgen = "0.2"
+
+[profile.release]
+# `s` rather than `3`: this is a graph walk over a 100-ish node index, so the
+# wall-clock difference between size- and speed-optimised code is under a
+# millisecond, while the download difference is tens of kilobytes on a budget
+# that is already the whole point of the page.
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+
+# wasm-pack's bundled wasm-opt rejects the reference-types/multivalue output
+# that current wasm-bindgen emits ("error validating input"). The unoptimised
+# artefact is ~43 KB and gzips to well under half that, which is already far
+# inside the budget this page is measured against — so the optimiser is not
+# worth pinning a toolchain over. Revisit if the .wasm ever gets large.
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
