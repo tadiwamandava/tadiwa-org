@@ -39,3 +39,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Lighthouse CI reports (~40MB per local run)
+/.lighthouseci/
+
+# Self-hosted embedding weights (~22MB). Regenerate with 'npm run build:model'.
+/public/models/
+# wasm-pack output
+/crates/*/pkg/
+/crates/*/target/

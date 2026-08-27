@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A superseded run has nothing useful to say.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Ordered cheapest-first so a typo fails in seconds rather than after a
+      # full build. `typecheck` runs `next typegen` first — without it, route
+      # types lag behind newly added routes and typecheck fails on files that
+      # are actually correct.
+      - name: Types
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      # Parses the real token blocks out of globals.css and asserts WCAG AA in
+      # both themes, plus parity between the two dark blocks. Fails the build.
+      - name: Contrast (WCAG AA, both themes)
+        run: npm run check:contrast
+
+      # Validates every MDX file against the Zod corpus schema.
+      - name: Content schema
+        run: npm run check:content
+
+      # Runs the shipped lexical index through the shipped scorer. Guards
+      # against the two copies of tokenize() (build script vs runtime) drifting
+      # apart, which would break search silently and without any error.
+      # The index artefacts are committed, so this needs no model download.
+      - name: Search quality
+        run: npm run check:search
+
+      - name: Build
+        run: npm run build
+
+      # Sums the JS the home page actually ships on first paint, straight
+      # from .next's build manifests — deliberately excluding anything behind
+      # next/dynamic (the PCB-hero canvas, the ⌘K palette, the HNSW wasm and
+      # the embedding model must never count against paint). See scripts/check-bundle.ts for why `next
+      # build`'s own output can't be scraped for this on Next 16.
+      - name: Bundle size
+        run: npm run check:bundle
+
+      # Builds again (cheap here: Turbopack reuses the .next/cache the Build
+      # step just warmed), serves the real production output on :3600, and
+      # asserts Lighthouse's performance/accessibility/best-practices/SEO
+      # scores plus explicit LCP and CLS budgets against every route listed
+      # in lighthouserc.cjs. Runs last — it's the most expensive gate, and
+      # everything above it fails faster on a simpler problem.
+      #
+      # Needs a real browser; ubuntu-latest ships Google Chrome, which
+      # chrome-launcher finds automatically.
+      - name: Lighthouse budgets
+        run: npx lhci autorun --config=./lighthouserc.cjs
+
+      # Reports (score breakdowns, traces, screenshots) for every run above,
+      # kept whether the gate passed or failed — a failing score is much
+      # easier to debug with the actual report than with a pass/fail line.
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: .lighthouseci
+          retention-days: 14

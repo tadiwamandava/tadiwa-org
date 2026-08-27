@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // wasm-bindgen output: generated, vendored, and not ours to style.
+    "crates/**",
+    "src/lib/search/hnsw-glue.js",
   ]),
 ]);
 

@@ -13,6 +13,11 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
+    // The scripts in scripts/ are run directly by Node's native TypeScript
+    // loader, which needs the explicit `.ts` extension on relative imports to
+    // resolve them. Legal here because `noEmit` is on — tsc never has to
+    // rewrite the specifier.
+    "allowImportingTsExtensions": true,
     "plugins": [
       {
         "name": "next"
