@@ -256,7 +256,18 @@ async function main() {
 
   console.log(`  Loading ${MODEL} …  (first run downloads it; subsequent runs are cached)`);
   const { pipeline } = await import("@huggingface/transformers");
-  const embed = await pipeline("feature-extraction", MODEL, { dtype: "fp32" });
+  // q8, NOT fp32 — for two independent reasons.
+  //
+  // 1. CORRECTNESS. The browser embeds QUERIES with the q8 model (see
+  //    lib/search/engine.ts). Embedding documents at a different precision
+  //    puts the two sides in slightly different numeric spaces, which quietly
+  //    costs retrieval accuracy for no benefit.
+  // 2. REPRODUCIBILITY. `dtype: "fp32"` only ever downloads onnx/model.onnx.
+  //    scripts/copy-model.sh copies onnx/model_quantized.onnx, so on a clean
+  //    machine `build:model` failed right after `build:search` with "No such
+  //    file or directory" — it only appeared to work locally because an
+  //    unrelated q8 load had already warmed that file into the cache.
+  const embed = await pipeline("feature-extraction", MODEL, { dtype: "q8" });
 
   const vectors: Float32Array[] = [];
   let dim = 0;

@@ -18,7 +18,12 @@ than an obviously missing one — and an interviewer *will* ask about the number
       personal Gmail. If you'd rather have no public email, delete the field and
       the footer entry instead of leaving it empty.
 - [ ] `nowBuilding` — the "Now" strip on every page. Keep it current; it is the
-      recency signal, and a stale one is worse than none.
+      recency signal, and a stale one is worse than none. It currently reads
+      "an LSM storage engine in Rust, and a bare-metal RTOS on STM32" —
+      `lsm-storage-engine.mdx` is still `status: planned`, and
+      `rtos-stm32.mdx` has a `started` date in the future. Either the strip is
+      ahead of the content, or the content's dates need updating; re-check
+      both against reality together.
 
 ## 2. Education — `src/lib/resume-data.ts`
 
@@ -62,16 +67,25 @@ specifically.
 - [ ] `metrics` — active users, records curated (2 placeholders)
 - [ ] `resumeBullets` — 2 bullets, quantified
 
-This is your only currently-shipped software project, so these numbers carry
-real weight. If you genuinely don't have user counts, replace the metric with
-something you *can* measure — codebase size, uptime, release cadence — rather
-than deleting the section.
+`dsp-audio-denoising` shipped alongside this one and already has real,
+non-placeholder `resumeBullets` — its only remaining marker is a `TODO(tadiwa)`
+inside a YAML comment (a note to self about a possible future number), which
+`check:content` still lists but which never reaches the rendered page. K20 is
+the one still showing placeholder text where a reader can actually see it —
+the metric cards and the résumé bullets. It's also the bigger of the two (a
+real client, a live migration), so these numbers carry the most weight. If
+you genuinely don't have user counts, replace the metric with something you
+*can* measure — codebase size, uptime, release cadence — rather than deleting
+the section.
 
 ## 7. Project statuses — `content/projects/*.mdx`
 
-Everything except `k20-curation` and `dsp-audio-denoising` is currently marked
-`status: planned` with target dates drawn from your 12-month calendar. That is
-the safe default — `planned` can never be an overclaim.
+Still accurate: everything except `k20-curation` and `dsp-audio-denoising` is
+marked `status: planned` with target dates drawn from your 12-month calendar.
+Both shipped projects already carry a `finished` date, so the content gate's
+"`shipped` needs `finished`" rule is satisfied for both — nothing to fix
+there. That is the safe default for the rest — `planned` can never be an
+overclaim.
 
 - [ ] Promote anything actually underway to `building`, or finished to `shipped`
       (a `shipped` project also needs a `finished` date — the content gate
@@ -80,5 +94,9 @@ the safe default — `planned` can never be an overclaim.
 
 ## 8. Deployment
 
-- [ ] Point `tadiwa.org` at the deploy
-- [ ] Confirm `SITE.url` matches — it drives OG tags, the sitemap, and robots.txt
+- [x] `SITE.url` is `https://tadiwa.org` in `src/lib/site.ts` — already
+      correct, drives OG tags, the sitemap, and `robots.txt`. Re-check this
+      only if the domain ever changes.
+- [ ] Point `tadiwa.org` at an actual Vercel deployment. The code has been
+      ready for this since the URL above was set; what's missing is the
+      hosting + DNS action, not a code change. `DEPLOY.md` is the runbook.

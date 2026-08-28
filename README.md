@@ -18,8 +18,8 @@ So the constraints here are deliberately awkward:
   visitor's browser.
 - **The interactive layer has to be real** without making the site invisible.
   Canvas content cannot be read by screen readers, ATS parsers, or search
-  crawlers, so the Phaser board is an enhancement over server-rendered HTML —
-  never a replacement for it.
+  crawlers, so the hand-drawn Canvas2D board is an enhancement over
+  server-rendered HTML — never a replacement for it.
 - **Correctness has to be enforced, not claimed.** Accessibility, content
   integrity, and performance are build gates. A site that argues for rigour and
   ships a 3:1 contrast failure is arguing against itself.
@@ -41,6 +41,34 @@ a project will invent numbers. A model asked to *select from* pre-vetted bullets
 cannot. Every benchmark requires `hardware`, `methodology`, and a `gapAnalysis`
 paragraph; every design decision requires the alternative that was `rejected`.
 
+## Search
+
+⌘K opens a two-stage search, mounted globally in the root layout. The first
+keystroke is answered by BM25 over a small inverted index — already loaded,
+synchronous, no network round-trip. Only on an explicit click does the second
+stage load: a quantised sentence-transformer embeds the query in the browser
+and an HNSW graph I wrote in Rust re-ranks it. The UI states which stage
+answered the list on screen, and if the semantic stage cannot come up — no
+model on the deployment, a blocked fetch, whatever — the palette says so
+rather than quietly serving lexical results under a "semantic" label.
+
+- **Index** — `crates/hnsw`, Rust compiled to WebAssembly with `wasm-pack`.
+  43,175 bytes raw, 18,381 gzip. 10 tests (`npm run test:rust`), including a
+  recall@10 ≥ 0.90 assertion against a brute-force scan of the same vectors.
+- **Corpus** — 99 chunks built from the same `content/` that feeds the pages.
+  `public/search/chunks.json` (34.6 KB), `lexical.json` (41.3 KB), and the
+  int8-quantised `vectors.bin` (37.5 KB) are produced by `npm run build:search`
+  and committed, so a normal clone and build need no model download.
+- **Model** — `Xenova/all-MiniLM-L6-v2`, quantised to int8, ~22 MB, fetched
+  same-origin only and only after that click. It is **not** committed — see
+  `DEPLOY.md` for what that means for a deployed build and why.
+
+`npm run check:search` runs the shipped BM25 scorer against the shipped index
+on eleven real queries every CI run. It exists because the tokenizer is
+implemented twice — once to build the index, once to score a query — and a
+drift between the two would fail silently: no error, just a search box that
+stops finding things that are demonstrably in the corpus.
+
 ## Build gates
 
 | Command | What it enforces |
@@ -50,6 +78,7 @@ paragraph; every design decision requires the alternative that was `rejected`.
 | `npm run check:contrast` | WCAG AA across **both** themes, plus parity between the two dark-theme blocks. Parses the real stylesheet rather than a copy of the palette — a duplicated palette drifts and then certifies a theme nobody ships. |
 | `npm run check:content` | Every MDX file against the corpus schema; flags leftover `TODO`/`CONFIRM` placeholders; catches corpus-level bugs a per-file schema cannot see (duplicate `pinOrder`, `finished` before `started`). |
 | `npm run check:links` | Every internal href resolves — including template-literal prefixes, so a typo like `/project/${slug}` is caught rather than silently killing every project link. |
+| `npm run check:search` | The shipped lexical scorer against the shipped index, on real queries. Guards against the build-time and runtime tokenizers drifting apart. Needs no model download — the index it checks is already committed. |
 | `npm run check:bundle` | Critical JS on first paint, read from the build manifests. Next 16 removed `First Load JS` from build output, so this cannot be scraped from the log. |
 | `npm run check` | All of the above. |
 | `npm run build` | Production build. |
@@ -75,8 +104,10 @@ governs it is `src/lib/content/schema.ts`.
 
 Next.js 16 (App Router, RSC, Turbopack) · TypeScript · Tailwind CSS v4 with a
 CSS-custom-property token layer · MDX validated by Zod at build · Shiki for
-build-time syntax highlighting (zero runtime highlighter JS) · Phaser for the
-interactive board · Rust and C++ compiled to WebAssembly for search and inference.
+build-time syntax highlighting (zero runtime highlighter JS) · hand-written
+Canvas2D for the interactive board (Phaser was removed — see `NEXT.md`) ·
+Rust compiled to WebAssembly for the HNSW search index, with the query
+embedding model running through ONNX Runtime Web.
 
 ## What I'd do differently
 
