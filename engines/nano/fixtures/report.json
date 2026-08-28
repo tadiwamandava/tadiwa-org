@@ -1,0 +1,15 @@
+{
+  "generated": "native",
+  "tolerance": 0.0002,
+  "ops": [
+    {"op": "layernorm", "state": "stub", "maxError": 0, "worstIndex": -1},
+    {"op": "softmax", "state": "stub", "maxError": 0, "worstIndex": -1},
+    {"op": "matmul", "state": "stub", "maxError": 0, "worstIndex": -1},
+    {"op": "gelu", "state": "stub", "maxError": 0, "worstIndex": -1},
+    {"op": "attention", "state": "stub", "maxError": 0, "worstIndex": -1},
+    {"op": "residual_add", "state": "stub", "maxError": 0, "worstIndex": -1}
+  ],
+  "passing": 0,
+  "stubbed": 6,
+  "failing": 0
+}

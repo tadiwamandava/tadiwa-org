@@ -1,0 +1,211 @@
+[
+  {
+    "name": "layernorm",
+    "meta": {
+      "op": "layernorm",
+      "n": 64,
+      "eps": 1e-05
+    },
+    "layout": [
+      {
+        "name": "x",
+        "offset": 0,
+        "count": 64,
+        "shape": [
+          64
+        ]
+      },
+      {
+        "name": "weight",
+        "offset": 64,
+        "count": 64,
+        "shape": [
+          64
+        ]
+      },
+      {
+        "name": "bias",
+        "offset": 128,
+        "count": 64,
+        "shape": [
+          64
+        ]
+      },
+      {
+        "name": "expected",
+        "offset": 192,
+        "count": 64,
+        "shape": [
+          64
+        ]
+      }
+    ]
+  },
+  {
+    "name": "softmax",
+    "meta": {
+      "op": "softmax",
+      "n": 128
+    },
+    "layout": [
+      {
+        "name": "x",
+        "offset": 0,
+        "count": 128,
+        "shape": [
+          128
+        ]
+      },
+      {
+        "name": "expected",
+        "offset": 128,
+        "count": 128,
+        "shape": [
+          128
+        ]
+      }
+    ]
+  },
+  {
+    "name": "matmul",
+    "meta": {
+      "op": "matmul",
+      "M": 17,
+      "K": 33,
+      "N": 9
+    },
+    "layout": [
+      {
+        "name": "A",
+        "offset": 0,
+        "count": 561,
+        "shape": [
+          17,
+          33
+        ]
+      },
+      {
+        "name": "B",
+        "offset": 561,
+        "count": 297,
+        "shape": [
+          33,
+          9
+        ]
+      },
+      {
+        "name": "expected",
+        "offset": 858,
+        "count": 153,
+        "shape": [
+          17,
+          9
+        ]
+      }
+    ]
+  },
+  {
+    "name": "gelu",
+    "meta": {
+      "op": "gelu",
+      "n": 96
+    },
+    "layout": [
+      {
+        "name": "x",
+        "offset": 0,
+        "count": 96,
+        "shape": [
+          96
+        ]
+      },
+      {
+        "name": "expected",
+        "offset": 96,
+        "count": 96,
+        "shape": [
+          96
+        ]
+      }
+    ]
+  },
+  {
+    "name": "attention",
+    "meta": {
+      "op": "attention",
+      "T": 12,
+      "head_dim": 16
+    },
+    "layout": [
+      {
+        "name": "q",
+        "offset": 0,
+        "count": 192,
+        "shape": [
+          12,
+          16
+        ]
+      },
+      {
+        "name": "k",
+        "offset": 192,
+        "count": 192,
+        "shape": [
+          12,
+          16
+        ]
+      },
+      {
+        "name": "v",
+        "offset": 384,
+        "count": 192,
+        "shape": [
+          12,
+          16
+        ]
+      },
+      {
+        "name": "expected",
+        "offset": 576,
+        "count": 192,
+        "shape": [
+          12,
+          16
+        ]
+      }
+    ]
+  },
+  {
+    "name": "residual_add",
+    "meta": {
+      "op": "residual_add",
+      "n": 50
+    },
+    "layout": [
+      {
+        "name": "x",
+        "offset": 0,
+        "count": 50,
+        "shape": [
+          50
+        ]
+      },
+      {
+        "name": "out",
+        "offset": 50,
+        "count": 50,
+        "shape": [
+          50
+        ]
+      },
+      {
+        "name": "expected",
+        "offset": 100,
+        "count": 50,
+        "shape": [
+          50
+        ]
+      }
+    ]
+  }
+]

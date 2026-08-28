@@ -48,3 +48,5 @@ next-env.d.ts
 # wasm-pack output
 /crates/*/pkg/
 /crates/*/target/
+/engines/nano/.build/
+/engines/nano/tools/.venv/
