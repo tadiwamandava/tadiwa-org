@@ -98,6 +98,25 @@ def main() -> None:
     x = RNG.normal(0, 2, n).astype(np.float32)
     cases.append(w("gelu", {"x": x, "expected": gelu(x)}, {"op": "gelu", "n": n}))
 
+    # matmul_i8 — one column is given a 50x larger range than the rest. With a
+    # single per-tensor scale that column dictates the quantisation step and
+    # every other column loses most of its resolution; with per-column scales
+    # it costs nothing. The fixture is built so the difference is visible.
+    M, K, N = 5, 24, 7
+    A = RNG.normal(0, 1, (M, K)).astype(np.float32)
+    Bf = RNG.normal(0, 1, (K, N)).astype(np.float32)
+    Bf[:, 3] *= 50.0
+    scales = (np.abs(Bf).max(axis=0) / 127.0).astype(np.float32)
+    Bq = np.clip(np.round(Bf / scales), -127, 127).astype(np.int8)
+    # Expected is the DEQUANTISED product, not the original — the kernel is
+    # exact with respect to the codes it is given, and asserting against Bf
+    # would be asserting that quantisation is lossless.
+    expected = (A @ Bq.astype(np.float32)) * scales
+    cases.append(w("matmul_i8",
+                   {"A": A, "codes": Bq.astype(np.float32), "scales": scales,
+                    "expected": expected},
+                   {"op": "matmul_i8", "M": M, "K": K, "N": N}))
+
     T, hd = 12, 16
     q = RNG.normal(0, 1, (T, hd)).astype(np.float32)
     k = RNG.normal(0, 1, (T, hd)).astype(np.float32)

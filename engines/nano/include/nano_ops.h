@@ -57,6 +57,25 @@ void softmax_inplace(float* x, std::size_t n);
 void matmul(const float* A, const float* B, std::size_t M, std::size_t K,
             std::size_t N, float* C);
 
+/// C = A * Bq, where the WEIGHTS are int8 and the activations stay fp32.
+///
+///   A      is (M x K) float
+///   Bq     is (K x N) int8, row-major
+///   scales is (N) float — ONE PER OUTPUT COLUMN, not one per tensor
+///   C      is (M x N) float
+///
+/// Weight-only quantisation (W8A32). This exists because it is the only way a
+/// 124M-parameter model fits in a browser tab: dequantising GPT-2 to fp32 is
+/// ~475 MB resident, and keeping the weights packed is ~119 MB. The
+/// dequantisation happens per element inside the inner loop, where it is free
+/// relative to the multiply-accumulate that has to happen anyway.
+///
+/// Per-COLUMN scales, not per-tensor: a single scale for a 768x2304 matrix is
+/// set by its largest outlier, which crushes the resolution of every other
+/// column. Per-column costs N floats and recovers most of the quality.
+void matmul_i8(const float* A, const int8_t* Bq, const float* scales,
+               std::size_t M, std::size_t K, std::size_t N, float* C);
+
 /// GELU activation, in place, over `n` elements.
 ///
 /// Use the tanh approximation, which is what GPT-2's weights were trained
