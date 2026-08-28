@@ -12,14 +12,15 @@
     "check:contrast": "node scripts/check-contrast.ts",
     "check:content": "node scripts/check-content.ts",
     "check:bundle": "node scripts/check-bundle.ts",
-    "check": "npm run typecheck && npm run lint && npm run check:contrast && npm run check:content && npm run check:links && npm run check:search && npm run check:bundle",
+    "check": "npm run typecheck && npm run lint && npm run check:contrast && npm run check:content && npm run check:links && npm run check:search && npm run check:admin && npm run check:bundle",
     "check:links": "node scripts/check-links.ts",
     "build:wasm": "bash scripts/build-wasm.sh",
     "build:search": "node scripts/build-embeddings.ts",
     "build:model": "bash scripts/copy-model.sh",
     "build:index": "npm run build:wasm && npm run build:search && npm run build:model",
     "test:rust": "cargo test --manifest-path crates/hnsw/Cargo.toml",
-    "check:search": "node scripts/check-search.ts"
+    "check:search": "node scripts/check-search.ts",
+    "check:admin": "node src/lib/admin/selftest.ts"
   },
   "dependencies": {
     "@huggingface/transformers": "^4.2.0",

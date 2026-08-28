@@ -21,6 +21,39 @@ import { bm25, dedupeByUrl } from "./lexical";
 
 const BASE = "/search";
 
+/**
+ * The query embedder, on its own.
+ *
+ * Exported because /lab/search needs the same model under different
+ * circumstances: there, free-text search is an opt-in extra bolted onto an
+ * index that is already loaded and already being measured, so it needs the
+ * embedder without the rest of `loadSemantic`'s state machine. Extracted rather
+ * than copied — the two `env` flags below are the kind of detail that drifts
+ * silently when it exists twice.
+ *
+ * ~22 MB. Never call this without telling the visitor first.
+ */
+export async function loadEmbedder(): Promise<(text: string) => Promise<Float32Array>> {
+  const { pipeline, env } = await import("@huggingface/transformers");
+  // Same-origin only: the weights are served from this deployment, not
+  // from a third-party CDN.
+  //
+  // BOTH flags are required. In the browser build `allowLocalModels`
+  // defaults to FALSE, so setting only `allowRemoteModels = false` turns
+  // every source off and transformers.js refuses to start with
+  // "both local and remote models are disabled".
+  env.allowLocalModels = true;
+  env.allowRemoteModels = false;
+  env.localModelPath = "/models/";
+  const extractor = await pipeline("feature-extraction", "all-MiniLM-L6-v2", {
+    dtype: "q8",
+  });
+  return async (text: string) => {
+    const out = await extractor(text, { pooling: "mean", normalize: true });
+    return Float32Array.from(out.data as Float32Array);
+  };
+}
+
 type Listener = () => void;
 
 class SearchEngine {
@@ -99,24 +132,7 @@ class SearchEngine {
         this.wasmIndex = new Index(new Uint8Array(payload));
 
         this.setSemantic({ status: "loading", note: "embedding model (~22 MB)" });
-        const { pipeline, env } = await import("@huggingface/transformers");
-        // Same-origin only: the weights are served from this deployment, not
-        // from a third-party CDN.
-        //
-        // BOTH flags are required. In the browser build `allowLocalModels`
-        // defaults to FALSE, so setting only `allowRemoteModels = false` turns
-        // every source off and transformers.js refuses to start with
-        // "both local and remote models are disabled".
-        env.allowLocalModels = true;
-        env.allowRemoteModels = false;
-        env.localModelPath = "/models/";
-        const extractor = await pipeline("feature-extraction", "all-MiniLM-L6-v2", {
-          dtype: "q8",
-        });
-        this.embed = async (text: string) => {
-          const out = await extractor(text, { pooling: "mean", normalize: true });
-          return Float32Array.from(out.data as Float32Array);
-        };
+        this.embed = await loadEmbedder();
 
         this.setSemantic({
           status: "ready",

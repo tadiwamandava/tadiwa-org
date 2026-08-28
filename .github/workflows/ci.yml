@@ -49,6 +49,14 @@ jobs:
       - name: Search quality
         run: npm run check:search
 
+      # The admin is the only thing in this repo that WRITES content, so it is
+      # the only thing that can destroy it. This round-trips every file in
+      # content/ through the admin's own serialiser and asserts the reparse is
+      # deep-equal — plus adversarial YAML scalars, schema/editor field
+      # coverage, and that invalid content throws instead of reaching disk.
+      - name: Admin write-path
+        run: npm run check:admin
+
       - name: Build
         run: npm run build
 

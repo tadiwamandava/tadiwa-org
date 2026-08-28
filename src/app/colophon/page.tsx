@@ -6,7 +6,7 @@ import { getAllProjects, getAllPosts } from "@/lib/content";
 export const metadata: Metadata = {
   title: "Colophon",
   description:
-    "How this site is built: one typed corpus feeding four consumers, a contrast checker that fails the build, build-time syntax highlighting, and the parts I would do differently.",
+    "How this site is built: one typed corpus feeding four consumers, a Rust search index compiled to WebAssembly, a contrast checker that fails the build, build-time syntax highlighting, and the parts I would do differently.",
 };
 
 /* ============================================================================
@@ -71,6 +71,11 @@ export default function ColophonPage() {
               by Zod. {projectCount} projects, {postCount}{" "}
               {postCount === 1 ? "post" : "posts"} today.
             </StackRow>
+            <StackRow term="Search">
+              An HNSW index I wrote in Rust, compiled to WebAssembly, over a
+              BM25 lexical index that answers first. Semantic is opt-in — the
+              embedding model is 22 MB. Detail below.
+            </StackRow>
             <StackRow term="Code samples">
               Shiki through rehype-pretty-code, at build time, in both themes.
             </StackRow>
@@ -79,8 +84,8 @@ export default function ColophonPage() {
               numerals. Self-hosted by <Code>next/font</Code>.
             </StackRow>
             <StackRow term="Gates">
-              Types, lint, WCAG contrast, corpus schema, build — in that order,
-              cheapest first.
+              Types, lint, WCAG contrast, corpus schema, search quality, build —
+              in that order, cheapest first.
             </StackRow>
             <StackRow term="Not here">
               No CMS, no database, no analytics, no cookies, and no request to a
@@ -140,9 +145,9 @@ export default function ColophonPage() {
                 <Code>resumeBullets</Code>. Live — it is the page next door.
               </li>
               <li>
-                <strong>A client-side vector index</strong> will chunk the prose
-                fields for semantic search. Scheduled; see the{" "}
-                <Link href="/lab">Lab</Link>.
+                <strong>A client-side vector index</strong> chunks the prose
+                fields for semantic search. Live — press <Code>⌘K</Code>
+                anywhere on the site.
               </li>
               <li>
                 <strong>A tailoring feature</strong> will let a visitor say what
@@ -151,10 +156,15 @@ export default function ColophonPage() {
               </li>
             </ul>
             <p>
-              Two of those four do not exist yet, which makes some of the
-              schema&rsquo;s strictness speculative. I am fine with that, because
-              the fourth consumer is the one that sets the rules for the other
-              three.
+              Three of those four exist today. Tailoring is the one that
+              doesn&rsquo;t, which still makes part of the schema&rsquo;s
+              strictness speculative — but it is also the reason for the rest of
+              it: the schema had to assume a reader with no judgment of its own
+              before any of the other three consumers existed to prove the
+              assumption out. The vector index is the newest evidence that the
+              bet was reasonable. It reads the same required fields the résumé
+              does, indexes them, and never once needed a fifth field added on
+              its behalf.
             </p>
 
             <h3>Why the schema is strict</h3>
@@ -203,6 +213,66 @@ export default function ColophonPage() {
               corpus, which is how the placeholders on the{" "}
               <Link href="/resume">résumé</Link> stay visible instead of quietly
               becoming permanent.
+            </p>
+          </div>
+        </Section>
+
+        {/* ---- search -------------------------------------------------------- */}
+        <Section label="Search, client-side">
+          <div className="prose mt-5">
+            <p>
+              Press <Code>⌘K</Code>. What answers the first keystroke is BM25
+              over a small inverted index — a few tens of kilobytes, already
+              loaded, scored synchronously in the main thread. What can answer
+              the second keystroke, if you opt in, is a vector search: an
+              HNSW graph over int8-quantised embeddings, matched against a
+              query embedded by a transformer running in this tab. Both
+              indexes are built from the same {projectCount} projects and{" "}
+              {postCount} {postCount === 1 ? "post" : "posts"} that feed every
+              other page — chunked into overlapping ~60-word windows so a hit
+              points at a specific claim rather than &ldquo;somewhere in this
+              project.&rdquo; No part of a search, lexical or semantic, ever
+              reaches a server; the request never leaves the browser.
+            </p>
+            <p>
+              The index itself — insertion, the graph search, the int8
+              quantisation — is <Code>crates/hnsw</Code>, hand-written Rust
+              compiled to WebAssembly. Not a library wrapped for the browser;
+              the graph construction and the layered search are mine, with
+              ten tests asserting the properties that actually matter for a
+              search index rather than just that the code runs: results come
+              back sorted and deduplicated, a larger search-time candidate
+              list never reduces recall, and recall@10 clears 90% against a
+              brute-force scan of the same vectors. The compiled artefact is
+              43,175 bytes raw, 18,381 gzipped — small enough that shipping it
+              by default was never the hard decision.
+            </p>
+            <p>
+              The embedding model was. Query embedding needs the same
+              transformer that built the index, running in the browser, and
+              even quantised to int8 that is a 22 MB download — for a
+              portfolio, on a feature most visitors will never open. So it is
+              not fetched on page load, or on the first keystroke, or even on
+              opening the palette. It is fetched once, after an explicit
+              click that states the size up front, same-origin rather than
+              from a third-party CDN. Until that click, or if it fails, the
+              palette says exactly which mode answered —{" "}
+              <Code>lexical · BM25</Code> or <Code>semantic · HNSW</Code> —
+              because claiming semantic while quietly serving lexical results
+              is a lie a visitor has no way to detect, which makes it the
+              worst kind of shortcut to take on a page arguing for rigour.
+            </p>
+            <p>
+              The cost, honestly stated: that 22 MB is gitignored, not
+              committed, so it is not part of a default build or a default
+              deploy. A visitor here gets instant lexical search always, and
+              semantic search only once the model has actually made it onto
+              this deployment — which, as of this writing, it has not. The
+              palette does not paper over that; it shows &ldquo;semantic
+              unavailable&rdquo; and the real reason on hover rather than a
+              button that quietly does nothing. Closing that gap is a
+              deployment decision, not a code one, and it is weighed in{" "}
+              <Code>DEPLOY.md</Code> rather than promised here.
             </p>
           </div>
         </Section>
