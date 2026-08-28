@@ -106,6 +106,36 @@ target Vercel issues can change. As of this writing, the two common paths are:
 Either way, **`SITE.url` (§8 below) must exactly match the domain that ends
 up serving traffic** — same scheme, same host, no trailing slash.
 
+## 5b. The inference engine
+
+`/lab/inference` needs three things at runtime, **all committed**, so a normal
+deploy requires no Rust, no Emscripten and no PyTorch:
+
+| Path | Size | Produced by |
+|---|---|---|
+| `public/nano/nano.{mjs,wasm}` | 39 KB | `npm run build:nano` (needs `emcc`) |
+| `public/nano/nano-int8.bin` | 400 KB | `npm run build:fixtures` → trainer |
+| `public/nano/nano-fp32.bin` | 1.4 MB | same |
+
+Regenerating them is the part with heavy prerequisites:
+
+- **`emcc`** — `brew install emscripten`. Pulls `python@3.14`, which will shadow
+  the system `python3` on PATH. Anything of yours that depended on the old
+  interpreter's packages breaks quietly; the fixture tooling pins its own venv
+  for exactly this reason.
+- **PyTorch** — training only, in `engines/nano/tools/.venv`. Inference is C++
+  and depends on none of it.
+
+The 1.8 MB of weights is committed deliberately. Regenerating on Vercel would
+mean installing PyTorch in the build, which is minutes of build time and a new
+way for an unrelated copy edit to fail. If the weights ever grow past a few MB,
+the honest answer is a release artefact fetched at build time, not Git LFS.
+
+**If `/lab/inference` shows an error instead of generating**, check in this
+order: `/nano/nano.wasm` returns 200; `/nano/nano-int8.bin` returns 200 and is
+~400 KB; and the browser console for a WebAssembly instantiation failure, which
+usually means the `.wasm` was served with the wrong MIME type.
+
 ## 6. The search index and the model — what to actually do
 
 This is the one non-obvious decision in this deploy, so it gets its own
