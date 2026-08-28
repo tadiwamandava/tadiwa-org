@@ -6,7 +6,26 @@ yours to write.** Everything else is already here.
 ## The loop
 
 ```bash
-npm run test:nano        # build + run the op-parity tests (clang++, ~1s)
+npm run test:nano          # kernels vs golden fixtures        (clang++, ~1s)
+npm run test:nano:parity   # whole engine vs PyTorch logits    (~1s)
+npm run nano               # generate text and read it         (~1s)
+```
+
+Three checks because they catch different things:
+
+- **`test:nano`** proves each kernel in isolation. It cannot see a transposed
+  weight or a mis-sliced attention head, because those live above the kernels.
+- **`test:nano:parity`** replays a fixed prompt through the entire forward pass,
+  KV cache included, and diffs the final logits against the PyTorch model the
+  weights came from. This is the one that catches wiring bugs.
+- **`npm run nano`** is the human check. A matmul with a subtly wrong stride can
+  stay inside tolerance on a 26-token fixture and still produce visible mush
+  over 200 tokens.
+
+Pass arguments through with `--`:
+
+```bash
+npm run nano -- public/nano/nano-int8.bin "The honest answer is" 300 0.9
 ```
 
 Then, for each op:
