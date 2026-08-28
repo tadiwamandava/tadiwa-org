@@ -2,7 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@/components/ui";
 import { NanoMount } from "@/components/nano/mount";
-import { getNanoReport, getParity, getModelMeta, OP_NOTES } from "@/lib/nano";
+import {
+  getNanoReport,
+  getParity,
+  getModelMeta,
+  getEngineBytes,
+  OP_NOTES,
+} from "@/lib/nano";
 
 export const metadata: Metadata = {
   title: "Inference engine",
@@ -16,6 +22,7 @@ export default function InferenceLabPage() {
   const ops = getNanoReport();
   const parity = getParity();
   const meta = getModelMeta();
+  const engineBytes = getEngineBytes();
 
   return (
     <Container className="py-16">
@@ -37,7 +44,7 @@ export default function InferenceLabPage() {
           {[
             ["parameters", `${(meta.params / 1000).toFixed(0)}K`],
             ["layers × dim", `${meta.n_layer} × ${meta.n_embd}`],
-            ["engine", "28 KB wasm"],
+            ["engine", engineBytes ? `${(engineBytes / 1024).toFixed(0)} KB wasm` : "wasm"],
             ["network calls", "0"],
           ].map(([k, v]) => (
             <div key={k}>
