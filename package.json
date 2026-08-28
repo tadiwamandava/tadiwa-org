@@ -24,7 +24,8 @@
     "test:nano": "bash engines/nano/build-test.sh",
     "build:fixtures": "bash engines/nano/tools/fixtures.sh",
     "test:nano:parity": "bash engines/nano/build-parity.sh",
-    "build:nano": "bash engines/nano/build-wasm.sh"
+    "build:nano": "bash engines/nano/build-wasm.sh",
+    "nano": "bash engines/nano/run.sh"
   },
   "dependencies": {
     "@huggingface/transformers": "^4.2.0",
