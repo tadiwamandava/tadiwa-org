@@ -1,0 +1,10 @@
+{
+  "weights": "fp32",
+  "tokens": 26,
+  "vocab": 117,
+  "maxAbsDiff": 7.62939e-06,
+  "rmsDiff": 2.73795e-06,
+  "tolerance": 0.002,
+  "argmaxMatch": true,
+  "pass": true
+}

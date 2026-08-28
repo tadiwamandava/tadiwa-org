@@ -64,6 +64,14 @@ jobs:
       - name: Inference op parity
         run: npm run test:nano
 
+      # End-to-end: replays a fixed prompt through the full C++ forward pass —
+      # KV cache included — and diffs the final logits against the PyTorch
+      # model the weights were exported from. The op tests cannot catch a
+      # transposed weight or a mis-sliced head; this can. Needs no Python: the
+      # reference logits are committed as a fixture.
+      - name: Inference logit parity
+        run: npm run test:nano:parity
+
       - name: Build
         run: npm run build
 

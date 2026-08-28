@@ -1,0 +1,11 @@
+{
+  "n_embd": 96,
+  "n_head": 4,
+  "n_layer": 3,
+  "block": 128,
+  "vocab": 117,
+  "params": 359232,
+  "trainLoss": 1.1943,
+  "valLoss": 1.9437,
+  "corpusBytes": 65878
+}

@@ -42,6 +42,44 @@ export const OP_NOTES: Record<string, string> = {
   residual_add: "The residual connection. Trivial, and the natural first one to do.",
 };
 
+export interface ParityReport {
+  weights: "fp32" | "int8";
+  tokens: number;
+  vocab: number;
+  maxAbsDiff: number;
+  rmsDiff: number;
+  tolerance: number;
+  argmaxMatch: boolean;
+  pass: boolean;
+}
+
+export interface ModelMeta {
+  n_embd: number; n_head: number; n_layer: number; block: number;
+  vocab: number; params: number;
+  trainLoss: number; valLoss: number; corpusBytes: number;
+}
+
+function readJson<T>(...segments: string[]): T | null {
+  const path = join(process.cwd(), ...segments);
+  if (!existsSync(path)) return null;
+  try {
+    return JSON.parse(readFileSync(path, "utf8")) as T;
+  } catch {
+    return null;
+  }
+}
+
+/** Logit agreement with the PyTorch model the weights came from. */
+export function getParity(): ParityReport[] {
+  return (["fp32", "int8"] as const)
+    .map((t) => readJson<ParityReport>("engines", "nano", "fixtures", `parity-${t}.json`))
+    .filter((r): r is ParityReport => r !== null);
+}
+
+export function getModelMeta(): ModelMeta | null {
+  return readJson<ModelMeta>("public", "nano", "nano-meta.json");
+}
+
 export function getNanoReport(): NanoReport | null {
   const path = join(process.cwd(), "engines", "nano", "fixtures", "report.json");
   if (!existsSync(path)) return null;
