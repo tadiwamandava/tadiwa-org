@@ -43,50 +43,28 @@ npm run dev       # http://localhost:3000
 
 ## Next up
 
-1. **Deploy to Vercel and point `tadiwa.org` at it.** `SITE.url` in
-   `src/lib/site.ts` is already `https://tadiwa.org` — that part needs no
-   change. What's left is the actual hosting + DNS action; `DEPLOY.md` is the
-   runbook for it, written this pass.
-2. **Fill in `CONFIRM.md`** — 21 unverified fields, re-verified this pass and
-   still open. Highest value by far: **project status**. `k20-curation` and
-   `dsp-audio-denoising` are `shipped`; everything else is `planned`, and the
-   résumé deliberately excludes `planned` work ("Built X" is false for
-   something unstarted). Promoting whatever is genuinely underway to
-   `building` is still the fastest way to make the résumé show more than two
-   projects.
-3. **The deployed-semantic decision needs revisiting if priorities change.**
-   `public/models/` (~22 MB, the quantised embedding weights) is gitignored
-   and not produced by the default Vercel build, so a deploy today ships
-   lexical-only search — the palette degrades to this honestly (see `DEPLOY.md`
-   for the reasoning and the options that were rejected: running
-   `build:search`/`build:model` at Vercel build time, or committing the model
-   via Git LFS).
-4. **Bug found in the model pipeline, not fixed here (out of this pass's file
-   ownership — `scripts/**`).** `scripts/build-embeddings.ts` loads the
-   embedding pipeline with `dtype: "fp32"`, which only downloads
-   `onnx/model.onnx` into the transformers cache — it never touches
-   `onnx/model_quantized.onnx`. `scripts/copy-model.sh` (`npm run build:model`)
-   expects the quantized file and fails with "No such file or directory" on a
-   clean checkout, even after `npm run build:search` has just run, exactly as
-   its own comment says it shouldn't. Reproduced from a clean clone: the
-   quantized file only appears if something else separately loads the
-   pipeline with `dtype: "q8"`. Fix is one of: have `build-embeddings.ts` warm
-   both dtypes, or have `copy-model.sh` do its own `dtype: "q8"` load before
-   copying, or document the manual warm-up step. Whoever owns `scripts/**`
-   next should pick one.
-5. **Cosmetic:** `build-embeddings.ts`'s console summary computes the
-   `chunks.json` size from the untruncated in-memory array, not the truncated
-   payload it actually writes — it prints ~41.9 KB when the file on disk is
-   34.6 KB. Harmless (the written file is correct), but worth a one-line fix
-   next time that script is touched.
-6. **`/lab` still lists search as `status: "building"` (ETA September 2026)**
-   even though it has shipped as the site-wide ⌘K palette. Whoever owns
-   `src/app/lab/**` should either flip its status to shipped/link it at the
-   live feature, or split "the Lab demo" from "the site-wide palette" as
-   deliberately different things — right now the page contradicts the rest of
-   the site.
-7. Week 5 of the plan: `tadiwa-nano` — the hand-written C++ transformer forward
-   pass compiled to WASM for `/lab/inference`.
+Everything below is blocked on you, not on more building.
+
+1. **Fill in `CONFIRM.md`** — 22 unverified fields. Run `npm run dev` and open
+   `/admin`; it lists every placeholder with the offending line quoted inline.
+   The highest-value item by a distance is **project status**: everything except
+   K20 and the DSP coursework is `planned`, and the résumé deliberately excludes
+   planned work — "Built X" is false for something unstarted — so it currently
+   shows two projects. One sentence about what is genuinely underway fixes that.
+2. **Push and deploy.** `DEPLOY.md` covers Vercel settings, DNS, `SITE.url`, and
+   the two decisions with real consequences: semantic search is lexical-only on
+   a deploy unless the 22 MB model is shipped, and the inference weights are
+   committed so no Rust/Emscripten/PyTorch is needed at build time.
+3. **Rewrite `engines/nano/src/ops.cpp` from the header contracts.** The kernels
+   there are not yours. The comments explain every choice — two-pass variance to
+   avoid catastrophic cancellation, `i-k-j` loop order for cache locality,
+   masking by never computing the future — but reading an explanation is not
+   deriving it, and an interviewer will pick exactly that file. `npm run
+   test:nano` is the check; it is a weekend, and it converts the engine from
+   something you can describe into something you own.
+4. **Then climb the ladder.** Blocking, SIMD, and an int8 matmul that skips
+   dequantisation, each measured into a PERFORMANCE.md. That is the part that
+   maps onto the CUDA work.
 
 ## Notes
 

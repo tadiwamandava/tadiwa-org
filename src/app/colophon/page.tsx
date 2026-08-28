@@ -277,6 +277,48 @@ export default function ColophonPage() {
           </div>
         </Section>
 
+        {/* ---- inference ---------------------------------------------------- */}
+        <Section label="A transformer, in 782 lines of C++">
+          <div className="prose mt-5">
+            <p>
+              <Code>/lab/inference</Code> runs a forward pass I wrote by hand —
+              no framework, no BLAS, no server. It compiles to 28 KB of
+              WebAssembly and generates from a model trained on this
+              repository&rsquo;s own prose, which is why the output reads like a
+              corrupted draft of these pages.
+            </p>
+            <p>
+              The only claim worth making about an engine is that it computes
+              what the reference computes, so that is the number the page
+              leads with. A fixed prompt is replayed through the C++ one token
+              at a time, KV cache included, and the final logits are diffed
+              against the PyTorch model the weights came from. In fp32 they
+              agree to 7.6 × 10⁻⁶ — float noise, which is what tells you the
+              weight layout, the attention head slicing and the cache are all
+              right. Nothing else would.
+            </p>
+            <p>
+              The int8 weights diverge by 0.24 in the worst logit and still
+              select the same token. That is not a defect; it is the
+              quantisation trade with a number attached — a quarter of the
+              download for a distortion too small to change the answer at this
+              size. It is also a saving on the wire and <em>not</em> in memory,
+              because the weights dequantise on load. Reporting it as a memory
+              saving would have been the easiest overstatement available on the
+              page, which is roughly why it is worth naming.
+            </p>
+            <p>
+              What the page does not do is flatter the model. 359K parameters
+              trained on 66 KB gives a training loss of 1.19 against a
+              validation loss of 1.94, and that gap is memorisation — there are
+              more parameters here than characters to learn from. The matmul is
+              a cache-aware triple loop with the entire optimisation ladder
+              still unclimbed. The engine is the artefact; the model is a
+              payload that happens to fit.
+            </p>
+          </div>
+        </Section>
+
         {/* ---- contrast gate ------------------------------------------------ */}
         <Section label="Accessibility as a build gate">
           <div className="prose mt-5">
