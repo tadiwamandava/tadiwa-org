@@ -101,6 +101,32 @@ void gelu_inplace(float* x, std::size_t n);
 void attention_head(const float* q, const float* k, const float* v,
                     std::size_t T, std::size_t head_dim, float* out);
 
+/// RMS normalisation — what Llama-family models use instead of layernorm.
+///
+///   out[i] = x[i] / sqrt(mean(x^2) + eps) * weight[i]
+///
+/// No mean subtraction and no bias. That is the whole difference from
+/// layernorm, and it is why it is cheaper: one pass, no centring. Getting the
+/// mean subtracted "for consistency" produces a model that is subtly wrong
+/// everywhere and obviously wrong nowhere.
+void rmsnorm(const float* x, const float* weight, float eps, std::size_t n,
+             float* out);
+
+/// SiLU (a.k.a. swish), in place: x * sigmoid(x).
+void silu_inplace(float* x, std::size_t n);
+
+/// Rotary position embedding, applied in place to one head's vector.
+///
+/// Encodes position by ROTATING pairs of channels rather than adding a learned
+/// vector, so relative position falls out of the dot product for free — which
+/// is why it generalises past the trained context length where a learned table
+/// simply runs out.
+///
+/// Uses the HuggingFace "rotate_half" pairing: channel i pairs with
+/// i + head_dim/2, NOT with i+1. The adjacent-pair convention is equally valid
+/// mathematically and produces garbage against these weights.
+void rope_inplace(float* x, std::size_t head_dim, int pos, float theta);
+
 /// out[i] += x[i], over `n` elements. The residual connection.
 void residual_add(const float* x, std::size_t n, float* out);
 

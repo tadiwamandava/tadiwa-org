@@ -149,6 +149,39 @@ int main() {
     results.push_back(compare("attention", out.data(), d.data() + 3 * sz, sz));
   }
 
+  // ---- rmsnorm : x[64] weight[64] expected[64] ---------------------------
+  if (!nano::is_implemented("rmsnorm")) {
+    results.push_back(stub("rmsnorm"));
+  } else {
+    auto d = load("rmsnorm");
+    const size_t n = 64;
+    std::vector<float> out(n);
+    nano::rmsnorm(d.data(), d.data() + n, 1e-5f, n, out.data());
+    results.push_back(compare("rmsnorm", out.data(), d.data() + 2 * n, n));
+  }
+
+  // ---- silu : x[80] expected[80] -----------------------------------------
+  if (!nano::is_implemented("silu")) {
+    results.push_back(stub("silu"));
+  } else {
+    auto d = load("silu");
+    const size_t n = 80;
+    std::vector<float> x(d.begin(), d.begin() + n);
+    nano::silu_inplace(x.data(), n);
+    results.push_back(compare("silu", x.data(), d.data() + n, n));
+  }
+
+  // ---- rope : x[64] expected[64], pos 37, theta 10000 --------------------
+  if (!nano::is_implemented("rope")) {
+    results.push_back(stub("rope"));
+  } else {
+    auto d = load("rope");
+    const size_t hd = 64;
+    std::vector<float> x(d.begin(), d.begin() + hd);
+    nano::rope_inplace(x.data(), hd, 37, 10000.0f);
+    results.push_back(compare("rope", x.data(), d.data() + hd, hd));
+  }
+
   // ---- residual_add : x[50] out[50] expected[50] -------------------------
   if (!nano::is_implemented("residual_add")) {
     results.push_back(stub("residual_add"));

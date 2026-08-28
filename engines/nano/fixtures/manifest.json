@@ -222,6 +222,92 @@
     ]
   },
   {
+    "name": "rmsnorm",
+    "meta": {
+      "op": "rmsnorm",
+      "n": 64,
+      "eps": 1e-05
+    },
+    "layout": [
+      {
+        "name": "x",
+        "offset": 0,
+        "count": 64,
+        "shape": [
+          64
+        ]
+      },
+      {
+        "name": "weight",
+        "offset": 64,
+        "count": 64,
+        "shape": [
+          64
+        ]
+      },
+      {
+        "name": "expected",
+        "offset": 128,
+        "count": 64,
+        "shape": [
+          64
+        ]
+      }
+    ]
+  },
+  {
+    "name": "silu",
+    "meta": {
+      "op": "silu",
+      "n": 80
+    },
+    "layout": [
+      {
+        "name": "x",
+        "offset": 0,
+        "count": 80,
+        "shape": [
+          80
+        ]
+      },
+      {
+        "name": "expected",
+        "offset": 80,
+        "count": 80,
+        "shape": [
+          80
+        ]
+      }
+    ]
+  },
+  {
+    "name": "rope",
+    "meta": {
+      "op": "rope",
+      "head_dim": 64,
+      "pos": 37,
+      "theta": 10000.0
+    },
+    "layout": [
+      {
+        "name": "x",
+        "offset": 0,
+        "count": 64,
+        "shape": [
+          64
+        ]
+      },
+      {
+        "name": "expected",
+        "offset": 64,
+        "count": 64,
+        "shape": [
+          64
+        ]
+      }
+    ]
+  },
+  {
     "name": "residual_add",
     "meta": {
       "op": "residual_add",

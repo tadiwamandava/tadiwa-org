@@ -8,9 +8,12 @@
     {"op": "gelu", "state": "pass", "maxError": 2.38419e-07, "worstIndex": 18},
     {"op": "matmul_i8", "state": "pass", "maxError": 4.76837e-07, "worstIndex": 34},
     {"op": "attention", "state": "pass", "maxError": 1.78814e-07, "worstIndex": 60},
+    {"op": "rmsnorm", "state": "pass", "maxError": 2.38419e-07, "worstIndex": 4},
+    {"op": "silu", "state": "pass", "maxError": 0, "worstIndex": -1},
+    {"op": "rope", "state": "pass", "maxError": 1.02818e-06, "worstIndex": 37},
     {"op": "residual_add", "state": "pass", "maxError": 0, "worstIndex": -1}
   ],
-  "passing": 7,
+  "passing": 10,
   "stubbed": 0,
   "failing": 0
 }

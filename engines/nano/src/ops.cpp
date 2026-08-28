@@ -181,6 +181,36 @@ void attention_head(const float* q, const float* k, const float* v,
   }
 }
 
+void rmsnorm(const float* x, const float* weight, float eps, std::size_t n,
+             float* out) {
+  float sum_sq = 0.0f;
+  for (std::size_t i = 0; i < n; ++i) sum_sq += x[i] * x[i];
+  const float inv = 1.0f / std::sqrt(sum_sq / static_cast<float>(n) + eps);
+  for (std::size_t i = 0; i < n; ++i) out[i] = x[i] * inv * weight[i];
+}
+
+void silu_inplace(float* x, std::size_t n) {
+  for (std::size_t i = 0; i < n; ++i) {
+    x[i] = x[i] / (1.0f + std::exp(-x[i]));
+  }
+}
+
+void rope_inplace(float* x, std::size_t head_dim, int pos, float theta) {
+  const std::size_t half = head_dim / 2;
+  for (std::size_t i = 0; i < half; ++i) {
+    // Frequency for this channel pair. Low channels rotate slowly (they carry
+    // coarse position), high channels rotate fast.
+    const float freq =
+        1.0f / std::pow(theta, static_cast<float>(2 * i) / static_cast<float>(head_dim));
+    const float angle = static_cast<float>(pos) * freq;
+    const float c = std::cos(angle), s = std::sin(angle);
+    const float a = x[i];          // first half
+    const float b = x[i + half];   // second half — the rotate_half pairing
+    x[i] = a * c - b * s;
+    x[i + half] = b * c + a * s;
+  }
+}
+
 void residual_add(const float* x, std::size_t n, float* out) {
   for (std::size_t i = 0; i < n; ++i) out[i] += x[i];
 }

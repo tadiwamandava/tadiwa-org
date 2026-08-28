@@ -50,3 +50,7 @@ next-env.d.ts
 /crates/*/target/
 /engines/nano/.build/
 /engines/nano/tools/.venv/
+
+# SmolLM2 weights (129 MB int8 / 513 MB fp32) — regenerate with
+# engines/nano/tools/convert_smollm.py
+/public/nano/smollm-fp32.bin
