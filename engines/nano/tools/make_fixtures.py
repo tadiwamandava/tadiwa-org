@@ -125,6 +125,32 @@ def main() -> None:
                                  "expected": attention(q, k, v)},
                    {"op": "attention", "T": T, "head_dim": hd}))
 
+    # rmsnorm — offset far from zero, which is exactly where an implementation
+    # that "helpfully" subtracts the mean diverges from one that does not.
+    n = 64
+    x = RNG.normal(0, 1, n).astype(np.float32) * 2.0 + 9.0
+    g = RNG.normal(1, 0.1, n).astype(np.float32)
+    rms = x / np.sqrt((x.astype(np.float64) ** 2).mean() + 1e-5) * g
+    cases.append(w("rmsnorm", {"x": x, "weight": g, "expected": rms.astype(np.float32)},
+                   {"op": "rmsnorm", "n": n, "eps": 1e-5}))
+
+    n = 80
+    x = RNG.normal(0, 2, n).astype(np.float32)
+    cases.append(w("silu", {"x": x, "expected": (x / (1 + np.exp(-x))).astype(np.float32)},
+                   {"op": "silu", "n": n}))
+
+    # rope — the rotate_half pairing (channel i with i+half), matching HF.
+    hd, pos, theta = 64, 37, 10000.0
+    v = RNG.normal(0, 1, hd).astype(np.float32)
+    half = hd // 2
+    inv = 1.0 / (theta ** (np.arange(0, hd, 2, dtype=np.float64) / hd))
+    ang = pos * inv
+    cos, sin = np.cos(ang), np.sin(ang)
+    a, b = v[:half].astype(np.float64), v[half:].astype(np.float64)
+    rot = np.concatenate([a * cos - b * sin, b * cos + a * sin]).astype(np.float32)
+    cases.append(w("rope", {"x": v, "expected": rot},
+                   {"op": "rope", "head_dim": hd, "pos": pos, "theta": theta}))
+
     n = 50
     x = RNG.normal(0, 1, n).astype(np.float32)
     acc = RNG.normal(0, 1, n).astype(np.float32)

@@ -1,0 +1,13 @@
+{
+  "model": "HuggingFaceTB/SmolLM2-135M-Instruct",
+  "params": 162826560,
+  "n_embd": 576,
+  "n_layer": 30,
+  "n_head": 9,
+  "n_kv_head": 3,
+  "n_inter": 1536,
+  "vocab": 49152,
+  "n_ctx": 1024,
+  "rope_theta": 100000.0,
+  "rms_eps": 1e-05
+}
