@@ -1,6 +1,6 @@
 import "server-only";
 
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 /**
@@ -78,6 +78,20 @@ export function getParity(): ParityReport[] {
 
 export function getModelMeta(): ModelMeta | null {
   return readJson<ModelMeta>("public", "nano", "nano-meta.json");
+}
+
+/** Actual size of the compiled engine on disk.
+ *  Read rather than hardcoded: a literal here would keep claiming 28 KB after
+ *  the next rebuild changed it, and a number that describes a file should come
+ *  from the file. */
+export function getEngineBytes(): number | null {
+  const path = join(process.cwd(), "public", "nano", "nano.wasm");
+  if (!existsSync(path)) return null;
+  try {
+    return statSync(path).size;
+  } catch {
+    return null;
+  }
 }
 
 export function getNanoReport(): NanoReport | null {
