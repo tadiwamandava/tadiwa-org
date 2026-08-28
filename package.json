@@ -20,7 +20,9 @@
     "build:index": "npm run build:wasm && npm run build:search && npm run build:model",
     "test:rust": "cargo test --manifest-path crates/hnsw/Cargo.toml",
     "check:search": "node scripts/check-search.ts",
-    "check:admin": "node src/lib/admin/selftest.ts"
+    "check:admin": "node src/lib/admin/selftest.ts",
+    "test:nano": "bash engines/nano/build-test.sh",
+    "build:fixtures": "bash engines/nano/tools/fixtures.sh"
   },
   "dependencies": {
     "@huggingface/transformers": "^4.2.0",

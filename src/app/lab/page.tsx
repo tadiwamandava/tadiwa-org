@@ -32,6 +32,9 @@ type Demo =
       blurb: string;
       status: "building" | "planned";
       eta: string;
+      /** Set once there is something to open — an in-progress build log counts,
+       *  a promise does not. */
+      href?: string;
     };
 
 const DEMOS: Demo[] = [
@@ -48,9 +51,10 @@ const DEMOS: Demo[] = [
     slug: "inference",
     title: "A language model running in this tab",
     blurb:
-      "A small transformer whose forward pass I wrote by hand in C++ and compiled to WebAssembly with SIMD. Int8-quantised weights, streaming generation, and a live readout of tokens/sec so you can watch the quantisation trade-off happen.",
+      "A transformer forward pass written by hand in C++ and compiled to WebAssembly — no framework, no BLAS. The harness is built and public while the kernels are still empty: the page shows the real op-parity tests as the progress bar, so what is done and what is not is a measurement rather than a claim.",
     status: "building",
     eta: "January 2027",
+    href: "/lab/inference",
   },
   {
     slug: "riscv",
@@ -79,7 +83,7 @@ export default function LabPage() {
           <li key={demo.slug} className="bg-surface p-6">
             <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
               <h2 className="font-display text-xl">
-                {demo.status === "live" ? (
+                {demo.href ? (
                   <Link href={demo.href} className="hover:text-accent">
                     {demo.title}
                   </Link>
@@ -100,13 +104,13 @@ export default function LabPage() {
             <p className="mt-2.5 max-w-2xl leading-relaxed text-muted">
               {demo.blurb}
             </p>
-            {demo.status === "live" && (
+            {demo.href && (
               <p className="mt-3">
                 <Link
                   href={demo.href}
                   className="font-mono text-2xs tracking-wide text-accent uppercase underline decoration-dotted underline-offset-4"
                 >
-                  Open the demo →
+                  {demo.status === "live" ? "Open the demo" : "See the build log"} →
                 </Link>
               </p>
             )}

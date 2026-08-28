@@ -57,6 +57,13 @@ jobs:
       - name: Admin write-path
         run: npm run check:admin
 
+      # tadiwa-nano's op-parity tests. Builds with clang++ (no Emscripten
+      # needed) and passes while the kernels are still stubs — an unstarted op
+      # reports as "stub", not as a failure, so the gate goes red only when an
+      # implemented op actually diverges from its golden fixture.
+      - name: Inference op parity
+        run: npm run test:nano
+
       - name: Build
         run: npm run build
 

@@ -12,9 +12,12 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
-    // wasm-bindgen output: generated, vendored, and not ours to style.
+    // Generated toolchain output — wasm-bindgen and Emscripten glue. Vendored,
+    // machine-written, and not ours to style.
     "crates/**",
     "src/lib/search/hnsw-glue.js",
+    "public/nano/**",
+    "engines/**/.build/**",
   ]),
 ]);
 
