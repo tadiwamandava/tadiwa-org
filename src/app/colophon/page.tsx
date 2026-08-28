@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getEngineBytes } from "@/lib/nano";
 import Link from "next/link";
 import { Container } from "@/components/ui";
 import { getAllProjects, getAllPosts } from "@/lib/content";
@@ -22,6 +23,7 @@ export const metadata: Metadata = {
    ========================================================================= */
 
 export default function ColophonPage() {
+  const engineKb = getEngineBytes();
   // Counted at build, not typed in. A colophon that describes a corpus should
   // not be the one file that goes stale about its size.
   const projectCount = getAllProjects().length;
@@ -282,8 +284,9 @@ export default function ColophonPage() {
           <div className="prose mt-5">
             <p>
               <Code>/lab/inference</Code> runs a forward pass I wrote by hand —
-              no framework, no BLAS, no server. It compiles to 28 KB of
-              WebAssembly and generates from a model trained on this
+              no framework, no BLAS, no server. It compiles to{" "}
+              {engineKb ? `${(engineKb / 1024).toFixed(0)} KB` : "a few tens of KB"}{" "}
+              of WebAssembly and generates from a model trained on this
               repository&rsquo;s own prose, which is why the output reads like a
               corrupted draft of these pages.
             </p>
