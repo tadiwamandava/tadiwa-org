@@ -1,22 +1,21 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@/components/ui";
-import { getNanoReport, OP_NOTES, type OpState } from "@/lib/nano";
+import { NanoMount } from "@/components/nano/mount";
+import { getNanoReport, getParity, getModelMeta, OP_NOTES } from "@/lib/nano";
 
 export const metadata: Metadata = {
   title: "Inference engine",
   description:
-    "A transformer forward pass written by hand in C++ and compiled to WebAssembly — shown mid-build, with the op-parity tests as the progress bar.",
+    "A transformer forward pass written by hand in C++, compiled to WebAssembly, generating text in your browser — with the logit-parity numbers against PyTorch.",
 };
 
-const STATE_LABEL: Record<OpState, string> = {
-  pass: "matches",
-  fail: "diverges",
-  stub: "not started",
-};
+const kb = (n: number) => `${(n / 1024).toFixed(0)} KB`;
 
 export default function InferenceLabPage() {
-  const report = getNanoReport();
+  const ops = getNanoReport();
+  const parity = getParity();
+  const meta = getModelMeta();
 
   return (
     <Container className="py-16">
@@ -24,140 +23,158 @@ export default function InferenceLabPage() {
         Lab / Inference engine
       </p>
       <h1 className="mt-5 font-display text-4xl leading-tight tracking-tight">
-        An engine, shown mid-build.
+        A language model running in this tab.
       </h1>
       <p className="mt-5 max-w-2xl text-lg leading-relaxed text-muted">
         A transformer forward pass written by hand in C++ and compiled to
-        WebAssembly — no ML framework, no BLAS. It is unfinished, and this page
-        is the honest version of a progress bar: every row below is a real
-        assertion against golden fixtures, run by{" "}
-        <code className="font-mono text-base">npm run test:nano</code>.
+        WebAssembly — no ML framework, no BLAS, no server. The weights come from
+        a small model trained on this site&rsquo;s own prose, so what it
+        generates is this writing, badly.
       </p>
 
-      {/* ---- status ------------------------------------------------------ */}
-      <section className="mt-12">
-        <h2 className="border-b border-border pb-2 font-mono text-xs tracking-[0.14em] text-muted uppercase">
-          Op parity
-        </h2>
-
-        {report === null ? (
-          <p className="mt-5 rounded-lg border border-dashed border-border-strong p-8 text-center text-muted">
-            No test report on disk. Run <code>npm run test:nano</code>.
-          </p>
-        ) : (
-          <>
-            <p className="mt-4 text-sm text-subtle">
-              {report.passing} of {report.ops.length} implemented
-              {report.failing > 0 && ` · ${report.failing} diverging`} ·
-              tolerance {report.tolerance.toExponential(0)}
-            </p>
-
-            <table className="mt-5 w-full border-collapse">
-              <caption className="sr-only">
-                Per-op agreement between this C++ implementation and the golden
-                fixtures.
-              </caption>
-              <thead>
-                <tr className="border-b border-border text-left">
-                  <th scope="col" className="py-2 font-mono text-2xs tracking-wide text-subtle uppercase">
-                    Op
-                  </th>
-                  <th scope="col" className="py-2 font-mono text-2xs tracking-wide text-subtle uppercase">
-                    State
-                  </th>
-                  <th scope="col" className="py-2 text-right font-mono text-2xs tracking-wide text-subtle uppercase">
-                    Max error
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {report.ops.map((r) => (
-                  <tr key={r.op} className="border-b border-border align-top">
-                    <td className="py-3 pr-4">
-                      <span className="font-mono text-sm">{r.op}</span>
-                      <p className="mt-1 max-w-md text-xs leading-relaxed text-subtle">
-                        {OP_NOTES[r.op] ?? ""}
-                      </p>
-                    </td>
-                    <td className="py-3 pr-4 whitespace-nowrap">
-                      <span
-                        className={`font-mono text-2xs tracking-wide uppercase ${
-                          r.state === "pass"
-                            ? "text-shipped"
-                            : r.state === "fail"
-                              ? "text-accent"
-                              : "text-subtle"
-                        }`}
-                      >
-                        {/* State is named in text, never carried by colour alone. */}
-                        {STATE_LABEL[r.state]}
-                      </span>
-                    </td>
-                    <td className="py-3 text-right font-mono text-sm tabular-nums text-muted">
-                      {r.state === "stub"
-                        ? "—"
-                        : r.maxError < 0
-                          ? "inf"
-                          : r.maxError.toExponential(1)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </>
-        )}
-      </section>
-
-      {/* ---- why it looks like this -------------------------------------- */}
-      <section className="mt-14">
-        <h2 className="border-b border-border pb-2 font-mono text-xs tracking-[0.14em] text-muted uppercase">
-          Why this page exists before the engine does
-        </h2>
-        <div className="mt-5 space-y-4 leading-relaxed text-muted">
-          <p>
-            The scaffolding around an inference engine — the weight format, the
-            build to WebAssembly, the sampling loop, the harness that proves a
-            kernel correct — is a day of plumbing. The forward pass is the part
-            that takes a month and the part an interviewer will actually ask
-            about. Publishing the harness first, with the ops empty, is a way of
-            being straight about which half is done.
-          </p>
-          <p>
-            The fixtures are data, not a reference implementation: inputs and
-            expected outputs, generated once by a numpy oracle. There is nothing
-            in the repository to copy an answer from, which is the point.
-          </p>
-          <p>
-            One of them earned its place immediately. The softmax fixture was
-            originally random values scaled by 40, meant to catch an
-            implementation that forgets to subtract the row max before
-            exponentiating. It did not — the sampled maximum happened to land
-            under the float32 overflow threshold, and the buggy version passed.
-            The fixture now pins one element at 240 explicitly, and the same bug
-            fails with an error of infinity. A test whose difficulty depends on
-            the random draw is not a test.
-          </p>
-        </div>
-      </section>
-
-      {/* ---- the shape of it --------------------------------------------- */}
-      <section className="mt-14">
-        <h2 className="border-b border-border pb-2 font-mono text-xs tracking-[0.14em] text-muted uppercase">
-          What is already here
-        </h2>
-        <dl className="mt-5 space-y-3 text-sm">
+      {meta && (
+        <dl className="mt-8 grid grid-cols-2 gap-5 sm:grid-cols-4">
           {[
-            ["Op contracts", "engines/nano/include/nano_ops.h — shapes and semantics for each kernel, precise enough to implement from."],
-            ["Golden fixtures", "engines/nano/fixtures — six binary cases plus a manifest, regenerated deterministically."],
-            ["Native test loop", "clang++ build, no browser and no Emscripten, so the edit-test cycle is under a second."],
-            ["WebAssembly build", "emcc with -O3 -msimd128, exporting the ops behind a plain C ABI. 7.1 KB raw today, because the ops are empty."],
+            ["parameters", `${(meta.params / 1000).toFixed(0)}K`],
+            ["layers × dim", `${meta.n_layer} × ${meta.n_embd}`],
+            ["engine", "28 KB wasm"],
+            ["network calls", "0"],
           ].map(([k, v]) => (
-            <div key={k} className="grid gap-1 sm:grid-cols-[10rem_1fr] sm:gap-4">
-              <dt className="font-mono text-2xs tracking-wide text-subtle uppercase">{k}</dt>
-              <dd className="leading-relaxed text-muted">{v}</dd>
+            <div key={k}>
+              <dd className="font-mono text-xl tabular-nums text-text">{v}</dd>
+              <dt className="mt-0.5 text-xs text-subtle">{k}</dt>
             </div>
           ))}
         </dl>
+      )}
+
+      <section className="mt-12">
+        <h2 className="mb-5 border-b border-border pb-2 font-mono text-xs tracking-[0.14em] text-muted uppercase">
+          Run it
+        </h2>
+        <NanoMount />
+      </section>
+
+      {/* ---- parity ------------------------------------------------------ */}
+      {parity.length > 0 && (
+        <section className="mt-14">
+          <h2 className="border-b border-border pb-2 font-mono text-xs tracking-[0.14em] text-muted uppercase">
+            Does it match the model it came from?
+          </h2>
+          <p className="mt-4 max-w-2xl leading-relaxed text-muted">
+            The only claim worth making about an engine is that it computes what
+            the reference computes. A fixed prompt is replayed through the C++ —
+            KV cache and all, one token at a time, exactly as generation runs —
+            and the final logits are diffed against PyTorch&rsquo;s.
+          </p>
+          <table className="mt-5 w-full border-collapse">
+            <caption className="sr-only">Logit agreement with PyTorch.</caption>
+            <thead>
+              <tr className="border-b border-border text-left">
+                {["Weights", "Max |diff|", "RMS", "Argmax", "Verdict"].map((h) => (
+                  <th key={h} scope="col" className="py-2 font-mono text-2xs tracking-wide text-subtle uppercase">
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {parity.map((p) => (
+                <tr key={p.weights} className="border-b border-border">
+                  <td className="py-3 font-mono text-sm">{p.weights}</td>
+                  <td className="py-3 font-mono text-sm tabular-nums text-muted">
+                    {p.maxAbsDiff.toExponential(2)}
+                  </td>
+                  <td className="py-3 font-mono text-sm tabular-nums text-muted">
+                    {p.rmsDiff.toExponential(2)}
+                  </td>
+                  <td className="py-3 font-mono text-2xs uppercase text-muted">
+                    {p.argmaxMatch ? "match" : "differs"}
+                  </td>
+                  <td className={`py-3 font-mono text-2xs uppercase ${p.pass ? "text-shipped" : "text-accent"}`}>
+                    {p.pass ? "pass" : "fail"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-subtle">
+            fp32 agrees to about 8 × 10⁻⁶, which is float noise — the layout,
+            the head slicing and the cache are right. int8 diverges by 0.24 in
+            the worst logit, which is not a bug but the quantisation error
+            itself, and it still selects the same token. That gap is the
+            entire trade: a quarter of the download for a distortion small
+            enough not to change the answer here.
+          </p>
+        </section>
+      )}
+
+      {/* ---- ops --------------------------------------------------------- */}
+      {ops && (
+        <section className="mt-14">
+          <h2 className="border-b border-border pb-2 font-mono text-xs tracking-[0.14em] text-muted uppercase">
+            The kernels underneath
+          </h2>
+          <p className="mt-4 text-sm text-subtle">
+            {ops.passing} of {ops.ops.length} matching their golden fixtures ·
+            tolerance {ops.tolerance.toExponential(0)}
+          </p>
+          <ul className="mt-5 space-y-3">
+            {ops.ops.map((r) => (
+              <li key={r.op} className="grid gap-1 sm:grid-cols-[9rem_1fr] sm:gap-4">
+                <span className="font-mono text-sm">
+                  {r.op}
+                  <span
+                    className={`ml-2 text-2xs uppercase ${
+                      r.state === "pass" ? "text-shipped" : r.state === "fail" ? "text-accent" : "text-subtle"
+                    }`}
+                  >
+                    {r.state === "pass" ? "ok" : r.state}
+                  </span>
+                </span>
+                <span className="text-sm leading-relaxed text-muted">
+                  {OP_NOTES[r.op] ?? ""}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* ---- honesty ----------------------------------------------------- */}
+      <section className="mt-14">
+        <h2 className="border-b border-border pb-2 font-mono text-xs tracking-[0.14em] text-muted uppercase">
+          What this is not
+        </h2>
+        <div className="mt-5 max-w-2xl space-y-4 leading-relaxed text-muted">
+          {meta && (
+            <p>
+              <strong className="font-medium text-text">The model is bad, and measurably so.</strong>{" "}
+              {(meta.params / 1000).toFixed(0)}K parameters trained on{" "}
+              {kb(meta.corpusBytes)} of prose: final training loss{" "}
+              <span className="font-mono">{meta.trainLoss.toFixed(2)}</span> against
+              validation <span className="font-mono">{meta.valLoss.toFixed(2)}</span>.
+              That gap is memorisation — there are more parameters here than
+              characters to learn from, which is why the output reproduces
+              fragments of this site rather than saying anything. Fixing it needs
+              a bigger corpus, not a better engine.
+            </p>
+          )}
+          <p>
+            <strong className="font-medium text-text">It is not fast.</strong> The
+            matmul is a cache-aware triple loop and nothing more. The optimisation
+            ladder — blocking, SIMD, an int8 kernel that skips dequantisation — is
+            the interesting part and it has not been climbed yet. Anyone reporting
+            competitive numbers from an engine at this stage has a benchmark bug.
+          </p>
+          <p>
+            <strong className="font-medium text-text">What it is</strong> is the
+            whole path from a weights file to a token, written out and checked
+            against a reference: the format, the loader, the KV cache, the
+            attention, the sampler. The engine is the artefact. The model is a
+            payload that happens to fit.
+          </p>
+        </div>
       </section>
 
       <p className="mt-14 text-sm text-subtle">

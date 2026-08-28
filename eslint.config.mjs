@@ -18,6 +18,10 @@ const eslintConfig = defineConfig([
     "src/lib/search/hnsw-glue.js",
     "public/nano/**",
     "engines/**/.build/**",
+    // The training venv. PyTorch ships JS inside its own package (a model
+    // viewer), and eslint will happily walk into site-packages and report on
+    // somebody else's bundled preact.
+    "**/.venv/**",
   ]),
 ]);
 

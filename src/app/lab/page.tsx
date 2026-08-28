@@ -51,10 +51,10 @@ const DEMOS: Demo[] = [
     slug: "inference",
     title: "A language model running in this tab",
     blurb:
-      "A transformer forward pass written by hand in C++ and compiled to WebAssembly — no framework, no BLAS. The harness is built and public while the kernels are still empty: the page shows the real op-parity tests as the progress bar, so what is done and what is not is a measurement rather than a claim.",
-    status: "building",
-    eta: "January 2027",
+      "A transformer forward pass written by hand in C++ and compiled to WebAssembly — no framework, no BLAS, no server. It generates in your tab from a model trained on this site's own prose. The page carries the logit-parity numbers against PyTorch, and is equally specific about what is still wrong: the model overfits 66 KB of text, and the matmul has not been optimised at all.",
+    status: "live",
     href: "/lab/inference",
+    since: "August 2026",
   },
   {
     slug: "riscv",

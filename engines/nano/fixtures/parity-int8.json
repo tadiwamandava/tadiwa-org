@@ -1,0 +1,10 @@
+{
+  "weights": "int8",
+  "tokens": 26,
+  "vocab": 117,
+  "maxAbsDiff": 0.24126,
+  "rmsDiff": 0.0886875,
+  "tolerance": 0.6,
+  "argmaxMatch": true,
+  "pass": true
+}
