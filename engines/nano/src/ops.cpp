@@ -107,6 +107,31 @@ void matmul(const float* A, const float* B, std::size_t M, std::size_t K,
   }
 }
 
+void matmul_i8(const float* A, const int8_t* Bq, const float* scales,
+               std::size_t M, std::size_t K, std::size_t N, float* C) {
+  // Same i-k-j order as the fp32 path, and for the same reason: the inner loop
+  // walks a row of Bq and a row of C contiguously.
+  //
+  // The scale is applied ONCE per output element at the end rather than per
+  // multiply. Folding it into the inner loop would be N*K multiplications
+  // instead of N, and — more importantly — would stop the accumulator being a
+  // plain sum the compiler can vectorise.
+  for (std::size_t i = 0; i < M; ++i) {
+    float* c_row = C + i * N;
+    for (std::size_t j = 0; j < N; ++j) c_row[j] = 0.0f;
+
+    for (std::size_t k = 0; k < K; ++k) {
+      const float a = A[i * K + k];
+      if (a == 0.0f) continue;
+      const int8_t* b_row = Bq + k * N;
+      for (std::size_t j = 0; j < N; ++j) {
+        c_row[j] += a * static_cast<float>(b_row[j]);
+      }
+    }
+    for (std::size_t j = 0; j < N; ++j) c_row[j] *= scales[j];
+  }
+}
+
 void gelu_inplace(float* x, std::size_t n) {
   // The tanh approximation, because that is what GPT-2's weights were trained
   // against. The exact erf form is a different function; swapping it in shifts

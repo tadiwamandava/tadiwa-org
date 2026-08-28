@@ -6,10 +6,11 @@
     {"op": "softmax", "state": "pass", "maxError": 0, "worstIndex": -1},
     {"op": "matmul", "state": "pass", "maxError": 2.86102e-06, "worstIndex": 141},
     {"op": "gelu", "state": "pass", "maxError": 2.38419e-07, "worstIndex": 18},
-    {"op": "attention", "state": "pass", "maxError": 1.19209e-07, "worstIndex": 19},
+    {"op": "matmul_i8", "state": "pass", "maxError": 4.76837e-07, "worstIndex": 34},
+    {"op": "attention", "state": "pass", "maxError": 1.78814e-07, "worstIndex": 60},
     {"op": "residual_add", "state": "pass", "maxError": 0, "worstIndex": -1}
   ],
-  "passing": 6,
+  "passing": 7,
   "stubbed": 0,
   "failing": 0
 }

@@ -130,6 +130,52 @@
     ]
   },
   {
+    "name": "matmul_i8",
+    "meta": {
+      "op": "matmul_i8",
+      "M": 5,
+      "K": 24,
+      "N": 7
+    },
+    "layout": [
+      {
+        "name": "A",
+        "offset": 0,
+        "count": 120,
+        "shape": [
+          5,
+          24
+        ]
+      },
+      {
+        "name": "codes",
+        "offset": 120,
+        "count": 168,
+        "shape": [
+          24,
+          7
+        ]
+      },
+      {
+        "name": "scales",
+        "offset": 288,
+        "count": 7,
+        "shape": [
+          7
+        ]
+      },
+      {
+        "name": "expected",
+        "offset": 295,
+        "count": 35,
+        "shape": [
+          5,
+          7
+        ]
+      }
+    ]
+  },
+  {
     "name": "attention",
     "meta": {
       "op": "attention",

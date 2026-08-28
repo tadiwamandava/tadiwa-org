@@ -119,6 +119,25 @@ int main() {
     results.push_back(compare("gelu", x.data(), d.data() + n, n));
   }
 
+  // ---- matmul_i8 : A[5x24] codes[24x7] scales[7] expected[5x7] ----------
+  if (!nano::is_implemented("matmul_i8")) {
+    results.push_back(stub("matmul_i8"));
+  } else {
+    auto d = load("matmul_i8");
+    const size_t M = 5, K = 24, N = 7;
+    // Codes are stored as f32 in the fixture (one flat float blob keeps the
+    // loader trivial); narrow them back to int8 here.
+    std::vector<int8_t> codes(K * N);
+    for (size_t i = 0; i < K * N; ++i) {
+      codes[i] = static_cast<int8_t>(d[M * K + i]);
+    }
+    const float* scales = d.data() + M * K + K * N;
+    std::vector<float> C(M * N);
+    nano::matmul_i8(d.data(), codes.data(), scales, M, K, N, C.data());
+    results.push_back(
+        compare("matmul_i8", C.data(), d.data() + M * K + K * N + N, M * N));
+  }
+
   // ---- attention : q,k,v [12x16] expected[12x16] -------------------------
   if (!nano::is_implemented("attention")) {
     results.push_back(stub("attention"));
