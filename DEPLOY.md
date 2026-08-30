@@ -80,12 +80,55 @@ The only other `process.env` reads anywhere in `src/` or `scripts/` are both
 deploy, never `development`), so neither needs a value you set:
 
 - `src/lib/content/index.ts`, hides draft posts outside development.
-- `src/lib/admin/guard.ts`, gates the entire `/admin` content editor behind
-  `NODE_ENV === "development"`. Worth knowing for deploy purposes: this means
-  `/admin` 404s and every one of its Server Actions (which write to the
-  filesystem) throws before touching disk, on every Vercel deployment, with
-  no configuration needed to make that true. That's a deliberate design (see
-  the comment at the top of `guard.ts`), not a gap this doc is flagging.
+- `src/lib/admin/guard.ts`, gates the entire `/admin` content editor. With no
+  admin secrets set, `/admin` 404s and every one of its Server Actions throws
+  before touching disk, on every deployment, with no configuration needed to
+  make that true. Setting the two secrets in §4b turns on a password login
+  instead. **Read §4b before you do that**, because on Vercel the editor will
+  authenticate correctly and then fail to save.
+
+### 4b. Admin login, and why it does not work on Vercel
+
+`ADMIN_PASSWORD_HASH` and `ADMIN_SESSION_SECRET` turn `/admin` into a
+password-protected editor. Generate both with:
+
+```bash
+npm run admin:hash        # prompts, echo off, prints the hash and a secret
+```
+
+The password itself is never written anywhere: not to a file, not to argv
+where `ps` would show it, not to shell history, not to the output. Only the
+scrypt hash is printed. Both variables are required and neither has a default,
+so a half-configured deployment leaves the admin **off**, not open.
+
+Three modes, decided entirely by configuration:
+
+| Secrets set | Environment | `/admin` |
+|---|---|---|
+| no | `next dev` | open, no password (unchanged from before) |
+| no | production | **404** — this is the default |
+| yes | either | password login, 8-hour session |
+
+**The catch, and it is a real one.** The editor writes MDX files into
+`content/`. On Vercel the filesystem is read-only outside `/tmp`, and a
+serverless instance is discarded after the request, so a save would fail, and
+if it did not the file would vanish. Authentication is not what is missing
+there; a persistence layer is. A deployed editor needs writes to go somewhere
+that survives, which means a commit through the GitHub API, a database, or
+object storage, and `ContentStore` in `src/lib/admin/store.ts` is the seam that
+change goes behind.
+
+So the login is worth setting **only** where the filesystem is genuinely
+writable and durable: a VPS, a container with a mounted volume, a local machine
+reachable over a tunnel. On Vercel, leave both unset and keep editing through
+`npm run dev`, which is also the workflow that produces a commit.
+
+Session details, since this guards a route that writes files: the cookie is
+`httpOnly`, `sameSite=strict`, `secure` in production, and scoped to `/admin`
+so it is not attached to any other request. The token is an HMAC-SHA256
+signature over an expiry and a nonce, and the expiry is checked **after** the
+signature so a holder cannot extend their own session. `npm run check:auth`
+asserts all of that, including that a tampered expiry is rejected.
 
 `OPENROUTER_API_KEY`, **optional, and the only secret in this repo.** Enables
 the hosted comparison on `/lab/inference`: the same grounded question sent to

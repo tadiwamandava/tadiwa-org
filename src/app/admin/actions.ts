@@ -6,7 +6,7 @@
  * SECURITY. A `"use server"` export is an HTTP endpoint. It is reachable by
  * anyone who can POST to this origin, whether or not any UI renders a button,
  * and whether or not the page that would call it is even routable. So the
- * first statement of every function here is `assertAdminEnabled()`, before
+ * first statement of every function here is `assertAdminAccess()`, before
  * any input is read, and the filesystem driver asserts again underneath. See
  * `src/lib/admin/guard.ts` for the three layers and why there is no login.
  *
@@ -17,7 +17,8 @@
  */
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { notFound, redirect } from "next/navigation";
 import { z } from "zod";
 
 import type {
@@ -28,7 +29,15 @@ import type {
   SaveResult,
 } from "@/lib/admin/action-types";
 import { newDraft, slugify } from "@/lib/admin/defaults";
-import { assertAdminEnabled } from "@/lib/admin/guard";
+import {
+  clearAttempts,
+  endSession,
+  recordAttempt,
+  startSession,
+  throttled,
+  verifyPassword,
+} from "@/lib/admin/auth";
+import { adminMode, assertAdminAccess } from "@/lib/admin/guard";
 import { rebuildSearchIndex } from "@/lib/admin/search-index";
 import { ContentValidationError, normaliseStringsDeep } from "@/lib/admin/serialize";
 import { contentStore } from "@/lib/admin/store-fs";
@@ -55,7 +64,7 @@ export async function saveEntryAction(
   _previous: SaveResult | null,
   payload: SavePayload,
 ): Promise<SaveResult> {
-  assertAdminEnabled();
+  await assertAdminAccess();
   const savedAt = Date.now();
 
   const parsed = savePayloadSchema.safeParse(payload);
@@ -111,7 +120,7 @@ export async function createEntryAction(
   _previous: CreateResult | null,
   payload: CreatePayload,
 ): Promise<CreateResult> {
-  assertAdminEnabled();
+  await assertAdminAccess();
 
   const parsed = createPayloadSchema.safeParse(payload);
   if (!parsed.success) return { ok: false, message: "Give the entry a title." };
@@ -155,7 +164,7 @@ export async function rebuildSearchAction(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _previous: RebuildState | null,
 ): Promise<RebuildState> {
-  assertAdminEnabled();
+  await assertAdminAccess();
   const result = await rebuildSearchIndex();
   revalidatePath("/admin");
   return {
@@ -165,4 +174,61 @@ export async function rebuildSearchAction(
     durationMs: result.durationMs,
     finishedAt: Date.now(),
   };
+}
+
+/* ---------------------------------------------------------------------------
+   Authentication
+   ------------------------------------------------------------------------ */
+
+export type SignInState = { error: string } | null;
+
+/**
+ * Password sign-in.
+ *
+ * The failure message is the same whether the admin is unconfigured, the
+ * password is wrong, or the attempt was throttled. A login form that says
+ * "wrong password" has confirmed that a password is the only thing missing.
+ *
+ * The throttle key is the forwarded IP where there is one. Behind a proxy that
+ * header is caller-controlled, so this slows a naive attacker and nothing
+ * more, which is why it is not the thing standing between anyone and the
+ * content: an scrypt hash of a long password is.
+ */
+export async function signInAction(
+  _previous: SignInState,
+  formData: FormData,
+): Promise<SignInState> {
+  if (adminMode() === "off") notFound();
+
+  const hash = process.env.ADMIN_PASSWORD_HASH;
+  if (!hash) return { error: "Sign-in is not configured on this deployment." };
+
+  const key =
+    (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
+  const generic = { error: "Incorrect password." };
+
+  if (throttled(key)) return generic;
+
+  // A hand-rolled POST can send anything, including something that is not
+  // FormData at all. Reading it defensively turns that into the same generic
+  // rejection as a wrong password rather than a 500.
+  const password =
+    typeof formData?.get === "function" ? String(formData.get("password") ?? "") : "";
+  if (!password || !verifyPassword(password, hash)) {
+    recordAttempt(key);
+    // A failed guess costs the attacker a scrypt run either way; this just
+    // removes the timing difference between "no password submitted" and
+    // "wrong password".
+    await new Promise((r) => setTimeout(r, 250));
+    return generic;
+  }
+
+  clearAttempts(key);
+  await startSession();
+  redirect("/admin");
+}
+
+export async function signOutAction(): Promise<void> {
+  await endSession();
+  redirect("/admin/login");
 }

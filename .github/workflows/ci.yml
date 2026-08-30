@@ -63,6 +63,13 @@ jobs:
       - name: Grounded prompt format
         run: npm run check:prompt
 
+      # The admin login guards a route that writes files, so its properties are
+      # asserted rather than assumed: salted hashing, constant-time compare, a
+      # session whose expiry is inside the signed payload and therefore cannot
+      # be extended by whoever holds the cookie.
+      - name: Admin auth properties
+        run: npm run check:auth
+
       # The admin is the only thing in this repo that WRITES content, so it is
       # the only thing that can destroy it. This round-trips every file in
       # content/ through the admin's own serialiser and asserts the reparse is

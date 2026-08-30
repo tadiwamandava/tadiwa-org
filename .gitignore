@@ -61,3 +61,6 @@ next-env.d.ts
 # The merged fine-tuned checkpoint (~540 MB fp32). Reproducible from the
 # committed adapter: merge_lora.py, then convert_smollm.py.
 /engines/nano/adapters/grounded-merged/
+
+# Admin secrets never belong in the repo. `npm run admin:hash` prints them for
+# pasting into the deployment's environment; .env* is already ignored above.

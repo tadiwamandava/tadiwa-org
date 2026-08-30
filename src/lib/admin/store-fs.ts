@@ -207,7 +207,7 @@ export class FilesystemContentStore implements ContentStore {
   }
 
   async write(kind: EntryKind, slug: string, draft: EntryDraft): Promise<void> {
-    assertWritesAllowed();
+    await assertWritesAllowed();
     const file = pathFor(kind, slug);
     if (!existsSync(file)) {
       throw new Error(`${relPathFor(kind, slug)} does not exist, use create().`);
@@ -216,7 +216,7 @@ export class FilesystemContentStore implements ContentStore {
   }
 
   async create(kind: EntryKind, slug: string, draft: EntryDraft): Promise<void> {
-    assertWritesAllowed();
+    await assertWritesAllowed();
     const file = pathFor(kind, slug);
     if (existsSync(file)) {
       throw new Error(`${relPathFor(kind, slug)} already exists.`);
