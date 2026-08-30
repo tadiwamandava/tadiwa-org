@@ -6,10 +6,10 @@
  * content writes, and its `dump()` output is tuned for machines: everything
  * quoted, everything on one line, no folded blocks. The corpus is read and
  * diffed by a human, so the emitter here is style-matched to what is already
- * in content/ — flow arrays for tag-ish lists, folded `>-` blocks for prose.
+ * in content/, flow arrays for tag-ish lists, folded `>-` blocks for prose.
  *
  * THE BUG THIS FILE EXISTS TO PREVENT. `title: DSP: Filter Design` is not
- * valid YAML — a plain scalar cannot contain ": ", and gray-matter throws on
+ * valid YAML, a plain scalar cannot contain ": ", and gray-matter throws on
  * the whole file rather than mis-parsing one field. That has already happened
  * in this repo once. So the rule here is inverted from the usual: a string is
  * emitted PLAIN only when it provably survives a round trip, and every other
@@ -64,7 +64,7 @@ export function isPlainSafe(value: string): boolean {
   if (value.includes(" #")) return false;
   // Collection indicators. A comma is legal inside a block-context plain
   // scalar and titles are full of them ("grep, Rebuilt and Benchmarked"), so
-  // it is allowed — which is safe because `flowArray` quotes unconditionally
+  // it is allowed, which is safe because `flowArray` quotes unconditionally
   // and this predicate is never consulted in flow context.
   if (/[[\]{}]/.test(value)) return false;
   if (RESERVED_WORDS.test(value)) return false;
@@ -150,7 +150,7 @@ function flowArray(items: readonly unknown[]): string | null {
     return null;
   }
   // Flow context has more indicators than block context, so every item is
-  // quoted unconditionally — which is also what content/ already looks like.
+  // quoted unconditionally, which is also what content/ already looks like.
   const rendered = `[${strings.map(quote).join(", ")}]`;
   return rendered.length <= FLOW_MAX_TOTAL ? rendered : null;
 }
@@ -253,7 +253,7 @@ function emitMapping(
  * Serialise a frontmatter object to YAML text, ending in a newline.
  *
  * `keyOrder` comes from the Zod shape, so field order in a written file always
- * matches field order in the schema — one canonical layout, so the diff after
+ * matches field order in the schema, one canonical layout, so the diff after
  * an edit shows only what actually changed.
  */
 export function emitFrontmatter(

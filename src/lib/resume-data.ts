@@ -4,7 +4,7 @@ import type { RoleFamily } from "@/lib/content/schema";
 /* ============================================================================
    Résumé content that is NOT in the project corpus.
 
-   The projects on the résumé come from `content/projects/*.mdx` — that is the
+   The projects on the résumé come from `content/projects/*.mdx`. That is the
    whole point of /resume, and it is why the bullets there can never drift from
    the writeups. But a résumé also needs education, employment, and coursework,
    and none of that is a project. This file is the small typed island for that
@@ -27,10 +27,10 @@ import type { RoleFamily } from "@/lib/content/schema";
    The placeholder STRINGS are kept terse, because several of them render in a
    narrow date column and a paragraph of instructions there would wreck the
    layout it is trying to protect. The instructions live in the comments beside
-   each field instead — which is where you will be when you fill them in.
+   each field instead, which is where you will be when you fill them in.
    ========================================================================= */
 
-/** Matches the two placeholder conventions used across this repo — the same
+/** Matches the two placeholder conventions used across this repo, the same
  *  markers `content/projects/*.mdx` and `src/lib/site.ts` already use, so the
  *  résumé inherits every unconfirmed fact from the corpus for free. */
 const PLACEHOLDER_RE = /CONFIRM|TODO\(tadiwa\)/;
@@ -45,7 +45,7 @@ export function needsConfirmation(value: string): boolean {
 
 export interface ContactItem {
   label: string;
-  /** What is printed. Keep it short — this line has to survive a 6pt render. */
+  /** What is printed. Keep it short; this line has to survive a 6pt render. */
   value: string;
   href?: string;
 }
@@ -71,7 +71,7 @@ export const RESUME_IDENTITY = {
   contact: [
     {
       label: "Email",
-      // SITE.email is intentionally blank in src/lib/site.ts — the decision
+      // SITE.email is intentionally blank in src/lib/site.ts; the decision
       // about an alias vs. a personal address has not been made. Until it is,
       // the résumé says so out loud rather than quietly omitting the line.
       value: SITE.email || "CONFIRM: résumé email",
@@ -110,7 +110,7 @@ export interface EducationEntry {
   location: string;
   degree: string;
   /** e.g. "Aug 2024 – May 2028". Split so the two halves can be confirmed
-   *  independently — the start date is knowable, the end date is a forecast. */
+   *  independently: the start date is knowable, the end date is a forecast. */
   start: string;
   end: string;
   /** Omit the line entirely rather than printing a number you are not sure of. */
@@ -133,7 +133,7 @@ export const EDUCATION: EducationEntry[] = [
     // a normal choice; listing one you have not checked this semester is not.
     gpa: "CONFIRM: GPA",
     honors: [
-      "TODO(tadiwa): scholarships, honors college, Dean's List — or delete this list",
+      "TODO(tadiwa): scholarships, honors college, Dean's List, or delete this list",
     ],
   },
 ];
@@ -144,9 +144,9 @@ export const EDUCATION: EducationEntry[] = [
    registrar-checkable employer. */
 export const COURSEWORK: Record<ResumeVariantId, string> = {
   software:
-    "TODO(tadiwa): completed + in-progress courses that matter to a software screener, by their real OU titles — data structures, algorithms, operating systems, computer architecture, discrete math. List only what is on the transcript.",
+    "TODO(tadiwa): completed + in-progress courses that matter to a software screener, by their real OU titles, data structures, algorithms, operating systems, computer architecture, discrete math. List only what is on the transcript.",
   hardware:
-    "TODO(tadiwa): completed + in-progress courses that matter to a hardware screener, by their real OU titles — digital design, signals, circuits, embedded systems, VLSI. List only what is on the transcript.",
+    "TODO(tadiwa): completed + in-progress courses that matter to a hardware screener, by their real OU titles, digital design, signals, circuits, embedded systems, VLSI. List only what is on the transcript.",
 };
 
 /* ---------------------------------------------------------------------------
@@ -161,7 +161,7 @@ export interface ExperienceEntry {
   location: string;
   start: string;
   end: string;
-  /** Which variants show this entry. Employment almost always shows on both —
+  /** Which variants show this entry. Employment almost always shows on both,
    *  a screener who sees a gap asks about the gap. */
   variants: ResumeVariantId[];
   /** Same formula the corpus uses for `resumeBullets`:
@@ -172,7 +172,7 @@ export interface ExperienceEntry {
 export const EXPERIENCE: ExperienceEntry[] = [
   {
     // "University of Oklahoma IT" vs. the specific department that signs your
-    // timesheet — use whatever a background check would return.
+    // timesheet; use whatever a background check would return.
     org: "CONFIRM: employer name",
     // The official title in the OU system, not the one you'd rather have.
     title: "CONFIRM: job title",
@@ -181,9 +181,9 @@ export const EXPERIENCE: ExperienceEntry[] = [
     end: "CONFIRM: end date", // or "Present"
     variants: ["software", "hardware"],
     bullets: [
-      "TODO(tadiwa): the ticket/support bullet, with a real number — how many machines, tickets, or users, over what period. Verb + what + how + measured outcome.",
+      "TODO(tadiwa): the ticket/support bullet, with a real number: how many machines, tickets, or users, over what period. Verb + what + how + measured outcome.",
       "TODO(tadiwa): the automation bullet. Anything you scripted, imaged, or standardised, and the time it took off the queue. This is the bullet that reads as engineering rather than labour.",
-      "TODO(tadiwa): the ownership bullet — a system, process, or piece of documentation you were the person responsible for. Delete this line if there isn't one; two strong bullets beat three padded ones.",
+      "TODO(tadiwa): the ownership bullet: a system, process, or piece of documentation you were the person responsible for. Delete this line if there isn't one; two strong bullets beat three padded ones.",
     ],
   },
 ];
@@ -191,7 +191,7 @@ export const EXPERIENCE: ExperienceEntry[] = [
 /* ---------------------------------------------------------------------------
    Skills
 
-   Most of this section is derived from the corpus at render time — see
+   Most of this section is derived from the corpus at render time; see
    `deriveSkillGroups()` in src/app/resume/select.ts. Nothing appears under
    Languages or Tools unless a project on this site actually uses it.
 
@@ -214,7 +214,7 @@ export const CURATED_SKILL_GROUPS: CuratedSkillGroup[] = [
       // Name the models, not the categories: "Saleae Logic 8, DS1054Z, ST-Link
       // v2, Nucleo-F411RE" is checkable; "test equipment" is not.
       "TODO(tadiwa): instruments and boards you have driven",
-      // Vivado / Quartus / Questa / Verilator / KiCad — only the ones you could
+      // Vivado / Quartus / Questa / Verilator / KiCad, only the ones you could
       // open right now and get a waveform out of.
       "TODO(tadiwa): EDA and simulation tools you have run",
     ],
@@ -224,7 +224,7 @@ export const CURATED_SKILL_GROUPS: CuratedSkillGroup[] = [
     variants: ["software", "hardware"],
     items: [
       // Version control, review, CI, testing discipline. Five or six words
-      // total — screeners skim this row, they do not read it.
+      // total. Screeners skim this row, they do not read it.
       "TODO(tadiwa): working practices, five words",
     ],
   },
@@ -249,7 +249,7 @@ export interface ResumeVariant {
    *
    * Ordering is load-bearing: `select.ts` weights a project's `roleRelevance`
    * score by position in this array, so the first family listed is the one that
-   * decides ties. These are role families and not company names on purpose —
+   * decides ties. These are role families and not company names on purpose,
    * companies reorganise, "does this person debug across the ISA boundary"
    * does not. Nvidia alone maps to four of the ten.
    */
@@ -292,7 +292,7 @@ export const RESUME_VARIANTS: Record<ResumeVariantId, ResumeVariant> = {
 export const DEFAULT_VARIANT: ResumeVariantId = "software";
 
 /** Narrows an untrusted `?variant=` value. Anything unrecognised falls back to
- *  the default rather than 404ing — a mistyped query param on a link you sent a
+ *  the default rather than 404ing, a mistyped query param on a link you sent a
  *  recruiter should still render a résumé. */
 export function parseVariant(raw: string | string[] | undefined): ResumeVariantId {
   const value = Array.isArray(raw) ? raw[0] : raw;

@@ -18,8 +18,8 @@ sourceNote: >-
 hardestThing: >-
   The codebase was plain JSX with no type coverage, already deployed and in use, and
   the feature roadmap could not stop for a rewrite. The work was migrating it to
-  TypeScript incrementally — module by module, keeping the build green and the app
-  shipping the whole way — rather than doing the big-bang rewrite that usually
+  TypeScript incrementally, module by module, keeping the build green and the app
+  shipping the whole way, rather than doing the big-bang rewrite that usually
   strands a project half-converted.
 
 metrics:
@@ -44,12 +44,12 @@ decisions:
     why: >-
       A solo developer on a client deadline cannot also maintain a bespoke framework.
       Adonis brought validation, migrations, and an ORM as one coherent piece with
-      one set of conventions. The cost is a smaller ecosystem than Express — a real
+      one set of conventions. The cost is a smaller ecosystem than Express, a real
       trade I would make again at this team size, and would reconsider on a team of five.
   - made: PostgreSQL with explicit migrations from day one
     rejected: A document store, or an ORM with auto-syncing schema
     why: >-
-      The content model was relational — items, collections, tags, and curators with
+      The content model was relational: items, collections, tags, and curators with
       real foreign keys between them. Auto-sync schema tools are pleasant until the
       first production data migration, at which point the absence of a reviewable
       migration history becomes the problem.
@@ -69,11 +69,11 @@ wouldDoDifferently:
 
 resumeBullets:
   - >-
-    TODO(tadiwa): rewrite with a real number — e.g. "Migrated a deployed 12k-line
+    TODO(tadiwa): rewrite with a real number, e.g. "Migrated a deployed 12k-line
     React codebase from JSX to TypeScript incrementally, maintaining a green build and
     weekly releases across the entire migration."
   - >-
-    TODO(tadiwa): quantify — "Designed and shipped a PostgreSQL-backed curation
+    TODO(tadiwa): quantify: "Designed and shipped a PostgreSQL-backed curation
     platform (React + AdonisJS) serving N users for a real client."
 
 roleRelevance:
@@ -95,7 +95,7 @@ collections, tag and order them, and publish the result to a public-facing view.
 front end, AdonisJS API, PostgreSQL underneath, deployed and used in production.
 
 The interesting engineering was not the CRUD. It was that the application was already
-live when the largest change — full TypeScript adoption — had to happen.
+live when the largest change, full TypeScript adoption, had to happen.
 
 ## The migration, concretely
 
@@ -107,7 +107,7 @@ roadmap. The approach:
    converting them can't cascade. Each one lands as its own small, reviewable commit.
 3. **Model the domain before the components.** Once `Item`, `Collection`, `Tag`, and
    `Curator` were real types, converting the components that consumed them became
-   mechanical — and the compiler started finding actual bugs rather than restating
+   mechanical, and the compiler started finding actual bugs rather than restating
    what I already knew.
 4. **Ratchet, never loosen.** Once a module compiled under strict settings, it stayed
    there.
@@ -122,7 +122,7 @@ Real users on a real deadline changed how I work more than any of the technical
 content did:
 
 - **A deploy is not a finish line.** The first week after launch produced more
-  requirements than the whole design phase — not because the design was wrong, but
+  requirements than the whole design phase, not because the design was wrong, but
   because people only discover what they need once they can touch it.
 - **Client feedback is usually a symptom, not a diagnosis.** "The list feels slow" was
   a rendering problem on one screen and a query problem on another. Both arrived

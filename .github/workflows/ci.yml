@@ -24,7 +24,7 @@ jobs:
       - run: npm ci
 
       # Ordered cheapest-first so a typo fails in seconds rather than after a
-      # full build. `typecheck` runs `next typegen` first — without it, route
+      # full build. `typecheck` runs `next typegen` first, without it, route
       # types lag behind newly added routes and typecheck fails on files that
       # are actually correct.
       - name: Types
@@ -65,20 +65,20 @@ jobs:
       # The admin is the only thing in this repo that WRITES content, so it is
       # the only thing that can destroy it. This round-trips every file in
       # content/ through the admin's own serialiser and asserts the reparse is
-      # deep-equal — plus adversarial YAML scalars, schema/editor field
+      # deep-equal, plus adversarial YAML scalars, schema/editor field
       # coverage, and that invalid content throws instead of reaching disk.
       - name: Admin write-path
         run: npm run check:admin
 
       # tadiwa-nano's op-parity tests. Builds with clang++ (no Emscripten
-      # needed) and passes while the kernels are still stubs — an unstarted op
+      # needed) and passes while the kernels are still stubs, an unstarted op
       # reports as "stub", not as a failure, so the gate goes red only when an
       # implemented op actually diverges from its golden fixture.
       - name: Inference op parity
         run: npm run test:nano
 
-      # End-to-end: replays a fixed prompt through the full C++ forward pass —
-      # KV cache included — and diffs the final logits against the PyTorch
+      # End-to-end: replays a fixed prompt through the full C++ forward pass,
+      # KV cache included, and diffs the final logits against the PyTorch
       # model the weights were exported from. The op tests cannot catch a
       # transposed weight or a mis-sliced head; this can. Needs no Python: the
       # reference logits are committed as a fixture.
@@ -94,7 +94,7 @@ jobs:
 
       # Logit parity for the Llama-family engine. The SmolLM2 weights are too
       # large to commit, so this SKIPS rather than fails when they are absent
-      # (see DEPLOY.md) — it is a gate for anyone who has them locally and a
+      # (see DEPLOY.md), it is a gate for anyone who has them locally and a
       # no-op here. The compile itself still runs, so a syntax error in the
       # engine is caught on every push regardless.
       - name: SmolLM2 logit parity
@@ -104,7 +104,7 @@ jobs:
         run: npm run build
 
       # Sums the JS the home page actually ships on first paint, straight
-      # from .next's build manifests — deliberately excluding anything behind
+      # from .next's build manifests, deliberately excluding anything behind
       # next/dynamic (the PCB-hero canvas, the ⌘K palette, the HNSW wasm and
       # the embedding model must never count against paint). See scripts/check-bundle.ts for why `next
       # build`'s own output can't be scraped for this on Next 16.
@@ -115,7 +115,7 @@ jobs:
       # step just warmed), serves the real production output on :3600, and
       # asserts Lighthouse's performance/accessibility/best-practices/SEO
       # scores plus explicit LCP and CLS budgets against every route listed
-      # in lighthouserc.cjs. Runs last — it's the most expensive gate, and
+      # in lighthouserc.cjs. Runs last, it's the most expensive gate, and
       # everything above it fails faster on a simpler problem.
       #
       # Needs a real browser; ubuntu-latest ships Google Chrome, which
@@ -124,7 +124,7 @@ jobs:
         run: npx lhci autorun --config=./lighthouserc.cjs
 
       # Reports (score breakdowns, traces, screenshots) for every run above,
-      # kept whether the gate passed or failed — a failing score is much
+      # kept whether the gate passed or failed, a failing score is much
       # easier to debug with the actual report than with a pass/fail line.
       - name: Upload Lighthouse reports
         if: always()

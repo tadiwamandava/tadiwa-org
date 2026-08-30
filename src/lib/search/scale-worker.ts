@@ -8,7 +8,7 @@
  * reports progress while it happens.
  *
  * The worker owns its own wasm instance and its own index. It never touches the
- * shipped 99-chunk index — that one stays on the main thread where the query
+ * shipped 99-chunk index, that one stays on the main thread where the query
  * box needs it synchronously.
  */
 

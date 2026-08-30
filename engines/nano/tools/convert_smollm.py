@@ -3,16 +3,16 @@
 Two layout traps, both silent if you get them wrong:
 
   1. `nn.Linear` stores its weight as [out, in]. This engine's matmul wants
-     [in, out]. Everything gets transposed. (GPT-2 is the exception — HF's
-     Conv1D already stores [in, out] — which is exactly the sort of asymmetry
+     [in, out]. Everything gets transposed. (GPT-2 is the exception, HF's
+     Conv1D already stores [in, out], which is exactly the sort of asymmetry
      that makes "just transpose everything" wrong.)
 
   2. Matrices are quantised per OUTPUT COLUMN; the embedding table is quantised
      per ROW. The table is used both as a lookup and, tied, as the output
      projection, and a row scale is the only one that serves both.
 
-Also emits a parity fixture — token ids plus the reference logits at the last
-position — so the C++ can be checked against this exact model before any
+Also emits a parity fixture, token ids plus the reference logits at the last
+position, so the C++ can be checked against this exact model before any
 tokeniser exists on the C++ side.
 
 Run: engines/nano/tools/.venv/bin/python engines/nano/tools/convert_smollm.py
@@ -34,7 +34,7 @@ BASE_MODEL = "HuggingFaceTB/SmolLM2-135M-Instruct"
 #:
 #: The parity fixture is regenerated from whichever model this is, and that is
 #: deliberate. Parity answers "does my engine compute what PyTorch computes for
-#: THE WEIGHTS I SHIP" — checking the engine against a reference for a
+#: THE WEIGHTS I SHIP", checking the engine against a reference for a
 #: different checkpoint than the one in public/nano would be a measurement of
 #: nothing.
 MODEL = sys.argv[1] if len(sys.argv) > 1 else BASE_MODEL
@@ -61,7 +61,7 @@ def resolve_rope_theta(cfg) -> float:
     first version was `getattr(cfg, "rope_theta", 10000.0)`. In this
     transformers version SmolLM2 carries the value inside `rope_scaling`
     instead of as a top-level attribute, so the getattr missed and the default
-    took over — 10000 instead of 100000.
+    took over, 10000 instead of 100000.
 
     The resulting engine was exact at position 0 (the rotation angle is zero at
     position 0 whatever theta is) and drifted further wrong with every
@@ -78,7 +78,7 @@ def resolve_rope_theta(cfg) -> float:
         theta = scaling.get("rope_theta")
     if theta is None:
         raise SystemExit(
-            "  could not determine rope_theta from the config — refusing to "
+            "  could not determine rope_theta from the config, refusing to "
             "assume a default, because the wrong value produces a model that "
             "is exact at position 0 and quietly wrong everywhere after it."
         )
@@ -184,8 +184,8 @@ def main() -> int:
     for t in top:
         print(f"    {t:6d}  {tok.decode([int(t)])!r:14s} logit {ref[t]:.3f}")
 
-    # Tied embeddings appear in state_dict() twice — once as embed_tokens and
-    # once as lm_head — and they are the same tensor. Summing sizes naively
+    # Tied embeddings appear in state_dict() twice, once as embed_tokens and
+    # once as lm_head, and they are the same tensor. Summing sizes naively
     # reports 163M for a model everyone else, including its own name, calls
     # 135M. Deduplicate on storage address.
     seen, n_params = set(), 0

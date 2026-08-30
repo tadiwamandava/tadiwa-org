@@ -2,7 +2,7 @@
 //!
 //! WHY QUANTISE AT ALL. MiniLM-L6 emits 384-dimensional float32 embeddings.
 //! At ~110 chunks that is 110 x 384 x 4 = 169 kB of float, and float32 barely
-//! compresses — the mantissa bits are noise to a gzip window, so the transfer
+//! compresses, the mantissa bits are noise to a gzip window, so the transfer
 //! size is close to the raw size. Symmetric int8 quantisation cuts it to a
 //! quarter (~42 kB) for a measurable but tiny ranking cost, because the
 //! vectors are L2-normalised: every component lands in [-1, 1], the
@@ -12,7 +12,7 @@
 //! PER-VECTOR SCALE, not per-tensor. One global scale would be set by whichever
 //! single chunk happens to have the most peaked embedding, and every other
 //! vector would then use a fraction of the 8-bit range. A per-vector scale
-//! costs 4 bytes per row — under 1% overhead — and keeps every row using all
+//! costs 4 bytes per row, under 1% overhead, and keeps every row using all
 //! 255 codes.
 //!
 //! The reconstruction error is not hand-waved: `scripts/build-embeddings.ts`
@@ -59,7 +59,7 @@ impl std::fmt::Display for QuantError {
             QuantError::TooShort => write!(f, "vector payload is shorter than its 16-byte header"),
             QuantError::BadMagic(m) => write!(
                 f,
-                "bad magic 0x{m:08X} — expected 0x{MAGIC:08X}; is this vectors.bin?"
+                "bad magic 0x{m:08X}, expected 0x{MAGIC:08X}; is this vectors.bin?"
             ),
             QuantError::LengthMismatch { expected, actual } => write!(
                 f,
@@ -105,7 +105,7 @@ impl<'a> Quantized<'a> {
 
     /// Dequantises row `i` into `out`.
     ///
-    /// Deliberately NOT re-normalised here — `Hnsw::insert` normalises on the
+    /// Deliberately NOT re-normalised here, `Hnsw::insert` normalises on the
     /// way in, and doing it twice would hide a codec that had drifted the norm
     /// somewhere it should not be.
     pub fn row_into(&self, i: usize, out: &mut [f32]) {

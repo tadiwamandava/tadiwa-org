@@ -47,7 +47,7 @@ export function CommandPalette() {
 
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  // The semantic pass IS async, so it lands in state — but from a promise
+  // The semantic pass IS async, so it lands in state, but from a promise
   // callback, never synchronously in an effect body. Declared up here
   // because hide() resets it.
   const [semanticRows, setSemanticRows] = useState<{ q: string; rows: Row[] } | null>(null);
@@ -128,7 +128,7 @@ export function CommandPalette() {
   );
 
   // Computed DURING RENDER, not in an effect. `searchLexical` is synchronous,
-  // so there is nothing to await — routing it through an effect would only add
+  // so there is nothing to await, routing it through an effect would only add
   // a second render pass and a frame where the list is stale.
   const lexicalRows = useMemo<Row[]>(() => {
     if (!open) return [];

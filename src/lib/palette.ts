@@ -7,7 +7,7 @@ import { join } from "node:path";
  * Reads the design tokens out of globals.css at build time.
  *
  * Open Graph images are rendered by Satori, which has no CSS custom properties
- * and no stylesheet — every colour must be a literal. The obvious move is to
+ * and no stylesheet, every colour must be a literal. The obvious move is to
  * paste the hex values into the OG component, and the obvious move is wrong for
  * the same reason it was wrong in the contrast checker: a second copy of the
  * palette drifts, and then link previews quietly render last month's brand.
@@ -56,7 +56,7 @@ export function getPalette(): { light: Palette; dark: Palette } {
   return cached;
 }
 
-/** OG cards render on a dark ground — it reads consistently against both
+/** OG cards render on a dark ground, it reads consistently against both
  *  light and dark chrome in every social client. */
 export function ogPalette() {
   const { dark } = getPalette();

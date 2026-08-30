@@ -2,7 +2,7 @@
 //
 // Two stages, and the first one is where implementations quietly go wrong.
 //
-//   1. PRE-TOKENISATION splits text into chunks that merges may never cross —
+//   1. PRE-TOKENISATION splits text into chunks that merges may never cross,
 //      roughly "a run of letters, optionally preceded by one space". Get this
 //      wrong and every downstream token is different from the reference, the
 //      model sees a sequence it was never trained on, and the output is fluent
@@ -12,7 +12,7 @@
 //
 // The reference pre-tokeniser is a regex using Unicode property classes, which
 // std::regex does not support. This implements the same partition by hand for
-// ASCII, treating any byte >= 0x80 as a letter — correct for Latin scripts, an
+// ASCII, treating any byte >= 0x80 as a letter, correct for Latin scripts, an
 // approximation elsewhere. `bpe_selftest` measures the real agreement against
 // HuggingFace rather than assuming it.
 #pragma once
@@ -35,7 +35,7 @@ class Bpe {
   /// sequence; callers accumulate and decode as a stream.
   const std::string& token_bytes(int id) const;
 
-  /// Id for an added token written out literally — "<|im_end|>" and friends —
+  /// Id for an added token written out literally, "<|im_end|>" and friends,
   /// or -1 if this vocabulary has no such token. Chat templates are built from
   /// these, so a caller that gets -1 should say so rather than guess an id.
   int special_id(const std::string& text) const;
@@ -60,7 +60,7 @@ class Bpe {
   std::string empty_;
 
   void merge_word(std::vector<int>& ids) const;
-  /// Encodes a span with no added tokens in it — the ordinary BPE path.
+  /// Encodes a span with no added tokens in it, the ordinary BPE path.
   void encode_plain(const std::string& text, std::vector<int>& out) const;
 };
 

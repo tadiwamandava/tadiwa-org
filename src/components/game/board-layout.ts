@@ -1,5 +1,5 @@
 /* ============================================================================
-   board-layout.ts — the deterministic PCB floorplan.
+   board-layout.ts, the deterministic PCB floorplan.
 
    Pure maths, zero dependencies, no DOM and no canvas. Two consumers share it
    and must agree to the pixel:
@@ -7,7 +7,7 @@
      1. the renderer, which draws the copper; and
      2. the React overlay, which parks a real <a> on top of every chip.
 
-   Because it is pure, the overlay keeps working if the renderer never loads —
+   Because it is pure, the overlay keeps working if the renderer never loads,
    the canvas is decoration layered *under* the links, not the thing that
    positions them.
 
@@ -19,7 +19,7 @@
    taller than the board. The one number both presentations must agree on is
    `rows`, and `balancedCols` below is what makes them agree.
 
-   An earlier revision fixed the stage at `clamp(360px, 42vw, 540px)` — a guess
+   An earlier revision fixed the stage at `clamp(360px, 42vw, 540px)`, a guess
    that knew neither the project count nor the row count, so at 768px it clipped
    five of eleven cards behind an inner scrollbar. `benchRows()` replaces the
    guess.
@@ -36,7 +36,7 @@ export interface Point {
 
 export interface ChipLayout {
   index: number;
-  /** Footprint rect, top-left anchored — this is also the <a> hit target. */
+  /** Footprint rect, top-left anchored, this is also the <a> hit target. */
   x: number;
   y: number;
   w: number;
@@ -79,7 +79,7 @@ export interface BoardLayout {
 
 /* ---------------------------------------------------------------------------
    Legibility thresholds. Below these the board is illegible and the caller
-   should render the plain HTML list instead — a cramped board is worse than no
+   should render the plain HTML list instead, a cramped board is worse than no
    board, and every one of these numbers exists because a screenshot at some
    viewport was unreadable without it.
    ------------------------------------------------------------------------ */
@@ -101,13 +101,13 @@ const MAX_CHIP_H = 92;
 const MIN_V_GUTTER = 26;
 
 /** Past four rows the thing stops reading as a board and starts reading as a
-    list with extra steps — at which point the actual list is the better answer. */
+    list with extra steps, at which point the actual list is the better answer. */
 const MAX_ROWS = 4;
 
 /** Four is also the ceiling on columns, and for a second reason: it is the cap
     the stylesheet's card grid uses, and the two must reach the same answer or
     the reserved height belongs to a row count the board does not use. Sharing
-    `gridCost` is not enough — they have to share the candidate set too. */
+    `gridCost` is not enough; they have to share the candidate set too. */
 export const MAX_COLS = 4;
 
 /* Vertical furniture below the last row of chips. */
@@ -116,12 +116,12 @@ const BUS_GAP = 34;
 const CHANNEL = 26;
 
 /* ---------------------------------------------------------------------------
-   Column selection — one cost function, two consumers.
+   Column selection, one cost function, two consumers.
 
    Both the canvas board and the plain CSS card grid have to answer the same
    question: given n items and a ceiling on columns, how many columns look
    deliberate? The answer is dominated by what the LAST row does. Eleven items
-   in five columns is 5/5/1 — an orphan beside four empty cells, which is what
+   in five columns is 5/5/1, an orphan beside four empty cells, which is what
    the fallback grid used to render. Eleven in four is 4/4/3, which reads as a
    floorplan.
 
@@ -137,7 +137,7 @@ export function gridCost(n: number, cols: number): number {
 
 /**
  * The column count for a plain grid of `n` cards capped at `cap` columns.
- * Used by the CSS fallback, which has no measurements to work from — only the
+ * Used by the CSS fallback, which has no measurements to work from, only the
  * project count, which is known on the server.
  */
 export function balancedCols(n: number, cap: number): number {
@@ -188,7 +188,7 @@ function fitColumns(
 
   /* Two ceilings on the package height. `cellH * 0.54` keeps a routing channel
      between rows; `chipW * 0.46` keeps the package chip-shaped when the box is
-     generous — a tall cell should buy more copper, not a squarer part. */
+     generous, a tall cell should buy more copper, not a squarer part. */
   const chipH = clamp(
     Math.round(Math.min(cellH * 0.54, chipW * 0.46)),
     MIN_CHIP_H,
@@ -292,7 +292,7 @@ export function pointAt(chip: ChipLayout, s: number): Point {
   return path[path.length - 1];
 }
 
-/** The sub-polyline between two arc lengths — one travelling signal pulse. */
+/** The sub-polyline between two arc lengths, one travelling signal pulse. */
 export function sliceAt(chip: ChipLayout, s0: number, s1: number): Point[] {
   const a = Math.max(0, Math.min(s0, s1));
   const b = Math.min(chip.length, Math.max(s0, s1));
@@ -392,7 +392,7 @@ export function computeBoardLayout(
     const x = Math.round(cellLeft + (cellW - chipW) / 2);
     /* The chip sits high in its cell so there is copper visible BELOW it. The
        previous revision centred it, which put the feeder exactly on the chip's
-       bottom edge and made every drop segment zero-length — the traces grazed
+       bottom edge and made every drop segment zero-length, the traces grazed
        the packages instead of entering them. */
     const y = Math.round(cellTop + vGutter * 0.35);
     const cx = x + chipW / 2;
@@ -473,7 +473,7 @@ export function computeBoardLayout(
   ].filter((p) => p.x > mountR && p.y > mountR);
 
   /* Label metrics. The overlay's <a> is parked on the footprint, so how much
-     text fits is a property of the footprint — computed once, here, rather than
+     text fits is a property of the footprint, computed once, here, rather than
      guessed by a media query that cannot see the chip. Budget: 12px of padding,
      ~15px for the designator line, 1px gap. */
   const labelFont = chipW >= 200 ? 11 : 10;
@@ -510,7 +510,7 @@ function clamp(v: number, lo: number, hi: number): number {
   return Math.min(hi, Math.max(lo, v));
 }
 
-/** Deterministic PRNG — the same board on every paint, resize and reload. */
+/** Deterministic PRNG, the same board on every paint, resize and reload. */
 function mulberry32(seed: number): () => number {
   let a = seed >>> 0;
   return () => {

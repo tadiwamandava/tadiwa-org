@@ -1,8 +1,8 @@
-// tadiwa-nano — the primitive ops a transformer forward pass is made of.
+// tadiwa-nano, the primitive ops a transformer forward pass is made of.
 //
-// THESE ARE THE PARTS YOU WRITE. Everything else in this directory — weight
+// THESE ARE THE PARTS YOU WRITE. Everything else in this directory, weight
 // loading, the tokenizer, sampling, the WebAssembly bindings, the test runner,
-// the browser UI — is plumbing that exists so that implementing the functions
+// the browser UI, is plumbing that exists so that implementing the functions
 // below is the only thing standing between you and a working engine.
 //
 // Each declaration states the shapes and the semantics precisely enough to
@@ -14,7 +14,7 @@
 // A note on why the stubs are here rather than filled in: an interviewer will
 // pick a file in this repo and ask you to walk through it. The ops below are
 // exactly the ones they will pick, so they need to be yours. The reference in
-// tools/make_fixtures.py is numpy — deliberately, because transliterating
+// tools/make_fixtures.py is numpy, deliberately, because transliterating
 // numpy into cache-aware C++ leaves all of the actual engineering (loop order,
 // blocking, memory layout, quantisation) still to do.
 //
@@ -32,7 +32,7 @@ namespace nano {
 ///   out[i] = (x[i] - mean) / sqrt(var + eps) * weight[i] + bias[i]
 ///
 /// where mean and var are taken over all `n` elements of this row, and `var`
-/// is the BIASED estimate (divide by n, not n-1) — this is what every
+/// is the BIASED estimate (divide by n, not n-1); this is what every
 /// transformer implementation uses, and getting it wrong shifts logits by an
 /// amount too small to see and too large to ignore.
 ///
@@ -51,7 +51,7 @@ void softmax_inplace(float* x, std::size_t n);
 ///   A is (M x K), B is (K x N), C is (M x N).
 ///
 /// The naive triple loop is the correct place to start and is what the fixture
-/// checks. Once it passes, this is the function worth optimising — it is where
+/// checks. Once it passes, this is the function worth optimising; it is where
 /// essentially all of the time goes, and PERFORMANCE.md is meant to record what
 /// each change bought.
 void matmul(const float* A, const float* B, std::size_t M, std::size_t K,
@@ -61,7 +61,7 @@ void matmul(const float* A, const float* B, std::size_t M, std::size_t K,
 ///
 ///   A      is (M x K) float
 ///   Bq     is (K x N) int8, row-major
-///   scales is (N) float — ONE PER OUTPUT COLUMN, not one per tensor
+///   scales is (N) float, ONE PER OUTPUT COLUMN, not one per tensor
 ///   C      is (M x N) float
 ///
 /// Weight-only quantisation (W8A32). This exists because it is the only way a
@@ -101,7 +101,7 @@ void gelu_inplace(float* x, std::size_t n);
 void attention_head(const float* q, const float* k, const float* v,
                     std::size_t T, std::size_t head_dim, float* out);
 
-/// RMS normalisation — what Llama-family models use instead of layernorm.
+/// RMS normalisation, what Llama-family models use instead of layernorm.
 ///
 ///   out[i] = x[i] / sqrt(mean(x^2) + eps) * weight[i]
 ///
@@ -118,7 +118,7 @@ void silu_inplace(float* x, std::size_t n);
 /// Rotary position embedding, applied in place to one head's vector.
 ///
 /// Encodes position by ROTATING pairs of channels rather than adding a learned
-/// vector, so relative position falls out of the dot product for free — which
+/// vector, so relative position falls out of the dot product for free, which
 /// is why it generalises past the trained context length where a learned table
 /// simply runs out.
 ///

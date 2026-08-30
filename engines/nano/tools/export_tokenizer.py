@@ -12,7 +12,7 @@ Two decisions that make the C++ side small:
      on a pair of ints instead of string concatenation in an inner loop.
 
   3. ADDED TOKENS are listed explicitly at the end. They are not byte-level, so
-     the merge loop can never produce them — without this list the C++ encoder
+     the merge loop can never produce them, without this list the C++ encoder
      would tokenise the literal text "<|im_end|>" as fourteen ordinary bytes and
      an instruct model would never see the turn boundary it was trained on.
      Reference tokenisers split on these before the pre-tokeniser runs; so does
@@ -115,7 +115,7 @@ def main() -> int:
         "def foo(x): return x ** 2",
         "don't  can't  I'll  we've",
         "numbers 1234 and 007 mixed",
-        "em—dash, curly “quotes”, arrow → and ⌘K",
+        "em, dash, curly “quotes”, arrow → and ⌘K",
         "newlines\nand\ttabs",
         "CamelCase snake_case kebab-case",
         "a",

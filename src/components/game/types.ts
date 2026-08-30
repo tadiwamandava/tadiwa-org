@@ -33,7 +33,7 @@ export interface BenchProject {
 export interface ProbeTarget {
   x: number;
   y: number;
-  /** False when the pointer has left the board — the probe fades out. */
+  /** False when the pointer has left the board, the probe fades out. */
   visible: boolean;
 }
 

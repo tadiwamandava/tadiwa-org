@@ -2,7 +2,7 @@
 # Generate text from the engine, natively.
 #
 # The parity tests tell you whether the numbers are right. This tells you what
-# it sounds like, which is the other half of knowing a kernel works — a matmul
+# it sounds like, which is the other half of knowing a kernel works, a matmul
 # with a subtly wrong stride can stay inside tolerance on a 26-token fixture
 # and still produce visible mush over 200.
 #

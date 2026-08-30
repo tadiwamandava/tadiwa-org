@@ -34,7 +34,7 @@ export class Index {
      * Builds the graph from a `vectors.bin` payload (see `quant`).
      *
      * Insertion is the expensive half of HNSW and it happens here, on the main
-     * thread, once — which is why the caller is expected to do this off the
+     * thread, once, which is why the caller is expected to do this off the
      * critical path, after the user has actually engaged with search.
      * @param {Uint8Array} bytes
      */
@@ -93,7 +93,7 @@ export class Index {
         return ret >>> 0;
     }
     /**
-     * Flat `[layer, node, layer, node, …]` — where each layer's descent landed.
+     * Flat `[layer, node, layer, node, …]`, where each layer's descent landed.
      * @returns {Uint32Array}
      */
     lastPath() {
@@ -436,7 +436,7 @@ async function __wbg_init(module_or_path) {
     }
 
     if (module_or_path === undefined) {
-        throw new Error('hnsw glue: call init({ module_or_path }) with an explicit URL — the bundled default path was removed at build time.');
+        throw new Error('hnsw glue: call init({ module_or_path }) with an explicit URL, the bundled default path was removed at build time.');
     }
     const imports = __wbg_get_imports();
 

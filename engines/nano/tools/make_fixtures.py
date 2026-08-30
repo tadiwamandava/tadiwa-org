@@ -2,7 +2,7 @@
 
 This is a test ORACLE, not a reference implementation to copy. It emits inputs
 and expected outputs as binary blobs; the C++ under test never sees this code,
-and there is nothing here that transliterates into a fast kernel — numpy hides
+and there is nothing here that transliterates into a fast kernel, numpy hides
 exactly the loop ordering, blocking and memory layout that the C++ exists to
 get right.
 
@@ -62,7 +62,7 @@ def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     cases = []
 
-    # layernorm — includes a row with a large offset, which is where an
+    # layernorm, includes a row with a large offset, which is where an
     # unstable implementation shows up.
     n = 64
     x = RNG.normal(0, 1, n).astype(np.float32) * 3.0 + 12.0
@@ -72,7 +72,7 @@ def main() -> None:
                                  "expected": layernorm(x, g, b, 1e-5)},
                    {"op": "layernorm", "n": n, "eps": 1e-5}))
 
-    # softmax — one element is pinned far above the float32 exp ceiling.
+    # softmax, one element is pinned far above the float32 exp ceiling.
     #
     # This started as `normal(0,1) * 40` and it did NOT catch the bug it was
     # written for: a softmax with no max-subtraction passed, because the
@@ -86,7 +86,7 @@ def main() -> None:
     cases.append(w("softmax", {"x": x, "expected": softmax(x)},
                    {"op": "softmax", "n": n}))
 
-    # matmul — non-square and non-power-of-two, so an index bug cannot hide
+    # matmul, non-square and non-power-of-two, so an index bug cannot hide
     # behind a symmetric shape.
     M, K, N = 17, 33, 9
     A = RNG.normal(0, 1, (M, K)).astype(np.float32)
@@ -98,7 +98,7 @@ def main() -> None:
     x = RNG.normal(0, 2, n).astype(np.float32)
     cases.append(w("gelu", {"x": x, "expected": gelu(x)}, {"op": "gelu", "n": n}))
 
-    # matmul_i8 — one column is given a 50x larger range than the rest. With a
+    # matmul_i8, one column is given a 50x larger range than the rest. With a
     # single per-tensor scale that column dictates the quantisation step and
     # every other column loses most of its resolution; with per-column scales
     # it costs nothing. The fixture is built so the difference is visible.
@@ -108,7 +108,7 @@ def main() -> None:
     Bf[:, 3] *= 50.0
     scales = (np.abs(Bf).max(axis=0) / 127.0).astype(np.float32)
     Bq = np.clip(np.round(Bf / scales), -127, 127).astype(np.int8)
-    # Expected is the DEQUANTISED product, not the original — the kernel is
+    # Expected is the DEQUANTISED product, not the original, the kernel is
     # exact with respect to the codes it is given, and asserting against Bf
     # would be asserting that quantisation is lossless.
     expected = (A @ Bq.astype(np.float32)) * scales
@@ -125,7 +125,7 @@ def main() -> None:
                                  "expected": attention(q, k, v)},
                    {"op": "attention", "T": T, "head_dim": hd}))
 
-    # rmsnorm — offset far from zero, which is exactly where an implementation
+    # rmsnorm, offset far from zero, which is exactly where an implementation
     # that "helpfully" subtracts the mean diverges from one that does not.
     n = 64
     x = RNG.normal(0, 1, n).astype(np.float32) * 2.0 + 9.0
@@ -139,7 +139,7 @@ def main() -> None:
     cases.append(w("silu", {"x": x, "expected": (x / (1 + np.exp(-x))).astype(np.float32)},
                    {"op": "silu", "n": n}))
 
-    # rope — the rotate_half pairing (channel i with i+half), matching HF.
+    # rope, the rotate_half pairing (channel i with i+half), matching HF.
     hd, pos, theta = 64, 37, 10000.0
     v = RNG.normal(0, 1, hd).astype(np.float32)
     half = hd // 2

@@ -10,16 +10,16 @@ import { needsConfirmation, type ResumeVariant } from "@/lib/resume-data";
    something the writeup does not.
 
    Three things are being decided here:
-     1. WHICH projects are ELIGIBLE at all        — from `status`
-     2. Which of those appear, and in what order  — from `roleRelevance`
-     3. HOW MANY bullets each one gets            — from the tier, then a budget
+     1. WHICH projects are ELIGIBLE at all, from `status`
+     2. Which of those appear, and in what order, from `roleRelevance`
+     3. HOW MANY bullets each one gets, from the tier, then a budget
 
    None of them invents text. If a project has no `resumeBullets`, this file
    surfaces that as a content bug rather than papering over it with the pitch.
    ========================================================================= */
 
 /**
- * Status gate — the first and most important filter.
+ * Status gate. The first and most important filter.
  *
  * A résumé is a claim about work that exists. `planned` projects are scheduled,
  * not started; the site lists them because a dated, visible trajectory is worth
@@ -71,7 +71,7 @@ const TIER_BULLETS: Record<Tier, number> = {
  * One page is the constraint that makes this section hard. Education and
  * employment take roughly a third of a US Letter sheet at 9.6pt, which leaves
  * room for about eight project bullets plus a skills block. When the corpus
- * outgrows that, this number is the knob — not the font size.
+ * outgrows that, this number is the knob rather than the font size.
  */
 const PAGE_BULLET_BUDGET = 8;
 
@@ -95,7 +95,7 @@ function scoreFor(project: Project, variant: ResumeVariant): number {
  * Tier from the project's single strongest signal, not its total.
  *
  * A project that scores 3 on exactly one relevant family is a lead project for
- * that family — being narrow is not a demerit. Summing instead would rank a
+ * that family, being narrow is not a demerit. Summing instead would rank a
  * project that is a 1 across six families above a genuine specialist, which is
  * exactly backwards for an internship screen.
  */
@@ -107,7 +107,7 @@ function tierFor(project: Project, variant: ResumeVariant): Tier | null {
   if (peak >= 3) return "lead";
   if (peak === 2) return "support";
   if (peak === 1) return "mention";
-  return null; // scored 0 everywhere this variant cares about — it does not belong
+  return null; // scored 0 everywhere this variant cares about; it does not belong
 }
 
 function reasonsFor(project: Project, variant: ResumeVariant): ScoredReason[] {
@@ -195,7 +195,7 @@ function tally(values: string[][]): DerivedSkill[] {
  * stuffing a skills row is the cheapest thing on a résumé and the fastest thing
  * to unravel in a phone screen.
  *
- * Derived from the whole corpus, not the variant's selection — a hardware team
+ * Derived from the whole corpus rather than the variant's selection, because a hardware team
  * asking "do you know SQL" wants the true answer, not the on-message one. But
  * the status gate applies here too, and it bites hardest in this section: a
  * `planned` CUDA project would otherwise put CUDA in the skills row of someone
@@ -224,7 +224,7 @@ export interface Placeholder {
  * Walks a plain-data tree and collects every string still carrying a
  * `CONFIRM:` / `TODO(tadiwa):` marker.
  *
- * Feed it plain data only — never a `Project`, whose `body` is the entire MDX
+ * Feed it plain data only, never a `Project`, whose `body` is the entire MDX
  * document and would drown the list. The résumé passes it the specific fields
  * it renders.
  */

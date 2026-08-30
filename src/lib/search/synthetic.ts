@@ -2,7 +2,7 @@
  * A synthetic corpus in the shipped vector format.
  *
  * WHY THIS EXISTS. /lab/search's honest finding is that at 99 chunks the graph
- * does not save work — a full scan is already 99 distance evaluations, and the
+ * does not save work, a full scan is already 99 distance evaluations, and the
  * walk costs about the same. The claim that HNSW earns its place at scale is
  * therefore not demonstrable on this site's own corpus, and quoting somebody
  * else's benchmark for it would be exactly the kind of assertion this page
@@ -11,7 +11,7 @@
  * So the page builds a second index, in the visitor's browser, from vectors it
  * generates: 100× the rows, the same 384 dimensions, the same `Index::build`,
  * the same `search` and `brute_force`. The vectors are synthetic and the page
- * says so — what is being measured is the graph's behaviour as n grows, and
+ * says so, what is being measured is the graph's behaviour as n grows, and
  * that is a property of the algorithm, not of the text.
  *
  * The payload is a real `vectors.bin` (see crates/hnsw/src/quant.rs), byte for
@@ -28,7 +28,7 @@ export interface SyntheticCorpus {
   payload: ArrayBuffer;
   count: number;
   dim: number;
-  /** Dequantised row `i` — identical arithmetic to what the index stored. */
+  /** Dequantised row `i`, identical arithmetic to what the index stored. */
   row(i: number): Float32Array;
 }
 

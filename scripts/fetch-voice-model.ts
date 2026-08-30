@@ -19,7 +19,7 @@ const t0 = Date.now();
 console.log(`\n  fetching ${MODEL} (q8) …`);
 const asr = await pipeline("automatic-speech-recognition", MODEL, { dtype: "q8" });
 
-// One second of silence. Proves the files downloaded intact — a truncated
+// One second of silence. Proves the files downloaded intact, a truncated
 // cache fails here rather than in a visitor's browser.
 //
 // It proves NOTHING about whether the browser can run them. onnxruntime-node

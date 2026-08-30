@@ -17,7 +17,7 @@ copy_minilm() {
   local src="$CACHE/Xenova/all-MiniLM-L6-v2"
   local dst="public/models/all-MiniLM-L6-v2"
   if [ ! -d "$src" ]; then
-    echo "  MiniLM cache not found — run 'npm run build:search' first" >&2
+    echo "  MiniLM cache not found, run 'npm run build:search' first" >&2
     missing=1
     return
   fi
@@ -31,7 +31,7 @@ copy_whisper() {
   local src="$CACHE/onnx-community/whisper-tiny.en"
   local dst="public/models/whisper-tiny.en"
   if [ ! -d "$src" ]; then
-    echo "  Whisper cache not found — run 'npm run build:voice' first" >&2
+    echo "  Whisper cache not found, run 'npm run build:voice' first" >&2
     missing=1
     return
   fi

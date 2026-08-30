@@ -2,7 +2,7 @@
  * Shapes crossing the Server Action boundary.
  *
  * Separate from `src/app/admin/actions.ts` because a `"use server"` module may
- * only export async functions — everything else in it becomes a callable
+ * only export async functions, everything else in it becomes a callable
  * endpoint. Types are erased, so they live here and are imported by both
  * sides.
  */
@@ -23,7 +23,7 @@ export type SaveResult =
       /** `Date.now()` at save. Doubles as the identity of this save. */
       savedAt: number;
       path: string;
-      /** Non-fatal notes — e.g. YAML comments that did not survive. */
+      /** Non-fatal notes, e.g. YAML comments that did not survive. */
       warnings: string[];
     }
   | {

@@ -1,5 +1,5 @@
 /**
- * The hosted comparison — the same grounded question, answered by Kimi K3.
+ * The hosted comparison, the same grounded question, answered by Kimi K3.
  *
  * This is the one thing on the page that leaves the machine, and it is opt-in
  * per question rather than per session for that reason: a visitor who never
@@ -7,7 +7,7 @@
  *
  * Only the question is sent. The server does its own retrieval over the same
  * committed corpus and builds the prompt itself, so this cannot be used to
- * relay arbitrary text to a paid API — see src/app/api/compare/route.ts.
+ * relay arbitrary text to a paid API, see src/app/api/compare/route.ts.
  */
 
 export type HostedState =
@@ -34,7 +34,7 @@ export async function askHosted(
     const body = await res.json().catch(() => ({}) as { detail?: string; error?: string });
     const detail = body.detail ?? body.error ?? `HTTP ${res.status}`;
     // 503 is "no key on this deployment", which is a configuration state
-    // rather than a fault — the caller renders it differently.
+    // rather than a fault, the caller renders it differently.
     throw Object.assign(new Error(detail), { unavailable: res.status === 503 });
   }
 

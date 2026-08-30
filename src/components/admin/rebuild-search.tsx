@@ -4,7 +4,7 @@
  * The search-index rebuild button.
  *
  * The honesty requirement here is the whole point. `public/search/*` is
- * generated from the corpus, and editing content does not regenerate it — so
+ * generated from the corpus, and editing content does not regenerate it, so
  * between a save and a rebuild, ⌘K is answering from an index that does not
  * match the site. Rather than hiding that, the button states it, shows when
  * the index was last built, and reports the script's real output when it runs.
@@ -66,7 +66,7 @@ export function RebuildSearch({ status }: { status: IndexStatus }) {
 
       <p className="mt-1.5 text-xs text-subtle">
         Runs <code className="font-mono">npm run build:search</code>. Embeds the whole corpus
-        locally — expect tens of seconds. Dev only.
+        locally, expect tens of seconds. Dev only.
       </p>
 
       {pending && (

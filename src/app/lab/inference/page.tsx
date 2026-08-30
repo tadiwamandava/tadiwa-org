@@ -16,7 +16,7 @@ import {
 export const metadata: Metadata = {
   title: "Inference engine",
   description:
-    "A transformer forward pass written by hand in C++, compiled to WebAssembly, running a 135M-parameter model in your browser — with the logit-parity numbers against PyTorch.",
+    "A transformer forward pass written by hand in C++, compiled to WebAssembly, running a 135M-parameter model in your browser, with the logit-parity numbers against PyTorch.",
 };
 
 const kb = (n: number) => `${(n / 1024).toFixed(0)} KB`;
@@ -47,9 +47,9 @@ export default function InferenceLabPage() {
       </h1>
       <p className="mt-5 max-w-2xl text-lg leading-relaxed text-muted">
         A transformer forward pass written by hand in C++ and compiled to
-        WebAssembly — no ML framework, no BLAS, no server, no API key. Ask the
+        WebAssembly: no ML framework, no BLAS, no server, no API key. Ask the
         box below a question and the answer is computed on your machine, by
-        about a thousand lines of code that I can explain line by line.
+        about 1,500 lines of code that I can explain line by line.
       </p>
 
       <dl className="mt-8 grid grid-cols-2 gap-5 sm:grid-cols-4">
@@ -81,7 +81,7 @@ export default function InferenceLabPage() {
         That distinction is the whole point of this page, so it goes above the
         demo rather than in a footnote:{" "}
         <em>the engine is the artefact, the model is a payload</em>. The second
-        model in the selector is the opposite trade — 359K parameters I did
+        model in the selector is the opposite trade: 359K parameters I did
         train, on this site&rsquo;s own prose, and it is much worse.
       </p>
 
@@ -117,7 +117,7 @@ export default function InferenceLabPage() {
               ],
               [
                 "RoPE",
-                `Position is a rotation applied to query and key pairs rather than a vector added to the embedding. θ = ${smol.meta.rope_theta.toLocaleString()} here — and the converter refuses to guess it, because a wrong θ is exact at position 0 and drifts further every token after, which looks like a working engine for exactly as long as you test it with one token.`,
+                `Position is a rotation applied to query and key pairs rather than a vector added to the embedding. θ = ${smol.meta.rope_theta.toLocaleString()} here, and the converter refuses to guess it, because a wrong θ is exact at position 0 and drifts further every token after, which looks like a working engine for exactly as long as you test it with one token.`,
               ],
               [
                 "Grouped-query attention",
@@ -129,7 +129,7 @@ export default function InferenceLabPage() {
               ],
               [
                 "Tied embeddings",
-                "The token table is also the output projection, read as rows on the way in and as a matrix on the way out — which is why it is quantised per row and every other matrix per column.",
+                "The token table is also the output projection, read as rows on the way in and as a matrix on the way out, which is why it is quantised per row and every other matrix per column.",
               ],
               [
                 "int8, resident",
@@ -153,8 +153,8 @@ export default function InferenceLabPage() {
           </h2>
           <p className="mt-4 max-w-2xl leading-relaxed text-muted">
             The only claim worth making about an engine is that it computes what
-            the reference computes. A fixed prompt is replayed through the C++ —
-            KV cache and all, one token at a time, exactly as generation runs —
+            the reference computes. A fixed prompt is replayed through the C++,
+            KV cache and all, one token at a time, exactly as generation runs,
             and the final logits are diffed against PyTorch&rsquo;s.
           </p>
 
@@ -175,7 +175,7 @@ export default function InferenceLabPage() {
                 <span className="font-mono">
                   {smolParity.find((p) => p.weights === "int8")?.maxAbsDiff.toFixed(2) ?? "more"}
                 </span>{" "}
-                in the worst logit and still picks the same token — that gap is
+                in the worst logit and still picks the same token. That gap is
                 the quantisation itself, stated as a measurement rather than
                 waved at. This number is what caught the one bug that mattered:
                 a silently-defaulted RoPE θ left the engine exact at position
@@ -208,7 +208,7 @@ export default function InferenceLabPage() {
               <em>&ldquo;stores the current and voltage values from previous
               cycles&rdquo;</em>. It does not know, so it interpolates from
               things that sound adjacent. No amount of fine-tuning fixes that at
-              135M parameters — there is nowhere to keep the fact.
+              135M parameters, because there is nowhere to keep the fact.
             </p>
             <p>
               So it is not asked to recall one. The BM25 index that already
@@ -220,14 +220,14 @@ export default function InferenceLabPage() {
             </p>
             <p>
               Retrieval could not fix the second half. Handed four sources that
-              did not contain the answer, the base model answered anyway —{" "}
+              did not contain the answer, the base model answered anyway:{" "}
               <strong className="font-medium text-text">
                 zero refusals out of fourteen
               </strong>{" "}
               on held-out questions, inventing a &ldquo;64-bit CPU with a 64-bit
               instruction set&rdquo; for a project whose sources say nothing of
-              the kind. Declining <em>is</em> a short, learnable behaviour — a
-              habit rather than a fact to store — so that part is a LoRA: 4.9M
+              the kind. Declining <em>is</em> a short, learnable behaviour, a
+              habit rather than a fact to store, so that part is a LoRA: 4.9M
               trainable parameters, 3.5% of the model, on 122 examples built
               from this corpus.
             </p>
@@ -254,12 +254,12 @@ export default function InferenceLabPage() {
                   </td>
                   <td className="py-3 font-mono text-sm tabular-nums text-muted">
                     {e.refusalOnUnanswerable === null
-                      ? "—"
+                      ? "–"
                       : `${(e.refusalOnUnanswerable * 100).toFixed(0)}%`}
                   </td>
                   <td className="py-3 font-mono text-sm tabular-nums text-muted">
                     {e.falseRefusalOnAnswerable === null
-                      ? "—"
+                      ? "–"
                       : `${(e.falseRefusalOnAnswerable * 100).toFixed(0)}%`}
                   </td>
                   <td className="py-3 font-mono text-sm tabular-nums text-muted">
@@ -273,13 +273,13 @@ export default function InferenceLabPage() {
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-subtle">
             The middle column is what keeps the first one honest. A model
             trained hard enough on refusals refuses everything, scores 100% on
-            the left, and is useless — so both are always reported, and the
+            the left, and is useless. Both are always reported, and the
             training set is held under 40% refusals rather than over half.
             &ldquo;Grounding&rdquo; is the share of generated five-word
             sequences appearing verbatim in the sources: an approximation, not
             a proof. It scores a faithful paraphrase low, and it scores an
             answer drawn from the right project&rsquo;s <em>wrong section</em>
-            as a success — which happened, and which the number cannot see.
+            as a success. That happened, and the number cannot see it.
             Held out by page, so the eval pages contributed nothing to
             training.
           </p>
@@ -289,7 +289,7 @@ export default function InferenceLabPage() {
             behaviour; supervision written by something smarter would teach this
             model to sound smarter, which is how you get more confident
             invention rather than less. It also keeps the claim on this page
-            true of the training data too — there is no API call anywhere in
+            true of the training data too: there is no API call anywhere in
             this repository, including in what taught the model.
           </p>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-subtle">
@@ -298,7 +298,7 @@ export default function InferenceLabPage() {
             data and the same eval showed the opposite: the longer run was
             better, and the first number had come from a narrower eval set, not
             from the epochs. Fifteen answerable cases means a single case is
-            6.7% — small enough that the honest conclusion is that these two
+            6.7%, small enough that the honest conclusion is that these two
             configurations are hard to tell apart, and that the earlier
             explanation was a story fitted to noise.
           </p>
@@ -336,7 +336,7 @@ export default function InferenceLabPage() {
           </ul>
           <p className="mt-5 max-w-2xl text-sm leading-relaxed text-subtle">
             The fixtures are data produced by a numpy oracle, not a second
-            implementation — otherwise the test only proves the two copies agree.
+            implementation. Otherwise the test only proves the two copies agree.
             One of them was too weak and said so: the softmax fixture was written
             to catch a missing max-subtraction, and when a deliberately broken
             softmax was dropped in, it passed. The sampled maximum simply never
@@ -366,8 +366,8 @@ export default function InferenceLabPage() {
                 , and in WebAssembly it is slower again.
               </>
             )}{" "}
-            The optimisation ladder — blocking, hand-written SIMD, a fused
-            dequantise-and-multiply — is the interesting part and it has not
+            The optimisation ladder (blocking, hand-written SIMD, a fused
+            dequantise-and-multiply) is the interesting part and it has not
             been climbed. Anyone reporting competitive numbers from an engine at
             this stage has a benchmark bug.
           </p>
@@ -385,8 +385,8 @@ export default function InferenceLabPage() {
               {kb(meta.corpusBytes)} of prose, final training loss{" "}
               <span className="font-mono">{meta.trainLoss.toFixed(2)}</span> against
               validation <span className="font-mono">{meta.valLoss.toFixed(2)}</span>.
-              That gap is memorisation — more parameters than characters to learn
-              from — so it reproduces fragments of this site rather than saying
+              That gap is memorisation, more parameters than characters to
+              learn from, so it reproduces fragments of this site rather than saying
               anything. It stays in the selector because the comparison is the
               content: same engine, same kernels, and the entire difference in
               output quality is the weights.

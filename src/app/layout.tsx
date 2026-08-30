@@ -16,7 +16,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
   title: {
-    default: `${SITE.name} — ${SITE.role}`,
+    default: `${SITE.name} · ${SITE.role}`,
     template: `%s · ${SITE.name}`,
   },
   description: SITE.description,
@@ -27,12 +27,12 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: SITE.url,
     siteName: SITE.name,
-    title: `${SITE.name} — ${SITE.role}`,
+    title: `${SITE.name} · ${SITE.role}`,
     description: SITE.description,
   },
   twitter: {
     card: "summary_large_image",
-    title: `${SITE.name} — ${SITE.role}`,
+    title: `${SITE.name} · ${SITE.role}`,
     description: SITE.description,
   },
   robots: { index: true, follow: true },

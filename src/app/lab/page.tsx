@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 /**
  * The demos hub.
  *
- * Listed with honest status rather than hidden until finished — a dated,
+ * Listed with honest status rather than hidden until finished. A dated,
  * visible trajectory reads better than a page that appears from nowhere. Each
  * entry becomes a real route as it lands, and the status is the difference
  * between a promise and a link: an entry with an `href` is one you can open,
@@ -32,7 +32,7 @@ type Demo =
       blurb: string;
       status: "building" | "planned";
       eta: string;
-      /** Set once there is something to open — an in-progress build log counts,
+      /** Set once there is something to open. An in-progress build log counts,
        *  a promise does not. */
       href?: string;
     };
@@ -51,7 +51,7 @@ const DEMOS: Demo[] = [
     slug: "inference",
     title: "A language model running in this tab",
     blurb:
-      "A transformer forward pass written by hand in C++ and compiled to WebAssembly — no framework, no BLAS, no server. Ask SmolLM2-135M a question and it answers in your tab at about 25 tokens a second, on RMSNorm, RoPE, grouped-query attention and an int8 matmul I wrote. The weights are Hugging Face's and the page says so first; the page also carries the logit-parity numbers against PyTorch and is specific about what is still slow.",
+      "A transformer forward pass written by hand in C++ and compiled to WebAssembly: no framework, no BLAS, no server. Ask SmolLM2-135M a question and it answers in your tab at about 25 tokens a second, on RMSNorm, RoPE, grouped-query attention and an int8 matmul I wrote. The weights are Hugging Face's and the page says so first; the page also carries the logit-parity numbers against PyTorch and is specific about what is still slow.",
     status: "live",
     href: "/lab/inference",
     since: "August 2026",
@@ -73,7 +73,7 @@ export default function LabPage() {
         <h1 className="font-display text-4xl tracking-tight">Lab</h1>
         <p className="mt-4 text-lg leading-relaxed text-muted">
           Claims are cheap, so these are things you can run yourself. Everything
-          here executes in your browser, from source I wrote — no server doing
+          here executes in your browser, from source I wrote, with no server doing
           the interesting part off-screen.
         </p>
       </header>

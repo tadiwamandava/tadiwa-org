@@ -7,7 +7,7 @@ domains: ["systems"]
 languages: ["Go", "Rust"]
 stack: ["Raft", "Porcupine"]
 hardestThing: >-
-  The tests fail probabilistically — a bug can surface on run 40 of 50 — so the
+  The tests fail probabilistically (a bug can surface on run 40 of 50), so the
   only workable discipline is scripting `go test -race` in a hundred-iteration
   loop from day one and logging every state transition with term and index, so a
   failure is reconstructable rather than a mystery. The figure-8 case, where a
@@ -28,7 +28,7 @@ system-level thinking that hiring managers say they are scanning for.
 ## The arc
 
 Leader election, then log replication, then persistence, then a linearizable
-key-value service on top — each against a test harness explicitly designed to be
+key-value service on top, each against a test harness explicitly designed to be
 adversarial about network partitions, reordering, and crashes.
 
 Then the part that makes it mine rather than a lab submission: put it in front of

@@ -1,16 +1,16 @@
 /* ============================================================================
-   /resume — screen shell + print stylesheet.
+   /resume. Screen shell + print stylesheet.
 
    Co-located rather than added to globals.css: none of this applies to any
    other route, and App Router loads a route's CSS with the route. The print
    block in particular has to reach outside the page (it hides the site chrome
-   the layout renders), so it uses :global — kept to three selectors, all
+   the layout renders), so it uses :global, kept to three selectors, all
    commented, because global rules from a leaf route are a debt.
 
    ON PDF EXPORT: this stylesheet makes Cmd-P produce the document. Whether
-   there is ALSO a generated /resume.pdf — headless Chromium in CI, committed
+   there is ALSO a generated /resume.pdf (headless Chromium in CI, committed
    as a static file, so the link in an application never depends on the reader
-   having a print dialog — is a separate decision, deferred. The print
+   having a print dialog) is a separate decision, and it is deferred. The print
    stylesheet is a prerequisite for that path too, so it is not wasted either
    way. See the note in page.tsx.
    ========================================================================= */
@@ -48,7 +48,7 @@
   }
 }
 
-/* Bullet marker. A hairline dash rather than a disc — matches the list style in
+/* Bullet marker. A hairline dash rather than a disc; it matches the list style in
    the prose block, and survives being scaled down to 9pt where a disc turns
    into a smudge. Its own class so the print block can force it to ink black;
    a background-color would otherwise be dropped by "no background graphics". */
@@ -62,7 +62,7 @@
   background-color: var(--border-strong);
 }
 
-/* Secondary lines — dates, locations, org context. Tagged so the print block
+/* Secondary lines: dates, locations, org context. Tagged so the print block
    can keep them a shade off black instead of flattening the whole hierarchy. */
 .meta {
   font-variant-numeric: tabular-nums;
@@ -103,7 +103,7 @@
   /* 2. Site chrome. The root layout renders the theme script, skip link,
         <header> and <footer> as direct children of <body>, alongside <main>.
         Hiding "every direct child that is not main" survives those moving
-        around, which naming them individually would not — and this route does
+        around, which naming them individually would not, and this route does
         not own layout.tsx. */
   :global(body > *:not(main)) {
     display: none !important;
@@ -205,7 +205,7 @@
 
   .confirm {
     /* Colour is not available as a signal on a monochrome printer, so the
-       marker switches to weight. This has to survive printing — a résumé that
+       marker switches to weight. This has to survive printing; a résumé that
        silently drops its own placeholders is the failure mode this whole file
        exists to prevent. */
     font-weight: 700 !important;

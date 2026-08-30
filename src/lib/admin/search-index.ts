@@ -4,13 +4,13 @@
  * `public/search/*` is generated from the corpus at build time by
  * `npm run build:search`. Editing content does not regenerate it, so the
  * moment the owner saves a project, the ⌘K palette is answering from a stale
- * index — it will still find the old text and will not find the new. That is
+ * index, it will still find the old text and will not find the new. That is
  * exactly the kind of silent wrongness this site's own build-embeddings header
  * argues against, so the admin states it plainly instead of hiding it.
  *
  * It is NOT run automatically after a save. The rebuild embeds every chunk of
  * the corpus through a local transformer model; it takes tens of seconds and
- * pins a CPU. Doing that on every keystroke — or every save — would make the
+ * pins a CPU. Doing that on every keystroke, or every save, would make the
  * editor unusable. It is a button, pressed when a batch of edits is done.
  *
  * Dev-only, like everything else here: it shells out, which is not something
@@ -55,7 +55,7 @@ function newestMtime(dir: string, predicate: (f: string) => boolean): number {
 
 /**
  * Compares mtimes rather than hashing the corpus. Cheap, and it errs toward
- * saying "stale" — the failure mode is an unnecessary rebuild, not a silently
+ * saying "stale", the failure mode is an unnecessary rebuild, not a silently
  * wrong index.
  */
 export function getIndexStatus(): IndexStatus {
@@ -90,7 +90,7 @@ export function rebuildSearchIndex(): Promise<RebuildResult> {
   const started = Date.now();
   const run = new Promise<RebuildResult>((resolve) => {
     // No shell: the repo path contains a space, and `npm run` needs no shell
-    // features here. Arguments are fixed literals — nothing user-supplied
+    // features here. Arguments are fixed literals, nothing user-supplied
     // reaches this call.
     execFile(
       "npm",

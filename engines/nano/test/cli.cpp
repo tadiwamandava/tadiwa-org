@@ -1,4 +1,4 @@
-// Generation CLI — the human check that sits alongside the numeric ones.
+// Generation CLI, the human check that sits alongside the numeric ones.
 // Usage: cli <weights.bin> [prompt] [n_tokens] [temperature]
 #include <chrono>
 #include <cstdio>

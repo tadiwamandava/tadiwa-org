@@ -3,7 +3,7 @@
  *
  * Speech recognition is Whisper-tiny.en through ONNX Runtime Web, fetched
  * same-origin like every other model here. The browser's own
- * `SpeechRecognition` would have been one line and no download — and in Chrome
+ * `SpeechRecognition` would have been one line and no download, and in Chrome
  * it uploads the audio to Google to transcribe. A site whose entire argument is
  * "no server does the interesting part" cannot put its microphone on somebody
  * else's server and keep saying that, so it pays 42 MB instead.
@@ -68,7 +68,7 @@ export async function loadTranscriber(
           //
           // Measured, not guessed: it fails on onnx-community AND Xenova
           // whisper-tiny.en, at q8, int8, uint8, q4 and fp32 alike, and on
-          // moonshine-tiny too — while MiniLM loads fine through the same
+          // moonshine-tiny too, while MiniLM loads fine through the same
           // runtime. The weights are not the problem, the optimiser pass is,
           // and turning it off is what makes the session build.
           //
@@ -156,7 +156,7 @@ export class Recorder {
       this.analyser.fftSize = 512;
       this.analyser.smoothingTimeConstant = 0.7;
       src.connect(this.analyser);
-      // Deliberately NOT connected to destination — routing the mic to the
+      // Deliberately NOT connected to destination, routing the mic to the
       // speakers is a feedback loop, and the analyser pulls frames on its own.
     } catch {
       this.analyser = null;   // visualiser falls back to its idle animation
@@ -240,7 +240,7 @@ async function toMono16k(encoded: ArrayBuffer): Promise<Float32Array> {
 /**
  * Locale preference, best first.
  *
- * The available voices belong to the operating system, not to this page — a
+ * The available voices belong to the operating system, not to this page, a
  * site cannot install one. So the honest thing is to prefer an African English
  * voice where the device has one and to say which voice is actually being used
  * rather than implying a choice that was not available.
@@ -265,8 +265,8 @@ export class Speaker {
   private forced: string | null = null;
   /** Listener sets rather than single slots.
    *
-   *  Two components want word events — the visualiser to pulse, the panel to
-   *  track speaking state — and a single assignable property means whichever
+   *  Two components want word events, the visualiser to pulse, the panel to
+   *  track speaking state, and a single assignable property means whichever
    *  mounts second silently wins. Subscription also keeps callers from
    *  mutating a shared object they were merely handed. */
   private wordListeners = new Set<() => void>();
@@ -359,7 +359,7 @@ export class Speaker {
   push(text: string) {
     if (!this.enabled || !Speaker.supported()) return;
     this.buffer += text;
-    // Split after . ! ? followed by whitespace — the same boundary the
+    // Split after . ! ? followed by whitespace, the same boundary the
     // training-data extractor uses, for the same reason.
     const parts = this.buffer.split(/(?<=[.!?])\s+/);
     this.buffer = parts.pop() ?? "";

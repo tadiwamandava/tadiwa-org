@@ -4,7 +4,7 @@ import type { Chunk, Hit, LexicalIndex } from "./types";
  * BM25 over the prebuilt inverted index.
  *
  * This is the half of search that answers the first keystroke. It is a few KB
- * on the wire and needs no model, which is why it — not the vector index — is
+ * on the wire and needs no model, which is why it, not the vector index, is
  * the default. Most visitors will never see anything else.
  */
 
@@ -18,7 +18,7 @@ const STOP = new Set(
  * MUST stay identical to `tokenize` in scripts/build-embeddings.ts.
  *
  * If the two drift, query terms stop matching index terms and search silently
- * returns nothing for words that are demonstrably in the corpus — a failure
+ * returns nothing for words that are demonstrably in the corpus, a failure
  * with no error message anywhere.
  */
 export function tokenize(s: string): string[] {

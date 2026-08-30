@@ -1,8 +1,8 @@
-// Minimal Chrome DevTools Protocol driver — a dev tool, not shipped code.
+// Minimal Chrome DevTools Protocol driver, a dev tool, not shipped code.
 //
 // WHY THIS EXISTS. Chrome's `--screenshot` and `--dump-dom` both fire at the
 // `load` event, which is BEFORE a next/dynamic chunk has loaded. Checking this
-// site's ⌘K palette with them reports that it does not exist. It does — the
+// site's ⌘K palette with them reports that it does not exist. It does, the
 // tools were just looking too early. This driver waits a real interval, can run
 // arbitrary JS in the page, and captures after hydration.
 //
@@ -84,6 +84,16 @@ try {
       permissions: process.env.CDP_GRANT.split(",").map((s) => s.trim()).filter(Boolean),
     });
     if (r.error) console.error("  grantPermissions:", JSON.stringify(r.error));
+  }
+
+  // Colour scheme. Headless Chrome defaults to DARK, so a light-theme
+  // screenshot needs this rather than a DOM poke: setting data-theme by hand
+  // races the paint and produces screenshots with a light header over dark
+  // cards, which looks like a CSS bug and is not one.
+  if (process.env.CDP_SCHEME) {
+    await cdp.send("Emulation.setEmulatedMedia", {
+      features: [{ name: "prefers-color-scheme", value: process.env.CDP_SCHEME }],
+    });
   }
 
   await sleep(Number(waitMs));

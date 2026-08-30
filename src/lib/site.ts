@@ -1,7 +1,7 @@
 /**
  * Single source of truth for identity strings.
  *
- * Anything marked CONFIRM is a value I could not verify — set it before the
+ * Anything marked CONFIRM is a value I could not verify. Set it before the
  * first deploy. They are deliberately obvious rather than plausible-looking,
  * so a wrong one fails loudly instead of shipping quietly.
  */
@@ -12,7 +12,7 @@ export const SITE = {
 
   /** The 30-second pitch. This is the single most-read sentence on the site. */
   description:
-    "Computer engineering junior at the University of Oklahoma building across the hardware/software boundary — storage engines, RTOS kernels, RISC-V silicon, and the inference stack that runs on this page.",
+    "Computer engineering junior at the University of Oklahoma, building across the hardware/software boundary: storage engines, RTOS kernels, RISC-V silicon, and the inference stack that runs on this page.",
 
   url: "https://tadiwa.org",
 
@@ -20,7 +20,7 @@ export const SITE = {
   github: "https://github.com/CONFIRM-github-handle",
   linkedin: "https://www.linkedin.com/in/CONFIRM-linkedin-slug",
   /** Publishing an address invites scrapers. Consider an alias, not your
-   *  personal Gmail. Left blank on purpose — decide, then fill. */
+   *  personal Gmail. Left blank on purpose; decide, then fill. */
   email: "",
   // --------------------------------------------------------------------------
 

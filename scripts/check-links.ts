@@ -3,7 +3,7 @@
  *
  * Static analysis, deliberately: it resolves every internal href in the source
  * against the routes that actually exist, without booting a server. That means
- * it runs in a second, needs no free port, and — unlike crawling — also catches
+ * it runs in a second, needs no free port, and, unlike crawling, also catches
  * dead links on pages a crawler would never reach because the link into them is
  * itself broken.
  *
@@ -99,9 +99,9 @@ function run(): number {
     readFileSync(file, "utf8")
       .split("\n")
       .forEach((line, i) => {
-        // href="/x" and href={`/x/${y}`} — the template form is skipped, since
+        // href="/x" and href={`/x/${y}`}, the template form is skipped, since
         // its value is not knowable statically.
-        // Template-literal hrefs — href={`/projects/${slug}`}. The slug is not
+        // Template-literal hrefs, href={`/projects/${slug}`}. The slug is not
         // knowable statically, but the PREFIX is, and a mistyped prefix
         // (/project/ for /projects/) is exactly the typo that renders a whole
         // page of dead links while every check still passes.
@@ -142,7 +142,7 @@ function run(): number {
     return 1;
   }
 
-  console.log(`\n  PASSED — every internal link resolves.\n`);
+  console.log(`\n  PASSED: every internal link resolves.\n`);
   return 0;
 }
 

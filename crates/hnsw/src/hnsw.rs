@@ -1,4 +1,4 @@
-//! Hierarchical Navigable Small World graphs — the algorithm, with no
+//! Hierarchical Navigable Small World graphs, the algorithm, with no
 //! WebAssembly in it.
 //!
 //! Reference: Malkov & Yashunin, "Efficient and robust approximate nearest
@@ -7,7 +7,7 @@
 //!
 //! WHY A GRAPH AND NOT A SCAN. This site's corpus is ~100 chunks. A brute-force
 //! cosine scan over 100 vectors of 384 dimensions is 38,400 multiply-adds and
-//! finishes in well under a millisecond — HNSW is, for this corpus, strictly
+//! finishes in well under a millisecond, HNSW is, for this corpus, strictly
 //! slower than the thing it replaces, because building the graph costs more
 //! than one scan and the walk still touches a good fraction of the nodes.
 //!
@@ -18,7 +18,7 @@
 //! `ef_search` curve, the degree distribution and the layer pyramid are all
 //! real and all measurable at this size; they are the same curves you would
 //! get at ten million vectors, just cheaper to plot. `brute_force` below is
-//! kept as a first-class method for exactly this reason — the page reports
+//! kept as a first-class method for exactly this reason, the page reports
 //! both, and the comparison is the point.
 //!
 //! WHAT IS ACTUALLY IMPLEMENTED HERE, versus the shortcuts a toy takes:
@@ -51,7 +51,7 @@ use std::collections::BinaryHeap;
 const MAX_LEVEL: usize = 16;
 
 // ---------------------------------------------------------------------------
-// SplitMix64 — 8 lines, no dependency, and famously well-distributed for a
+// SplitMix64, 8 lines, no dependency, and famously well-distributed for a
 // generator this small. HNSW only needs one uniform per insert, so the quality
 // bar is "does not correlate with insertion order", which this clears.
 // ---------------------------------------------------------------------------
@@ -72,7 +72,7 @@ impl SplitMix64 {
     }
 
     /// Uniform in (0, 1]. Zero is excluded because the level formula takes its
-    /// logarithm — `ln(0)` would hand back an infinite level.
+    /// logarithm, `ln(0)` would hand back an infinite level.
     fn next_f64(&mut self) -> f64 {
         // 53 bits is exactly f64's mantissa, so every representable value in
         // the range is reachable and none is reachable twice.
@@ -93,7 +93,7 @@ impl SplitMix64 {
 // Ordered candidates
 //
 // f32 is not Ord, and the priority queues here need a total order. `total_cmp`
-// gives one without the `unwrap()` that a `partial_cmp` would need — distances
+// gives one without the `unwrap()` that a `partial_cmp` would need, distances
 // are finite by construction, but "finite by construction" is exactly the kind
 // of invariant that stops being true six months later.
 // ---------------------------------------------------------------------------
@@ -113,7 +113,7 @@ impl Eq for Candidate {}
 impl Ord for Candidate {
     fn cmp(&self, other: &Self) -> Ordering {
         // Ties broken by id so that equal-distance results come back in a
-        // stable order — otherwise recall numbers wobble between runs on a
+        // stable order, otherwise recall numbers wobble between runs on a
         // corpus with duplicate text.
         self.dist
             .total_cmp(&other.dist)
@@ -148,7 +148,7 @@ impl PartialOrd for Nearest {
 //
 // A `HashSet<u32>` per query allocates and hashes; at ef=64 over a 100-node
 // graph the hashing genuinely dominates the arithmetic. A stamp array is O(1)
-// to test, O(1) to mark, and O(1) to *reset* — bumping the epoch invalidates
+// to test, O(1) to mark, and O(1) to *reset*, bumping the epoch invalidates
 // every entry at once. The only cost is one u32 per node, held for the life of
 // the index.
 // ---------------------------------------------------------------------------
@@ -183,7 +183,7 @@ impl Scratch {
     /// overlapping node sets, and a node explored during the descent must
     /// still be explorable when layer 0's sweep reaches it. Sharing one
     /// visited set across layers silently truncates the layer-0 search to
-    /// whatever the descent had not already touched — which shows up as a
+    /// whatever the descent had not already touched, which shows up as a
     /// recall ceiling that no amount of `ef_search` can lift, and is a
     /// genuinely nasty bug to find from the outside.
     ///
@@ -236,8 +236,8 @@ pub struct Hnsw {
     /// Degree bound above layer 0.
     m: usize,
     /// Degree bound at layer 0. Doubled per §4.1 of the paper: layer 0 holds
-    /// every node and carries the final refinement, so it can afford — and
-    /// needs — a denser graph than the sparse upper layers.
+    /// every node and carries the final refinement, so it can afford, and
+    /// needs, a denser graph than the sparse upper layers.
     m0: usize,
     ef_construction: usize,
     /// Level-decay constant. `1/ln(M)` is the paper's choice: it makes the
@@ -246,7 +246,7 @@ pub struct Hnsw {
     /// the hierarchy costs O(log N).
     ml: f64,
     /// Flat `n * dim`, L2-normalised at insert time. One allocation instead of
-    /// n, and the row for a node is a contiguous slice — which is what lets the
+    /// n, and the row for a node is a contiguous slice, which is what lets the
     /// dot product below auto-vectorise.
     vectors: Vec<f32>,
     nodes: Vec<Node>,
@@ -336,7 +336,7 @@ impl Hnsw {
         }
         // A zero vector has no direction, so cosine is undefined for it. Rather
         // than emit NaNs that poison every comparison it touches, leave it at
-        // the origin — it will simply never be anyone's nearest neighbour.
+        // the origin, it will simply never be anyone's nearest neighbour.
         let inv = if norm > 0.0 { norm.sqrt().recip() } else { 0.0 };
         self.vectors.extend(vector.iter().map(|v| v * inv));
 
@@ -361,7 +361,7 @@ impl Hnsw {
 
         // Phase 1 (ALG 1 lines 5-7): from the top down to just above the new
         // node's own level, greedily walk to the single nearest node. No
-        // candidate list is kept — these layers exist only to get the entry
+        // candidate list is kept, these layers exist only to get the entry
         // point into the right neighbourhood cheaply.
         let mut lc = self.max_level;
         while lc > level {
@@ -456,7 +456,7 @@ impl Hnsw {
     ///
     /// The termination condition is the interesting line. The loop stops as
     /// soon as the closest *unexplored* candidate is further away than the
-    /// worst result already held — at that point no unexplored branch can
+    /// worst result already held, at that point no unexplored branch can
     /// improve the result set, because edges only ever lead outward from a
     /// candidate. That is what makes this a bounded search rather than a walk
     /// of the whole component, and it is why `ef` is a quality knob and not
@@ -520,14 +520,14 @@ impl Hnsw {
         out
     }
 
-    /// ALG 4 — the neighbour-selection heuristic.
+    /// ALG 4, the neighbour-selection heuristic.
     ///
     /// `candidates` must be sorted nearest-first with respect to `base`.
     ///
     /// The rule: accept a candidate `e` only if it is closer to `base` than to
     /// every neighbour already accepted. Read geometrically, each accepted
     /// neighbour claims the cone of directions around itself, and a candidate
-    /// sitting inside an existing cone is rejected as redundant — you can
+    /// sitting inside an existing cone is rejected as redundant, you can
     /// already reach that direction in one hop. What survives is a spread of
     /// directions rather than a huddle of the M nearest points, and it is that
     /// spread that gives greedy descent somewhere to go when the query sits
@@ -565,7 +565,7 @@ impl Hnsw {
         selected
     }
 
-    /// ALG 5 — the public query. Descends the hierarchy with `ef = 1`, then
+    /// ALG 5, the public query. Descends the hierarchy with `ef = 1`, then
     /// runs one wide `ef_search` sweep at layer 0.
     pub fn search(
         &self,
@@ -610,7 +610,7 @@ impl Hnsw {
     }
 
     /// Exhaustive cosine scan. This is the ground truth the recall numbers are
-    /// measured against, and — at this corpus size — a legitimate answer in its
+    /// measured against, and, at this corpus size, a legitimate answer in its
     /// own right. Keeping it in the same crate means /lab/search compares the
     /// graph against a reference that shares its arithmetic, so any difference
     /// is the graph's approximation and not a float discrepancy across a

@@ -3,7 +3,7 @@
  *
  * Generation is stepped one token at a time from here rather than looped
  * inside WASM. A loop in C++ would block the main thread for the whole
- * completion — no streaming, no stopping. A call per token costs microseconds
+ * completion, no streaming, no stopping. A call per token costs microseconds
  * and buys both.
  */
 
@@ -23,7 +23,7 @@ export interface EngineInfo {
 export interface NanoModule {
   /** Re-read on every use. ALLOW_MEMORY_GROWTH detaches and replaces this
    *  view whenever the heap grows, and staging a 129 MB model definitely
-   *  grows it — a reference cached across that call points at a dead buffer. */
+   *  grows it, a reference cached across that call points at a dead buffer. */
   HEAPU8: Uint8Array;
   _malloc(n: number): number;
   _free(p: number): void;
@@ -41,7 +41,7 @@ export interface NanoModule {
   _nano_next(temperature: number, topP: number): number;
   _nano_token_byte(id: number): number;
 
-  // The Llama-family surface — SmolLM2 and anything with its shape.
+  // The Llama-family surface, SmolLM2 and anything with its shape.
   _llama_stage(len: number): number;
   _llama_commit_tokenizer(): number;
   _llama_commit_weights(): number;
@@ -75,7 +75,7 @@ export async function getModule(): Promise<NanoModule> {
   if (!modPromise) {
     modPromise = (async () => {
       // The specifier is a variable on purpose. Emscripten's glue is a build
-      // artefact served from /public, not a module in the graph — a literal
+      // artefact served from /public, not a module in the graph, a literal
       // here makes the bundler try to resolve it at compile time and fail.
       const url = "/nano/nano.mjs";
       const factory = (await import(/* webpackIgnore: true */ url)) as {
@@ -134,7 +134,7 @@ export class NanoEngine {
    * Streams a completion. `onChunk` receives decoded text as it arrives.
    *
    * The vocabulary is byte-level, so a single token can be one third of a
-   * character — the bytes go through a streaming TextDecoder, which holds an
+   * character, the bytes go through a streaming TextDecoder, which holds an
    * incomplete sequence until the rest arrives instead of emitting U+FFFD.
    */
   async generate(

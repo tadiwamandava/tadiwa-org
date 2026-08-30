@@ -7,7 +7,7 @@
  * `src/lib/content/schema.ts` CANNOT be silently absent from the editor,
  * because there is no second list to forget to update.
  *
- * The walk is deliberately total — every Zod node it meets must be one of the
+ * The walk is deliberately total, every Zod node it meets must be one of the
  * shapes below, and an unrecognised one throws at import time rather than
  * being skipped. A new field of an unsupported shape therefore breaks /admin
  * loudly on the next dev-server boot, which is the failure mode you want.
@@ -18,7 +18,7 @@
  * field and it cannot remove one. `assertHintsResolve()` fails if a hint names
  * a path the schema no longer has, so the table cannot rot silently either.
  *
- * This module is imported by client components — keep it free of `node:*` and
+ * This module is imported by client components, keep it free of `node:*` and
  * of `server-only`.
  */
 
@@ -76,7 +76,7 @@ function checks(n: ZodNode): CheckDef[] {
    ------------------------------------------------------------------------ */
 
 export interface BaseSpec {
-  /** Path segments from the frontmatter root — `["decisions", "why"]`. */
+  /** Path segments from the frontmatter root, `["decisions", "why"]`. */
   path: string[];
   key: string;
   label: string;
@@ -121,7 +121,7 @@ export type FieldSpec =
     });
 
 /* ---------------------------------------------------------------------------
-   Presentation hints — annotation only, never structure.
+   Presentation hints, annotation only, never structure.
    ------------------------------------------------------------------------ */
 
 interface Hint {
@@ -150,10 +150,10 @@ const FIELD_HINTS: Record<string, Hint> = {
   },
   "decisions.regret": { label: "Changed my mind since" },
   benchmarks: { titleField: "title", help: "Each set needs at least two runs to be a comparison." },
-  "benchmarks.hardware": { help: "The actual machine — CPU, RAM, disk. Min 10 chars." },
+  "benchmarks.hardware": { help: "The actual machine, CPU, RAM, disk. Min 10 chars." },
   "benchmarks.methodology": { help: "Reps, warmup, and what was held constant. Min 30 chars." },
   "benchmarks.gapAnalysis": {
-    help: "Why the reference is still faster. Min 40 chars — honest gap analysis reads as competence.",
+    help: "Why the reference is still faster. Min 40 chars, honest gap analysis reads as competence.",
   },
   "benchmarks.runs": { titleField: "label" },
   "benchmarks.runs.isReference": { label: "Is a baseline I am measured against" },
@@ -336,7 +336,7 @@ function describeField(key: string, schema: ZodNode, parentPath: string[]): Fiel
     default:
       throw new Error(
         `${dotted}: Zod type "${inner.def.type}" has no editor representation. ` +
-          `Add one in src/lib/admin/fields.ts — the schema is the contract.`,
+          `Add one in src/lib/admin/fields.ts, the schema is the contract.`,
       );
   }
 }
@@ -352,7 +352,7 @@ export function describeObject(schema: z.ZodType): FieldSpec[] {
   return describeObjectNode(node(schema), []);
 }
 
-/** Top-level keys in schema order — also the canonical YAML key order. */
+/** Top-level keys in schema order, also the canonical YAML key order. */
 export function keyOrder(schema: z.ZodType): string[] {
   return Object.keys(shapeOf(node(schema)));
 }

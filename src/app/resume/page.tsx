@@ -29,7 +29,7 @@ import styles from "./resume.module.css";
    /resume
 
    The résumé is generated from the same corpus as the rest of the site. That is
-   not a party trick — it is the only way I have found to stop a résumé from
+   not a party trick. It is the only way I have found to stop a résumé from
    quietly diverging from the work it describes. Every project bullet on this
    page is a string out of `content/projects/*.mdx`. If a number changes there,
    it changes here, and if it is wrong here it is wrong on the writeup too,
@@ -38,22 +38,22 @@ import styles from "./resume.module.css";
    Two variants, one document. `roleRelevance` in each project's frontmatter
    scores it 0–3 against ten role families; the variant picks which families it
    cares about and in what order, and `select.ts` does the rest. Nothing is
-   rewritten per variant — the ordering and the depth change, the sentences do
+   rewritten per variant. The ordering and the depth change, the sentences do
    not.
 
    ---------------------------------------------------------------------------
    ON RENDERING: this is the one route on the site that is not prerendered.
    Reading `searchParams` opts a page into request-time rendering, which is the
    price of `?variant=` being a real, shareable, no-JavaScript URL. The
-   alternative — a `[[...variant]]` segment generating two static pages — buys
+   alternative, a `[[...variant]]` segment generating two static pages, buys
    back the prerender but has to 404 on `/resume/anything-else` and makes the
    canonical URL uglier. For a page served a few hundred times a year, the
    simpler route shape won.
 
    ON PDF EXPORT: Cmd-P plus the print stylesheet in resume.module.css produces
-   the document today. Whether there is ALSO a generated `/resume.pdf` — headless
+   the document today. Whether there is ALSO a generated `/resume.pdf`, headless
    Chromium in CI, committed as a static asset, so an emailed link never depends
-   on the reader owning a print dialog — is deferred. It is a build-pipeline
+   on the reader owning a print dialog, is deferred. It is a build-pipeline
    decision, not a design one, and the print stylesheet is a prerequisite for
    either path.
    ========================================================================= */
@@ -63,7 +63,7 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const variant = RESUME_VARIANTS[parseVariant((await props.searchParams).variant)];
   return {
-    title: `Résumé — ${variant.label.toLowerCase()}`,
+    title: `Résumé: ${variant.label.toLowerCase()}`,
     description: `${SITE.name}: ${variant.headline}. Generated from the project corpus that powers the rest of this site.`,
   };
 }
@@ -82,7 +82,7 @@ export default async function ResumePage(props: PageProps<"/resume">) {
   const experience = EXPERIENCE.filter((e) => e.variants.includes(variantId));
 
   /* Every unconfirmed fact reachable from this render, collected in one pass so
-     the banner can enumerate them. Only plain data goes in — a `Project` would
+     the banner can enumerate them. Only plain data goes in, because a `Project` would
      drag its entire MDX body along with it. */
   const placeholders: Placeholder[] = [
     ...collectPlaceholders(RESUME_IDENTITY, "identity"),
@@ -116,7 +116,7 @@ export default async function ResumePage(props: PageProps<"/resume">) {
               content/projects/*.mdx
             </code>
             , the same files that render the writeups. The two variants reorder
-            the same work and change how deep each entry goes — they never
+            the same work and change how deep each entry goes. They never
             reword it. A résumé that is authored separately from the portfolio
             drifts from it within a month; this one cannot.
           </p>
@@ -292,7 +292,7 @@ export default async function ResumePage(props: PageProps<"/resume">) {
               Languages and Frameworks are counted out of the corpus at render
               time. Nothing reaches those two rows unless a project on this site
               uses it, which is why they are shorter than a normal skills block
-              — and why every entry survives being asked about.
+              , and why every entry survives being asked about.
             </p>
           </SheetSection>
         </article>
@@ -318,7 +318,7 @@ export default async function ResumePage(props: PageProps<"/resume">) {
             </li>
             <li>
               3. A project&rsquo;s tier comes from its single strongest signal,
-              not its total — being narrow and excellent should outrank being
+              not its total. Being narrow and excellent should outrank being
               broad and lukewarm.
             </li>
             <li>
@@ -328,7 +328,7 @@ export default async function ResumePage(props: PageProps<"/resume">) {
             </li>
             <li>
               5. The bullets themselves are copied verbatim. Nothing on this page
-              writes prose about a project — only the writeup does that.
+              writes prose about a project. Only the writeup does that.
             </li>
           </ol>
         </aside>
@@ -343,7 +343,7 @@ export default async function ResumePage(props: PageProps<"/resume">) {
    Two real links, not a button pair. Each variant is a distinct URL you can
    send to a recruiter, it works with JavaScript off, back/forward do the
    obvious thing, and `aria-current` tells a screen reader which one is showing
-   — which colour and weight alone cannot.
+   , which colour and weight alone cannot.
    ------------------------------------------------------------------------ */
 function VariantToggle({ current }: { current: ResumeVariantId }) {
   return (
@@ -377,7 +377,7 @@ function VariantToggle({ current }: { current: ResumeVariantId }) {
 /* ---------------------------------------------------------------------------
    The unconfirmed-facts banner.
 
-   Screen only — but the markers themselves print, so a résumé sent out with a
+   Screen only, but the markers themselves print, so a résumé sent out with a
    blank still announces the blank on paper. This list exists so the fix is a
    checklist rather than a hunt.
    ------------------------------------------------------------------------ */
@@ -389,7 +389,7 @@ function ConfirmBanner({ items }: { items: Placeholder[] }) {
       </p>
       <p className="mt-1.5 text-sm leading-relaxed">
         Marked in the document below and on the printed page. Nothing here was
-        guessed at — dates, GPA, employer names and metrics are blanks until a
+        guessed at. Dates, GPA, employer names and metrics are blanks until a
         real value replaces them, because a plausible wrong number on a résumé
         costs more than an obvious missing one.
       </p>
@@ -402,7 +402,7 @@ function ConfirmBanner({ items }: { items: Placeholder[] }) {
             <li key={`${item.where}-${item.text}`} className="text-xs leading-relaxed">
               <code className="font-mono text-2xs text-muted">{item.where}</code>
               <span className="mx-1.5 text-subtle" aria-hidden>
-                —
+                ·,
               </span>
               <span className="text-muted">{item.text}</span>
             </li>
@@ -435,7 +435,7 @@ function SheetSection({
 }
 
 /** Title on the left, dates on the right, sharing a baseline. The date column
- *  never wraps under the title — that is the layout tell that separates a
+ *  never wraps under the title. That is the layout tell that separates a
  *  résumé from a list of paragraphs. */
 function EntryHead({
   title,
@@ -504,7 +504,7 @@ function ProjectEntry({ entry }: { entry: SelectedProject }) {
       {entry.missingBullets ? (
         <p className="mt-2 text-sm leading-relaxed">
           <Fact
-            value={`TODO(tadiwa): no resumeBullets in content/projects/${project.slug}.mdx — this project qualifies for the ${entry.tier} slot but has nothing to say for itself`}
+            value={`TODO(tadiwa): no resumeBullets in content/projects/${project.slug}.mdx. This project qualifies for the ${entry.tier} slot but has nothing to say for itself`}
           />
         </p>
       ) : (
@@ -536,7 +536,7 @@ function EmptyProjects({ variantId }: { variantId: ResumeVariantId }) {
     <p className="rounded border border-dashed border-border-strong p-5 text-sm leading-relaxed text-muted">
       No shipped or in-progress project in the corpus scores above zero on{" "}
       {variant.families.map((f) => ROLE_FAMILY_LABELS[f]).join(", ")}. That is an
-      accurate statement about the work, not a bug in the page — the fix is to
+      accurate statement about the work, not a bug in the page. The fix is to
       finish a project, or to correct a{" "}
       <code className="font-mono">roleRelevance</code> block in{" "}
       <code className="font-mono">content/projects/*.mdx</code>. An empty
@@ -603,7 +603,7 @@ function ContactItems() {
   );
 }
 
-/** Renders a fact, or — if it is still a placeholder — renders it loudly. */
+/** Renders a fact, or renders it loudly if it is still a placeholder. */
 function Fact({ value }: { value: string }) {
   return needsConfirmation(value) ? (
     <span className={styles.confirm}>{value}</span>

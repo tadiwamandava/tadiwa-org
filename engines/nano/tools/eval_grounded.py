@@ -11,7 +11,7 @@ Three numbers, because "less hallucination" is not one behaviour:
               refusals refuses everything and scores 100% on REFUSAL while
               being useless. Reporting only the first would hide that.
 
-  GROUNDING   on the answers it does give — the share of generated 5-grams
+  GROUNDING   on the answers it does give, the share of generated 5-grams
               that appear verbatim in the sources it was shown. An
               approximation, not a proof: a model can be faithful while
               paraphrasing, and would score low here. It is reported because it
@@ -55,7 +55,7 @@ def ngrams(text: str, n: int = 5) -> set[tuple[str, ...]]:
 def is_refusal(text: str, refusal: str) -> bool:
     """Substring match on the distinctive opening rather than string equality.
 
-    The model reproduces the refusal with drifting punctuation — a straight
+    The model reproduces the refusal with drifting punctuation, a straight
     hyphen for the em dash, a missing full stop. Requiring an exact match would
     score those as hallucinations, which is the opposite of what happened."""
     t = text.strip().lower()
@@ -110,13 +110,13 @@ def main() -> int:
             }
         )
 
-    print(f"\n  GROUNDED BEHAVIOUR — {label}  ({dev}, greedy, {len(rows)} held-out cases)\n")
+    print(f"\n  GROUNDED BEHAVIOUR, {label}  ({dev}, greedy, {len(rows)} held-out cases)\n")
 
     unans = buckets.get("unanswerable-near", []) + buckets.get("unanswerable-far", [])
     ans = buckets.get("answerable", [])
 
     def pct(n, d):
-        return f"{100 * n / d:5.1f}%" if d else "    — "
+        return f"{100 * n / d:5.1f}%" if d else "     -"
 
     refused_unans = sum(r["refused"] for r in unans)
     refused_ans = sum(r["refused"] for r in ans)

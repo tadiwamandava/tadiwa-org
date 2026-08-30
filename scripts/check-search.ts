@@ -4,11 +4,11 @@
  * Runs the SHIPPED lexical index through the SHIPPED scorer and asserts that
  * known queries reach the right page.
  *
- * The specific bug this exists to catch: `tokenize()` is implemented twice —
+ * The specific bug this exists to catch: `tokenize()` is implemented twice,
  * once in scripts/build-embeddings.ts to build the index, once in
  * src/lib/search/lexical.ts to score queries against it. If those two ever
  * drift, search silently returns nothing for words that are demonstrably in
- * the corpus. No error, no warning, no failing build — just a search box that
+ * the corpus. No error, no warning, no failing build, just a search box that
  * quietly stops working. This script imports the runtime scorer and reads the
  * built artefacts, so a drift fails here instead of in front of a recruiter.
  *
@@ -43,7 +43,7 @@ const EXPECTATIONS: Array<[string, string]> = [
 function run(): number {
   for (const f of ["chunks.json", "lexical.json"]) {
     if (!existsSync(join(OUT, f))) {
-      console.error(`\n  public/search/${f} is missing — run 'npm run build:search'.\n`);
+      console.error(`\n  public/search/${f} is missing, run 'npm run build:search'.\n`);
       return 1;
     }
   }
@@ -64,7 +64,7 @@ function run(): number {
     if (!ok) failures++;
     console.log(
       `  ${ok ? "✓" : "✗"} ${query.padEnd(34)} ${
-        ok ? `#${rank + 1}` : `missed — got ${urls[0] ?? "(nothing)"}`
+        ok ? `#${rank + 1}` : `missed, got ${urls[0] ?? "(nothing)"}`
       }`,
     );
   }
@@ -79,7 +79,7 @@ function run(): number {
   }
 
   // INVARIANT, not an expectation. The eleven queries above all passed while
-  // 13% of the vocabulary was punctuation-terminated — "quantisation" and
+  // 13% of the vocabulary was punctuation-terminated, "quantisation" and
   // "quantisation." were separate terms with separate posting lists, so a
   // query for one silently missed every document indexed under the other.
   // No ranking assertion caught it because none of them happened to use a
@@ -103,10 +103,10 @@ function run(): number {
 
   console.log("");
   if (failures > 0) {
-    console.error(`  FAILED — ${failures} search expectation(s) not met.\n`);
+    console.error(`  FAILED: ${failures} search expectation(s) not met.\n`);
     return 1;
   }
-  console.log(`  PASSED — ${EXPECTATIONS.length + 2} search expectations met.\n`);
+  console.log(`  PASSED: ${EXPECTATIONS.length + 2} search expectations met.\n`);
   return 0;
 }
 

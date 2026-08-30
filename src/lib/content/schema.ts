@@ -4,10 +4,10 @@ import { z } from "zod";
    The corpus schema.
 
    Four consumers depend on this file, which is why it is strict:
-     1. /projects/[slug]  — renders every field
-     2. the HNSW search   — chunks the prose fields into the vector index
-     3. /tailor           — the ONLY facts the model is allowed to assert
-     4. /resume           — selects and orders `resumeBullets`
+     1. /projects/[slug], renders every field
+     2. the HNSW search, chunks the prose fields into the vector index
+     3. /tailor, the ONLY facts the model is allowed to assert
+     4. /resume, selects and orders `resumeBullets`
 
    Consumer 3 is why several fields other portfolios treat as optional are
    required here. A model asked to "write about this project" will invent
@@ -19,7 +19,7 @@ const isoDate = z
   .regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD");
 
 /** Role families from Ch.1 (software) and Ch.10 (hardware).
- *  Deliberately NOT company names — companies reorganise, role families don't,
+ *  Deliberately NOT company names, companies reorganise, role families don't,
  *  and a company maps to several of these. See lib/content/roles.ts. */
 export const ROLE_FAMILIES = [
   "systems",
@@ -46,15 +46,15 @@ export const DOMAINS = [
   "ops",
 ] as const;
 
-/** shipped  — done, documented, defensible in an interview
- *  building — actively in progress, honest about it
- *  planned  — scheduled, not started; renders as a dated commitment */
+/** shipped, done, documented, defensible in an interview
+ *  building, actively in progress, honest about it
+ *  planned, scheduled, not started; renders as a dated commitment */
 export const STATUSES = ["shipped", "building", "planned"] as const;
 
 /* ---------------------------------------------------------------------------
    Benchmarks. §2.3: "benchmarks are the new screenshots."
    hardware / methodology / gapAnalysis are REQUIRED. A number without the
-   conditions that produced it is a claim, not evidence — and an interviewer
+   conditions that produced it is a claim, not evidence, and an interviewer
    will ask for exactly these three things.
    ------------------------------------------------------------------------ */
 export const benchmarkRunSchema = z.object({
@@ -71,7 +71,7 @@ export const benchmarkSetSchema = z.object({
   title: z.string().min(1),
   unit: z.string().min(1),
   higherIsBetter: z.boolean(),
-  hardware: z.string().min(10, "Name the actual machine — CPU, RAM, disk"),
+  hardware: z.string().min(10, "Name the actual machine, CPU, RAM, disk"),
   methodology: z
     .string()
     .min(30, "State reps, warmup, and what was held constant"),
@@ -85,7 +85,7 @@ export const benchmarkSetSchema = z.object({
 });
 
 /* ---------------------------------------------------------------------------
-   Design decisions — §2.2 item 5, "the section AI-generated repos never have."
+   Design decisions, §2.2 item 5, "the section AI-generated repos never have."
    `rejected` is required because a decision without a discarded alternative is
    not a decision, it is a default.
    ------------------------------------------------------------------------ */
@@ -101,7 +101,7 @@ export const artifactSchema = z.object({
   kind: z.enum(["repo", "demo", "writeup", "video", "capture", "package", "paper"]),
   label: z.string().min(1),
   href: z.string().min(1),
-  /** Logic-analyzer captures, waveforms, flamegraphs — the hardware exhibits. */
+  /** Logic-analyzer captures, waveforms, flamegraphs, the hardware exhibits. */
   caption: z.string().optional(),
 });
 

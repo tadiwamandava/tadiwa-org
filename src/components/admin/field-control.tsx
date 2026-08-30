@@ -3,16 +3,16 @@
 /**
  * One `FieldSpec` -> one control. Recursive, so nested arrays fall out of it.
  *
- * There is no switch on field NAME anywhere in this file. Every decision —
+ * There is no switch on field NAME anywhere in this file. Every decision,
  * input vs textarea, select vs checkbox group, whether a repeating group can
- * be reordered — comes from the spec that `src/lib/admin/fields.ts` derived
+ * be reordered, comes from the spec that `src/lib/admin/fields.ts` derived
  * from the Zod schema. That is what makes it impossible for a new schema field
  * to be missing from the editor: nobody has to remember to add it here.
  *
  * Accessibility is not optional in a form this dense. Every control has a real
  * `<label for>`, every help string and error is wired through
  * `aria-describedby`, and every add/remove/reorder button says which row it
- * acts on — "Move decision 2 up", not "↑".
+ * acts on, "Move decision 2 up", not "↑".
  */
 
 import type { FieldSpec } from "@/lib/admin/fields";
@@ -59,7 +59,7 @@ const domId = (path: string) => `f-${path.replace(/[^a-zA-Z0-9]+/g, "-")}`;
 
 export interface ControlProps {
   spec: FieldSpec;
-  /** Runtime dotted path including indices — `decisions.0.why`. */
+  /** Runtime dotted path including indices, `decisions.0.why`. */
   path: string;
   value: unknown;
   errors: Map<string, string[]>;
@@ -224,7 +224,7 @@ export function FieldControl(props: ControlProps) {
               value={typeof value === "string" ? value : ""}
               onChange={(e) => onChange(e.target.value === "" ? undefined : e.target.value)}
             >
-              {spec.optional && <option value="">— not set —</option>}
+              {spec.optional && <option value="">, not set,</option>}
               {spec.options.map((option) => (
                 <option key={option} value={option}>
                   {option}
@@ -436,7 +436,7 @@ export function FieldControl(props: ControlProps) {
                       onChange(next);
                     }}
                   >
-                    <option value="">—</option>
+                    <option value="">, </option>
                     {scale.map((n) => (
                       <option key={n} value={n}>
                         {n}

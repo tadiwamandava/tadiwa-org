@@ -3,7 +3,7 @@
  *
  * WHY. The prompt format is built in two languages: TypeScript renders it in
  * the browser, Python renders it to generate fine-tuning data. A model trained
- * on one format and served another degrades with no error anywhere — the same
+ * on one format and served another degrades with no error anywhere, the same
  * silent-failure shape as the search tokenizer being implemented twice, which
  * is what `check:search` exists for.
  *
@@ -24,7 +24,7 @@ import type { Hit } from "../src/lib/search/types.ts";
 
 const GOLDEN = join(process.cwd(), "engines", "nano", "fixtures", "grounded-prompt.txt");
 
-/** Fixed input. Not drawn from the live corpus on purpose — this test must
+/** Fixed input. Not drawn from the live corpus on purpose, this test must
  *  fail when the FORMAT changes and stay quiet when the content does. */
 const QUESTION = "What is tadiwa-nano?";
 const PASSAGES: Hit[] = [
@@ -70,7 +70,7 @@ function main(): number {
   const problems: string[] = [];
   if (!got.includes("<|im_start|>system")) problems.push("no system turn");
   if (!got.endsWith("<|im_start|>assistant\n")) problems.push("does not end on the assistant header");
-  if (!got.includes("[1] tadiwa-nano — Pitch")) problems.push("source 1 not rendered");
+  if (!got.includes("[1] tadiwa-nano, Pitch")) problems.push("source 1 not rendered");
   if (!got.includes("[3] Build gates")) problems.push("source 3 not rendered");
   if (usedCount(PASSAGES) !== 3) problems.push(`usedCount says ${usedCount(PASSAGES)}, expected 3`);
   if (renderSources([]).length !== 0) problems.push("empty passages did not render empty");

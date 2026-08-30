@@ -2,18 +2,18 @@
  * WCAG contrast + palette-separation gate.
  *
  * Parses the real token blocks out of src/app/globals.css rather than keeping a
- * copy of the palette here — a duplicated palette drifts from the stylesheet
+ * copy of the palette here, a duplicated palette drifts from the stylesheet
  * and then this script certifies a theme nobody is actually shipping.
  *
  * Two families of assertion:
  *
- *   1. CONTRAST — WCAG AA ratios for text, and 1.4.11 for non-text UI.
+ *   1. CONTRAST, WCAG AA ratios for text, and 1.4.11 for non-text UI.
  *
- *   2. SEPARATION — OKLab ΔE between tokens that must stay TELLABLE APART.
+ *   2. SEPARATION, OKLab ΔE between tokens that must stay TELLABLE APART.
  *      The palette is deliberately one hue (see the header of globals.css):
  *      status is ranked by tone and the chart pair is an emphasis hierarchy.
  *      Contrast-vs-background alone cannot catch two of those collapsing into
- *      each other — two tokens can both sit at 5.5:1 on --bg and be the same
+ *      each other, two tokens can both sit at 5.5:1 on --bg and be the same
  *      colour. These checks are what replaces the old "is it green or is it
  *      rust" distinguishability that hue used to provide for free.
  *
@@ -35,15 +35,15 @@ const AA_LARGE = 3.0;
 const AA_NON_TEXT = 3.0;
 
 /**
- * Separation floors, in OKLab ΔE ×100 — the same metric and scale the dataviz
+ * Separation floors, in OKLab ΔE ×100, the same metric and scale the dataviz
  * validator uses, so numbers here are directly comparable to its output.
  *
  * DE_CHART (15) is that tool's normal-vision floor for a pair carrying meaning
  * through colour. It is a hard number: an earlier chart pick measured 11.7 and
  * was genuinely indistinguishable on screen.
  *
- * DE_STATUS (8) is lower on purpose. Status is never colour-only — <StatusPill>
- * always renders the word "Shipped" / "Building" / "Planned" next to the dot —
+ * DE_STATUS (8) is lower on purpose. Status is never colour-only, <StatusPill>
+ * always renders the word "Shipped" / "Building" / "Planned" next to the dot,
  * so colour only has to rank the three, not name them. 8 is the validator's
  * CVD floor band, i.e. the point where a difference is still perceptible when
  * a text label is doing the identifying.
@@ -105,7 +105,7 @@ function oklab(hex: string): [number, number, number] {
   ];
 }
 
-/** Euclidean distance in OKLab, x100 — matches the dataviz validator's ΔE. */
+/** Euclidean distance in OKLab, x100, matches the dataviz validator's ΔE. */
 function deltaE(a: string, b: string): number {
   const [l1, a1, b1] = oklab(a);
   const [l2, a2, b2] = oklab(b);
@@ -180,7 +180,7 @@ const CHECKS: Check[] = [
 
   // Accent is used for links in running prose, so it must clear body contrast.
   // Inline <code> sits on --surface-2, and prose links run through it, so the
-  // inset surface is checked too — it is the tightest of the three.
+  // inset surface is checked too; it is the tightest of the three.
   { fg: "--accent", bg: "--bg", min: AA_BODY, note: "link on page" },
   { fg: "--accent", bg: "--surface", min: AA_BODY, note: "link on card" },
   { fg: "--accent", bg: "--surface-2", min: AA_BODY, note: "link on inset" },
@@ -201,7 +201,7 @@ const CHECKS: Check[] = [
   { fg: "--focus", bg: "--bg", min: AA_NON_TEXT, note: "focus ring on page" },
   { fg: "--focus", bg: "--surface", min: AA_NON_TEXT, note: "focus ring on card" },
   // --border-strong identifies controls and draws the callout/quote rules,
-  // which live on cards — so it has to clear 3:1 on --surface, not just --bg.
+  // which live on cards, so it has to clear 3:1 on --surface, not just --bg.
   { fg: "--border-strong", bg: "--bg", min: AA_NON_TEXT, note: "emphasised border" },
   { fg: "--border-strong", bg: "--surface", min: AA_NON_TEXT, note: "emphasised border on card" },
 
@@ -315,11 +315,11 @@ function run(): number {
 
   console.log("");
   if (failures > 0) {
-    console.error(`  FAILED — ${failures} contrast/separation/parity problem(s).\n`);
+    console.error(`  FAILED: ${failures} contrast/separation/parity problem(s).\n`);
     return 1;
   }
   console.log(
-    `  PASSED — ${CHECKS.length * 2} pairs meet WCAG AA and ` +
+    `  PASSED: ${CHECKS.length * 2} pairs meet WCAG AA and ` +
       `${SEPARATIONS.length * 2} pairs stay distinguishable, in both themes.\n`,
   );
   return 0;

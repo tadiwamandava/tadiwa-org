@@ -8,7 +8,7 @@
  *      build cannot.
  *   2. The corpus is the ONLY set of facts the /tailor feature is allowed to
  *      assert. A malformed or half-filled project entry is not a cosmetic
- *      problem — it is the input to something that will speak on Tadiwa's
+ *      problem, it is the input to something that will speak on Tadiwa's
  *      behalf to a recruiter.
  *
  * Run: npm run check:content
@@ -68,7 +68,7 @@ function validateDir(
       problems.push({
         file: `content/${dir}/${filename}`,
         path: "(frontmatter)",
-        message: `YAML did not parse — ${(err as Error).message.split("\n")[0]}. A value containing ": " must be quoted.`,
+        message: `YAML did not parse, ${(err as Error).message.split("\n")[0]}. A value containing ": " must be quoted.`,
       });
       continue;
     }
@@ -100,7 +100,7 @@ function validateDir(
       problems.push({
         file: `content/${dir}/${filename}`,
         path: "(body)",
-        message: `${label} body is only ${content.trim().length} chars — write the thing`,
+        message: `${label} body is only ${content.trim().length} chars, write the thing`,
       });
     }
   }
@@ -109,7 +109,7 @@ function validateDir(
 }
 
 /**
- * Invariants that hold across the corpus rather than within one file — the
+ * Invariants that hold across the corpus rather than within one file, the
  * class of bug no single-file schema can see.
  */
 function checkCorpusInvariants(projects: Entry[]): Problem[] {
@@ -130,7 +130,7 @@ function checkCorpusInvariants(projects: Entry[]): Problem[] {
       problems.push({
         file: group.map((g) => g.file).join(", "),
         path: "pinOrder",
-        message: `${group.length} featured projects share pinOrder ${pin} — home-page order is undefined`,
+        message: `${group.length} featured projects share pinOrder ${pin}, home-page order is undefined`,
       });
     }
   }
@@ -181,14 +181,14 @@ function checkCorpusInvariants(projects: Entry[]): Problem[] {
     problems.push({
       file: "content/projects/",
       path: "featured",
-      message: `${featured.length} projects are featured — pin 4–6, or the pinning means nothing`,
+      message: `${featured.length} projects are featured, pin 4–6, or the pinning means nothing`,
     });
   }
 
   return problems;
 }
 
-/** Surfaces placeholders before they reach a recruiter. Warns, never fails —
+/** Surfaces placeholders before they reach a recruiter. Warns, never fails,
  *  they are legitimate mid-draft, but must never ship silently. */
 function findPlaceholders(): Problem[] {
   const out: Problem[] = [];
@@ -269,7 +269,7 @@ function run(): number {
     );
   }
 
-  console.log(`\n  PASSED — corpus is valid.\n`);
+  console.log(`\n  PASSED: corpus is valid.\n`);
   return 0;
 }
 

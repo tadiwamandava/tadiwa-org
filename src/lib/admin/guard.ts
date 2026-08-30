@@ -3,7 +3,7 @@
  *
  * WHY THERE IS NO LOGIN. This site is a public portfolio on a public host. An
  * authenticated, writable admin route deployed to the internet is a real
- * attack surface — a session store, a password reset path, a token to leak —
+ * attack surface, a session store, a password reset path, a token to leak,
  * guarding content that is already public and already versioned in git. The
  * trade is bad, so the admin simply does not exist in a production build:
  * every /admin route returns 404, and every Server Action refuses.
@@ -12,7 +12,7 @@
  * anyway: content lives in git, and an edit should become a commit.
  *
  * THREE INDEPENDENT LAYERS, because a UI that does not render a button is not
- * a security boundary — Server Actions are reachable by anyone who can POST:
+ * a security boundary, Server Actions are reachable by anyone who can POST:
  *
  *   1. `src/app/admin/layout.tsx` calls `assertAdminEnabled()`, so no admin
  *      page renders.
@@ -31,7 +31,7 @@ import "server-only";
 import { notFound } from "next/navigation";
 
 /**
- * `NODE_ENV` is set by Next itself — "development" under `next dev`,
+ * `NODE_ENV` is set by Next itself, "development" under `next dev`,
  * "production" under `next build` / `next start`. It is not a user-settable
  * env var in this setup, which is what makes it a usable gate.
  */

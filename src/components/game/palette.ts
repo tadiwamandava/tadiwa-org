@@ -1,11 +1,11 @@
 /* ============================================================================
-   palette.ts — reads the board's colours out of the live cascade.
+   palette.ts, reads the board's colours out of the live cascade.
 
    Nothing in the canvas hardcodes a colour. What it reads are the `--board-*`
    role aliases defined in bench.module.css, NOT the design tokens directly:
    the board is a dark object in both themes, so which token plays "substrate"
    depends on the theme, and that decision belongs in the stylesheet next to the
-   contrast working that justifies it — not in TypeScript.
+   contrast working that justifies it, not in TypeScript.
 
    Read off the canvas element rather than <html>, because that is where the
    aliases resolve. The theme can still flip under us at any moment via
@@ -13,13 +13,13 @@
    ========================================================================= */
 
 export const TOKENS = [
-  /** Substrate — the soldermask the whole board is printed on. */
+  /** Substrate, the soldermask the whole board is printed on. */
   "board-ground",
   /** Package bodies and the connector housing: one step off the substrate. */
   "board-ground-2",
   /** Copper: traces, pins, annular rings, gold fingers, the silkscreen frame. */
   "board-copper",
-  /** Drilled through to the page behind — mounting holes. */
+  /** Drilled through to the page behind, mounting holes. */
   "board-hole",
   /** The only colour event on the board: energised net, pulses, LED, probe. */
   "board-live",
@@ -72,7 +72,7 @@ function parseColor(raw: string, fallback: number): number {
   }
 }
 
-/* Only ever used if a token is missing entirely — i.e. the stylesheet failed to
+/* Only ever used if a token is missing entirely, i.e. the stylesheet failed to
    load, in which case the whole page is already broken. Neutral greys, so a
    half-loaded board is never a colour the design does not own. */
 const FALLBACK: Palette = {
@@ -100,7 +100,7 @@ export function paletteEquals(a: Palette, b: Palette): boolean {
  * Fires whenever the resolved palette may have changed.
  *
  * Two triggers, because the theme has three states: an explicit choice writes
- * `data-theme` on <html>, and "system" writes nothing at all — so the OS
+ * `data-theme` on <html>, and "system" writes nothing at all, so the OS
  * preference change is the only signal for the default case.
  */
 export function watchTheme(onChange: () => void): () => void {

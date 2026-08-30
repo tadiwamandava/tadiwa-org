@@ -2,7 +2,7 @@
 
 /**
  * The editor shell: state, saving, and the things a form-heavy tool has to get
- * right — a visible dirty state, a keyboard save, and errors attached to the
+ * right, a visible dirty state, a keyboard save, and errors attached to the
  * field that caused them.
  *
  * State is one plain object mirroring the frontmatter, plus the body string.
@@ -10,7 +10,7 @@
  * reasons: repeating groups with add/remove/reorder are miserable to express
  * as flat form keys, and browsers submit `<textarea>` content with CRLF line
  * endings, which is invisible in review and fatal inside a YAML block scalar.
- * Reading `.value` in JS gives LF. (The Server Action normalises anyway — it
+ * Reading `.value` in JS gives LF. (The Server Action normalises anyway, it
  * cannot trust this component, or any other caller.)
  *
  * Note the absence of `useEffect` around state: "has this changed" is derived
@@ -73,7 +73,7 @@ export function EntryEditor(props: EntryEditorProps) {
   const [baseline, setBaseline] = useState(current);
   const [lastAppliedSave, setLastAppliedSave] = useState<number | null>(null);
 
-  // Adjusting state during render — the supported way to derive from a prop or
+  // Adjusting state during render, the supported way to derive from a prop or
   // an action result without an effect. After a successful save, whatever was
   // saved becomes the new "unchanged" baseline.
   if (result?.ok && result.savedAt !== lastAppliedSave) {
@@ -155,14 +155,14 @@ export function EntryEditor(props: EntryEditorProps) {
               <ul className="mt-2 space-y-0.5 font-mono text-xs text-text">
                 {result.issues.map((issue, i) => (
                   <li key={i}>
-                    <span className="text-muted">{issue.path || "(root)"}</span> — {issue.message}
+                    <span className="text-muted">{issue.path || "(root)"}</span>, {issue.message}
                   </li>
                 ))}
               </ul>
             )}
             {unmatchedIssues.length > 0 && (
               <p className="mt-2 text-xs text-muted">
-                Some of those paths have no control in this form — they come from corpus-level
+                Some of those paths have no control in this form; they come from corpus-level
                 rules rather than from a single field.
               </p>
             )}
@@ -206,7 +206,7 @@ export function EntryEditor(props: EntryEditorProps) {
             <ul className="space-y-0.5 font-mono text-xs text-text">
               {props.initialIssues.map((issue, i) => (
                 <li key={i}>
-                  <span className="text-muted">{issue.path || "(root)"}</span> — {issue.message}
+                  <span className="text-muted">{issue.path || "(root)"}</span>, {issue.message}
                 </li>
               ))}
             </ul>
@@ -254,7 +254,7 @@ export function EntryEditor(props: EntryEditorProps) {
       <Help id="entry-body-help">
         Written back exactly as typed. {body.trim().length.toLocaleString()} chars
         {body.trim().length < MIN_BODY_CHARS &&
-          ` — check:content fails under ${MIN_BODY_CHARS}`}
+          `, check:content fails under ${MIN_BODY_CHARS}`}
         {bodyPlaceholders > 0 && ` · ${bodyPlaceholders} placeholder line(s)`}
       </Help>
 

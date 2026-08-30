@@ -6,7 +6,7 @@
  * visitor gets a full-brightness cream flash on every cold load. That flash is
  * the single most common "this site was assembled, not built" tell.
  *
- * Kept deliberately tiny — it is render-blocking, so every byte is on the
+ * Kept deliberately tiny, it is render-blocking, so every byte is on the
  * critical path.
  */
 

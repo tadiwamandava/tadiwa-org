@@ -34,7 +34,7 @@ uint32_t decode_utf8(const std::string& t, std::size_t i, std::size_t& len) {
 /// Approximates \p{L} for the ranges real text actually uses.
 ///
 /// The first version treated every byte >= 0x80 as a letter, which is wrong in
-/// the most visible possible way: an em dash inside a word made "em—dash" a
+/// the most visible possible way: an em dash inside a word made "em, dash" a
 /// single pre-token where the reference splits it in three, and every token
 /// after it differed. A full Unicode category table would be tens of kilobytes
 /// for a gain over these ranges that this engine will never observe.
@@ -42,8 +42,8 @@ bool is_letter_cp(uint32_t cp) {
   if (cp < 0x80) {
     return (cp >= 'a' && cp <= 'z') || (cp >= 'A' && cp <= 'Z');
   }
-  // Explicitly NOT letters — punctuation, arrows, technical symbols, emoji.
-  if ((cp >= 0x2000 && cp <= 0x206F) ||   // general punctuation: — “ ” … •
+  // Explicitly NOT letters, punctuation, arrows, technical symbols, emoji.
+  if ((cp >= 0x2000 && cp <= 0x206F) ||   // general punctuation:, “ ” … •
       (cp >= 0x2070 && cp <= 0x209F) ||   // super/subscripts
       (cp >= 0x20A0 && cp <= 0x20CF) ||   // currency
       (cp >= 0x2100 && cp <= 0x214F) ||   // letterlike symbols
@@ -89,7 +89,7 @@ std::vector<std::string> bpe_pretokenize(const std::string& t) {
   };
 
   while (i < n) {
-    // Contractions, before anything else — they are the reason the pattern
+    // Contractions, before anything else, they are the reason the pattern
     // begins with a list of literals.
     static const char* kContractions[] = {"'s", "'t", "'re", "'ve", "'m", "'ll", "'d"};
     bool matched = false;
@@ -104,7 +104,7 @@ std::vector<std::string> bpe_pretokenize(const std::string& t) {
     if (matched) continue;
 
     const std::size_t start = i;
-    // An optional single leading space belongs to the following run — this is
+    // An optional single leading space belongs to the following run, this is
     // why " the" is one token and "the" is another.
     const bool lead_space = t[i] == ' ' && i + 1 < n && !is_space((unsigned char)t[i + 1]);
     if (lead_space) ++i;
@@ -247,7 +247,7 @@ std::vector<int> Bpe::encode(const std::string& text) const {
 
   // Added tokens are cut out of the text first and emitted as themselves; the
   // spans between them go through the ordinary path. Doing this before
-  // pre-tokenisation is not an optimisation — "<|im_end|>" contains characters
+  // pre-tokenisation is not an optimisation, "<|im_end|>" contains characters
   // the pre-tokeniser would split on, so afterwards would be too late.
   std::size_t seg = 0, i = 0;
   const std::size_t n = text.size();

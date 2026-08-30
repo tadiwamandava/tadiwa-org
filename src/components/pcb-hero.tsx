@@ -4,7 +4,7 @@ import type { BenchProject } from "@/components/game/types";
 import { getAllProjects } from "@/lib/content";
 
 /* ============================================================================
-   The Bench — server half.
+   The Bench, server half.
 
    Reads the corpus on the server and hands the client a plain array. Two
    reasons this boundary is drawn here rather than deeper in:

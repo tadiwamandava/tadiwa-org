@@ -11,18 +11,18 @@ import TEMPLATE from "../../../../engines/nano/prompts/grounded.v1.json" with { 
  *
  * Kimi K3 cannot run here. At 2.8 trillion parameters it is roughly a terabyte
  * of weights even at four bits, and mixture-of-experts needs every expert
- * resident regardless of which ones a token activates — so it is four orders
+ * resident regardless of which ones a token activates, so it is four orders
  * of magnitude past what a browser tab can hold. The local engine is 129 MB.
  *
  * That gap is the point. Both models get the SAME retrieved passages and the
  * SAME system prompt, so what the page shows is not "big model good" but
  * exactly which failures come from the model and which come from the
- * retrieval — a 135M model that declines and a 2.8T model that answers from
+ * retrieval. A 135M model that declines and a 2.8T model that answers from
  * the same four paragraphs are telling you something specific.
  *
  * WHY THE SERVER RETRIEVES INSTEAD OF TRUSTING THE CLIENT.
  *
- * The obvious shape is for the browser — which already has the index — to post
+ * The obvious shape is for the browser, which already has the index, to post
  * its passages up. That would make this endpoint a free proxy to a paid API
  * that will relay any text anybody puts in the body. The server does its own
  * retrieval over the same committed corpus, so the prompt is entirely
@@ -33,7 +33,7 @@ import TEMPLATE from "../../../../engines/nano/prompts/grounded.v1.json" with { 
 export const runtime = "nodejs";
 
 /** Set in the deployment to switch this on. Absent means the whole feature is
- *  off and the UI says so — no key, no route, no bill. */
+ *  off and the UI says so: no key, no route, no bill. */
 const KEY = process.env.OPENROUTER_API_KEY;
 const MODEL = process.env.COMPARE_MODEL ?? "moonshotai/kimi-k3";
 
@@ -43,7 +43,7 @@ const MAX_TOKENS = 400;
 /** Per-IP sliding window. Best-effort by construction: serverless functions do
  *  not share memory, so a burst spread across cold starts gets more than this.
  *  It exists to stop the trivial abuse case. The only bound that actually
- *  holds is a spend cap set at the provider — see DEPLOY.md. */
+ *  holds is a spend cap set at the provider; see DEPLOY.md. */
 const WINDOW_MS = 60_000;
 const PER_WINDOW = 5;
 const hits = new Map<string, number[]>();
@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
         error: "not configured",
         detail:
           "This deployment has no OPENROUTER_API_KEY, so the hosted comparison is off. " +
-          "The local model is unaffected — it never needed one.",
+          "The local model is unaffected; it never needed one.",
       },
       { status: 503 },
     );

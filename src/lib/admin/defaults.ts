@@ -4,7 +4,7 @@
  * The rule: a freshly created entry must already satisfy the schema AND the
  * corpus invariants in `scripts/check-content.ts`, so `npm run check:content`
  * passes the moment the file exists. A "new" button that produces a file the
- * gate rejects is worse than no button — it puts the repo in a red state and
+ * gate rejects is worse than no button; it puts the repo in a red state and
  * makes the owner debug a form instead of writing.
  *
  * That is why the placeholder text is long: `pitch` needs 20 characters,
@@ -59,13 +59,13 @@ export function newDraft(kind: EntryKind, title: string): EntryDraft {
     return {
       frontmatter: {
         title,
-        pitch: "TODO: one sentence — what this is, and the hardest thing about it.",
+        pitch: "TODO: one sentence, what this is, and the hardest thing about it.",
         status: "building",
         started: today(),
         domains: ["systems"],
         languages: ["TODO"],
         hardestThing:
-          "TODO: two or three sentences framing the difficulty. Not what it does — " +
+          "TODO: two or three sentences framing the difficulty. Not what it does, " +
           "what made it hard, and what you had to learn to get past it.",
       },
       body: PROJECT_BODY,

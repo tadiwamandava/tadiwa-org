@@ -7,7 +7,7 @@
  *   1. ROUND TRIP. Every file in content/ is read, re-serialised by the
  *      admin's own writer, and re-read. The two parses must be deep-equal and
  *      the body byte-identical. If reading and rewriting the corpus unchanged
- *      is not a no-op, the writer is not safe to point at the corpus.
+ *      is not a no-op; the writer is not safe to point at the corpus.
  *
  *   2. ADVERSARIAL SCALARS. The cases a YAML emitter gets wrong, starting with
  *      the one this repo has already been bitten by: a title containing ": ".
@@ -110,7 +110,7 @@ function roundTripCorpus(): void {
           keyOrder: kind.keyOrder,
         });
       } catch (err) {
-        ok(`${label} — serialises`, false, (err as Error).message);
+        ok(`${label}, serialises`, false, (err as Error).message);
         continue;
       }
 
@@ -121,17 +121,17 @@ function roundTripCorpus(): void {
       // the other is correctly treated as identical.
       const a = kind.schema.safeParse(before.frontmatter);
       const b = kind.schema.safeParse(after.frontmatter);
-      ok(`${label} — valid before`, a.success, a.success ? "" : JSON.stringify(a.error?.issues));
-      ok(`${label} — valid after`, b.success, b.success ? "" : JSON.stringify(b.error?.issues));
+      ok(`${label}, valid before`, a.success, a.success ? "" : JSON.stringify(a.error?.issues));
+      ok(`${label}, valid after`, b.success, b.success ? "" : JSON.stringify(b.error?.issues));
       if (a.success && b.success) {
         ok(
-          `${label} — frontmatter is semantically unchanged`,
+          `${label}, frontmatter is semantically unchanged`,
           deepEqual(a.data, b.data),
           diffSummary(a.data as Record<string, unknown>, b.data as Record<string, unknown>),
         );
       }
 
-      ok(`${label} — body byte-identical`, before.body === after.body);
+      ok(`${label}, body byte-identical`, before.body === after.body);
 
       // A second pass must be a fixed point: writing an already-written file
       // changes nothing. Without this, every save produces a diff.
@@ -142,7 +142,7 @@ function roundTripCorpus(): void {
         fields: kind.fields,
         keyOrder: kind.keyOrder,
       });
-      ok(`${label} — writer is idempotent`, twice === written);
+      ok(`${label}, writer is idempotent`, twice === written);
 
       if (before.comments.length > 0) commentsLost += before.comments.length;
     }
@@ -211,7 +211,7 @@ const NASTY_STRINGS: [string, string][] = [
   ["blank line inside", "para one\n\npara two"],
   ["crlf-free multiline ending in text", "a\nb\nc"],
   ["indented second line", "first\n  second"],
-  ["em dash and unicode", "π ≈ 3.14 — naïve café 日本語"],
+  ["em dash and unicode", "π ≈ 3.14, naïve café 日本語"],
   ["backslash", "C:\\Users\\path"],
   ["double quote inside", 'he said "hi"'],
   ["long normalised prose", "x".repeat(30) + " " + "y".repeat(120) + " tail words here"],
@@ -366,7 +366,7 @@ coverage();
 failsClosed();
 
 if (failures > 0) {
-  console.error(`\n  FAILED — ${failures} of ${checks} assertion(s).\n`);
+  console.error(`\n  FAILED: ${failures} of ${checks} assertion(s).\n`);
   process.exit(1);
 }
-console.log(`\n  PASSED — ${checks} assertions, corpus round-trips cleanly.\n`);
+console.log(`\n  PASSED: ${checks} assertions, corpus round-trips cleanly.\n`);

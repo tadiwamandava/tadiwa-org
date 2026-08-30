@@ -3,7 +3,7 @@
  *
  * A tool, not a showpiece: dense rows, small type, no animation, everything
  * reachable from the keyboard. It deliberately does not reuse the public
- * site's components — those are tuned for reading one thing at a time, and
+ * site's components, those are tuned for reading one thing at a time, and
  * this is tuned for scanning forty fields.
  *
  * Colour comes only from the semantic tokens in globals.css (`bg-surface`,
@@ -13,7 +13,7 @@
 
 import type { ReactNode } from "react";
 
-/** Bordered controls, not just tinted ones — `--border-strong` clears 1.4.11. */
+/** Bordered controls, not just tinted ones, `--border-strong` clears 1.4.11. */
 export const inputClass =
   "w-full rounded-sm border border-border-strong bg-bg px-2 py-1.5 text-sm text-text " +
   "placeholder:text-subtle disabled:opacity-60";

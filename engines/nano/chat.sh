@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Generate from the Llama-family engine, natively.
 #
-# The same code path the browser runs, minus WebAssembly — which makes this the
+# The same code path the browser runs, minus WebAssembly, which makes this the
 # place to answer "is the engine wrong, or is the wiring wrong?" whenever the
 # page misbehaves.
 #

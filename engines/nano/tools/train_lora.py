@@ -13,9 +13,9 @@ WHY LoRA AND NOT A FULL FINE-TUNE.
 
 118 training examples against 135M parameters. Full fine-tuning would move
 every weight to fit a hundred sentences and take the model's general fluency
-with it — the failure is called catastrophic forgetting and it is the default
-outcome at this ratio, not a risk. LoRA trains 4.9M parameters — 3.5% of the
-total — so the base model's language ability is structurally preserved: the
+with it, the failure is called catastrophic forgetting and it is the default
+outcome at this ratio, not a risk. LoRA trains 4.9M parameters, 3.5% of the
+total, so the base model's language ability is structurally preserved: the
 adapter can learn "decline when the context does not support an answer"
 without being able to overwrite what a sentence is.
 
@@ -24,7 +24,7 @@ THE LOSS IS MASKED TO THE ANSWER.
 Labels are -100 across the prompt. Training on the prompt tokens would spend
 most of the gradient teaching the model to reproduce its own retrieved sources,
 which it will never be asked to do, and would dilute the signal that matters by
-roughly the ratio of prompt length to answer length — here about 8:1.
+roughly the ratio of prompt length to answer length, here about 8:1.
 
 Run: engines/nano/tools/.venv/bin/python engines/nano/tools/train_lora.py
 """
@@ -48,7 +48,7 @@ BASE = "HuggingFaceTB/SmolLM2-135M-Instruct"
 
 #: Overridable from the command line so the epoch count can be swept without
 #: editing the file. 10 epochs reached 100% refusal on unanswerable questions
-#: but 26.7% FALSE refusal on answerable ones — over-committed to declining,
+#: but 26.7% FALSE refusal on answerable ones, over-committed to declining,
 #: which is the predictable way this goes wrong.
 EPOCHS = int(sys.argv[1]) if len(sys.argv) > 1 else 6
 BATCH = 2
@@ -188,7 +188,7 @@ def main() -> int:
         "alpha": cfg.lora_alpha,
         # peft normalises target_modules to a set, which json cannot encode.
         # This threw AFTER save_pretrained had already written the adapter, so
-        # the run looked like a crash but the weights were fine — the record of
+        # the run looked like a crash but the weights were fine, the record of
         # how they were produced was what got lost.
         "targets": sorted(cfg.target_modules),
         "trainableParams": trainable, "seconds": round(time.time() - t0),

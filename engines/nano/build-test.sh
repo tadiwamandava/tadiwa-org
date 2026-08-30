@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Builds and runs the native op-parity tests. No Emscripten needed — this is
+# Builds and runs the native op-parity tests. No Emscripten needed, this is
 # the fast inner loop while implementing ops; the WASM build is only for the
 # browser demo.
 set -euo pipefail

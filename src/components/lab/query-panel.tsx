@@ -11,7 +11,7 @@ import type { Chunk } from "@/lib/search/types";
  *
  * The default query needs no model. Every chunk's vector is already in the
  * payload, so "use this page as the query" is a real 384-dimensional query
- * point that costs nothing extra to obtain — the index answers it the same way
+ * point that costs nothing extra to obtain, the index answers it the same way
  * it would answer an embedded sentence, and the telemetry is the same
  * telemetry. Free text is the opt-in extra, because free text is the only part
  * of this that needs 22 MB of weights.
@@ -74,7 +74,7 @@ export function QueryPanel({
           </select>
         </label>
         <p className="mt-2 text-xs leading-relaxed text-subtle">
-          Any chunk&rsquo;s own vector, used as the query. No model required —
+          Any chunk&rsquo;s own vector, used as the query. No model required,
           these 384-dimensional vectors are in the 38 KB payload the page already
           fetched.
         </p>
@@ -147,11 +147,11 @@ export function QueryPanel({
             <Caption>
               Cosine similarity, 1.00 being identical.{" "}
               {run.source === "chunk"
-                ? "Result 1 is the query chunk itself — a self-query returns its own vector first, every time. The neighbours below it are the answer worth looking at."
+                ? "Result 1 is the query chunk itself, a self-query returns its own vector first, every time. The neighbours below it are the answer worth looking at."
                 : "The query was embedded in this tab and never left it."}{" "}
               {misses === 0
                 ? `All ${run.k} match an exhaustive scan of the same vectors, so the approximation cost nothing here.`
-                : `${misses} of ${run.k} differ from an exhaustive scan — that is the approximation, visible.`}
+                : `${misses} of ${run.k} differ from an exhaustive scan; that is the approximation, visible.`}
             </Caption>
           </>
         )}
@@ -183,7 +183,7 @@ function FreeText({
   return (
     <Panel className="mt-4">
       <h3 className="font-mono text-2xs tracking-[0.12em] text-muted uppercase">
-        Free text — optional
+        Free text, optional
       </h3>
 
       {modelState.status === "ready" ? (
@@ -217,8 +217,8 @@ function FreeText({
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
             Turning a sentence into a vector needs the embedding model:
             MiniLM-L6, int8-quantised, <strong className="font-medium">about 22 MB</strong>,
-            served from this domain and run in this tab. Nothing above needs it —
-            that is the point of measuring with document vectors — so it is a
+            served from this domain and run in this tab. Nothing above needs it,
+            that is the point of measuring with document vectors, so it is a
             button rather than a page load.
           </p>
           {modelState.status === "idle" && (
@@ -237,7 +237,7 @@ function FreeText({
           )}
           {modelState.status === "error" && (
             <p className="mt-3 font-mono text-2xs text-muted" title={modelState.message}>
-              the model did not load — {modelState.message}
+              the model did not load, {modelState.message}
             </p>
           )}
         </>

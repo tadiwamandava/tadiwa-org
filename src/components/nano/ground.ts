@@ -2,14 +2,14 @@
  * Retrieval-augmented prompting for the in-browser model.
  *
  * WHY THIS EXISTS. SmolLM2-135M asked "what is a KV cache" answers that it
- * "stores the current and voltage values from previous cycles" — it does not
+ * "stores the current and voltage values from previous cycles", it does not
  * know, so it interpolates from things that sound adjacent. That is not a
  * training-objective problem and no amount of fine-tuning at 135M parameters
  * fixes it: the model has nowhere to keep the fact.
  *
  * So it is not asked to recall. The BM25 index that already answers ⌘K
  * retrieves the passages, they go into the prompt, and the model's job drops
- * from "know things" to "read four paragraphs and answer from them" — which
+ * from "know things" to "read four paragraphs and answer from them", which
  * is a job a 135M model can actually do.
  *
  * The retrieval costs ~80 KB of JSON and no model. It is the cheap half of the
@@ -24,7 +24,7 @@ export { REFUSAL, renderSources, groundedPrompt, usedCount } from "./prompt";
 
 export interface Grounding {
   passages: Hit[];
-  /** Which index produced them — shown in the UI, because claiming semantic
+  /** Which index produced them, shown in the UI, because claiming semantic
    *  while serving lexical is a lie the visitor cannot detect. */
   stage: "lexical" | "semantic";
   /** True when nothing in the corpus matched. The caller should refuse
@@ -35,8 +35,8 @@ export interface Grounding {
 /**
  * Loads the lexical index if needed and retrieves for one question.
  *
- * Uses the vector index when it is already loaded — /lab/search and the ⌘K
- * palette both warm it — but never triggers the 22 MB model download on its
+ * Uses the vector index when it is already loaded, /lab/search and the ⌘K
+ * palette both warm it, but never triggers the 22 MB model download on its
  * own. A grounded answer that silently costs 22 MB is not an improvement.
  */
 export async function retrieve(question: string): Promise<Grounding> {
@@ -57,8 +57,8 @@ export async function retrieve(question: string): Promise<Grounding> {
  * Guarantees the top page's one-sentence definition is in the context.
  *
  * "What is the K20 Content Curation Platform?" retrieved that project's
- * Writeup, two Decisions and its Hindsight — four passages about it, none of
- * which say what it *is* — and the model correctly declined, because on its
+ * Writeup, two Decisions and its Hindsight, four passages about it, none of
+ * which say what it *is*, and the model correctly declined, because on its
  * inputs there was no answer. Every chunk of a project shares its title, so
  * title terms cannot discriminate between them, and BM25 then ranks the long
  * writeup above the short pitch on raw term frequency.
@@ -70,7 +70,7 @@ export async function retrieve(question: string): Promise<Grounding> {
  *
  * The presence check runs on the KEPT slice, not the over-fetched list. The
  * first version checked all six candidates, found the pitch at rank five,
- * concluded there was nothing to do — and then the truncation to four threw it
+ * concluded there was nothing to do, and then the truncation to four threw it
  * away again. The bug survived a browser test and was only caught by asking
  * why the browser still refused.
  */

@@ -5,13 +5,13 @@ import type { BenchmarkSet } from "@/lib/content/schema";
  *
  * Built as a real <table> that happens to render as bars, rather than an SVG
  * chart with an aria-label. That gets three things for free: assistive tech
- * reads actual tabular data, it prints, and it works with zero client JS —
+ * reads actual tabular data; it prints, and it works with zero client JS,
  * which is why there is no hover tooltip. Everything a tooltip would reveal
  * (variance, per-run notes) is rendered inline instead.
  *
  * Colour is an emphasis hierarchy, not a categorical palette: your run is the
  * subject, reference implementations are context. Identity is never carried by
- * colour alone — reference rows are labelled in text.
+ * colour alone, reference rows are labelled in text.
  */
 export function BenchmarkChart({ set }: { set: BenchmarkSet }) {
   const max = Math.max(...set.runs.map((r) => Math.abs(r.value)));
@@ -26,7 +26,7 @@ export function BenchmarkChart({ set }: { set: BenchmarkSet }) {
         </p>
       </figcaption>
 
-      {/* Legend — present because there are two mark types. */}
+      {/* Legend, present because there are two mark types. */}
       <p className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-2xs text-subtle">
         <span className="inline-flex items-center gap-1.5">
           <span className="h-2 w-3 rounded-xs bg-chart-mine" aria-hidden />

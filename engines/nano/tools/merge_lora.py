@@ -1,6 +1,6 @@
 """Folds the LoRA adapter into the base weights and writes a plain checkpoint.
 
-The C++ engine has no concept of an adapter — it reads one weight matrix per
+The C++ engine has no concept of an adapter; it reads one weight matrix per
 projection and multiplies. LoRA's B·A update has to be added into those
 matrices before conversion, which is what `merge_and_unload` does.
 
@@ -30,7 +30,7 @@ BASE = "HuggingFaceTB/SmolLM2-135M-Instruct"
 
 def main() -> int:
     if not ADAPTER.exists():
-        print(f"  {ADAPTER} does not exist — run train_lora.py first", file=sys.stderr)
+        print(f"  {ADAPTER} does not exist, run train_lora.py first", file=sys.stderr)
         return 2
 
     model = AutoModelForCausalLM.from_pretrained(BASE, dtype=torch.float32)
@@ -52,7 +52,7 @@ def main() -> int:
         if d > 0:
             moved += 1
     if moved == 0:
-        print("  the merged weights are IDENTICAL to the base — adapter not applied",
+        print("  the merged weights are IDENTICAL to the base, adapter not applied",
               file=sys.stderr)
         return 1
 

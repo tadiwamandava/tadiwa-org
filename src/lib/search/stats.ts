@@ -14,7 +14,7 @@
  *
  * The deliberate design point: none of the measurements below need the ~22 MB
  * embedding model. Document vectors are prebuilt and shipped, so a query point
- * can be MADE from them — see `blendedQueries` — and recall against ground
+ * can be MADE from them, see `blendedQueries`, and recall against ground
  * truth is computable the moment 38 KB of vectors has arrived.
  */
 
@@ -31,7 +31,7 @@ import type { Chunk } from "./types";
 export interface HnswIndex {
   /** `[id0, sim0, id1, sim1, …]`, best first. Similarity, not distance. */
   search(query: Float32Array, k: number, efSearch: number): Float32Array;
-  /** Exhaustive scan over the same vectors — the ground truth. */
+  /** Exhaustive scan over the same vectors, the ground truth. */
   brute_force(query: Float32Array, k: number): Float32Array;
 
   readonly len: number;
@@ -79,8 +79,8 @@ export function loadWasm(base = "/search"): Promise<HnswModule> {
 // A JS reader for the format documented in crates/hnsw/src/quant.rs. It exists
 // because the page needs the vectors on THIS side of the boundary too: query
 // points are built from them, and the 2-D projection is computed from them.
-// Kept deliberately close to `Quantized::row_into` — same dequantisation, same
-// lack of re-normalisation — so a query made here is the same arithmetic the
+// Kept deliberately close to `Quantized::row_into`, same dequantisation, same
+// lack of re-normalisation, so a query made here is the same arithmetic the
 // index did on the way in.
 // ---------------------------------------------------------------------------
 
@@ -91,7 +91,7 @@ export interface VectorSet {
   readonly bytes: ArrayBuffer;
   readonly count: number;
   readonly dim: number;
-  /** Dequantised row `i`. A fresh array each call — these get handed to wasm. */
+  /** Dequantised row `i`. A fresh array each call, these get handed to wasm. */
   row(i: number): Float32Array;
 }
 
@@ -100,7 +100,7 @@ export function parseVectors(bytes: ArrayBuffer): VectorSet {
   const view = new DataView(bytes);
   const magic = view.getUint32(0, true);
   if (magic !== VECTORS_MAGIC) {
-    throw new Error(`bad magic 0x${magic.toString(16)} — is this vectors.bin?`);
+    throw new Error(`bad magic 0x${magic.toString(16)}, is this vectors.bin?`);
   }
   const count = view.getUint32(4, true);
   const dim = view.getUint32(8, true);
@@ -159,7 +159,7 @@ function normalise(v: Float32Array): Float32Array {
  *
  * Each query is the normalised midpoint of two chunk vectors. Using a chunk
  * vector directly would be a self-query, and a self-query is the easiest
- * question you can ask an index — the answer is a node the walk starts next
+ * question you can ask an index; the answer is a node the walk starts next
  * to. A midpoint sits between two documents, is not any row of the payload,
  * and forces the graph to navigate. Ground truth for it is still exact,
  * because `brute_force` scans the same vectors.
@@ -191,7 +191,7 @@ export interface SweepRow {
   distances: number;
   /** Mean nodes popped from the candidate queue per query. */
   hops: number;
-  /** Mean microseconds per query, timed as a batch — see `timeBatch`. */
+  /** Mean microseconds per query, timed as a batch, see `timeBatch`. */
   micros: number;
 }
 
@@ -212,7 +212,7 @@ export function groundTruth(index: HnswIndex, queries: Float32Array[], k: number
  *
  * Timed as a batch on purpose. `performance.now()` is clamped to 5 µs in a
  * browser that is not cross-origin isolated, and one query here costs less
- * than that — timing a single call would report the clamp, not the query.
+ * than that, timing a single call would report the clamp, not the query.
  */
 function timeBatch(queries: Float32Array[], runs: number, fn: (q: Float32Array) => void): number {
   // One untimed pass so the measurement is not paying for the first-call
@@ -314,7 +314,7 @@ export function layerEdgePairs(index: HnswIndex, layer: number): Array<[number, 
 }
 
 /**
- * Two-component PCA of the corpus — the layout for the map, and the number that
+ * Two-component PCA of the corpus, the layout for the map, and the number that
  * keeps it honest.
  *
  * Power iteration with one deflation. n is ~100 and d is 384, so this is a few
@@ -426,7 +426,7 @@ export interface LabIndex {
   index: HnswIndex;
   vectors: VectorSet;
   chunks: Chunk[];
-  /** Milliseconds spent inside `Index::build` — graph construction only. */
+  /** Milliseconds spent inside `Index::build`, graph construction only. */
   buildMs: number;
   /** Milliseconds from first byte requested to payload in hand. */
   fetchMs: number;

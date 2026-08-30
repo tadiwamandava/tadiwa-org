@@ -3,17 +3,17 @@
  *
  * Hand-written Canvas2D with its own projection, for the same reason the
  * circuit board on the home page is: pulling in three.js would be 600 KB to
- * draw lines, and the interesting part — perspective, depth cueing, additive
- * blending — is thirty lines of maths that are better understood than imported.
+ * draw lines, and the interesting part, perspective, depth cueing, additive
+ * blending, is thirty lines of maths that are better understood than imported.
  *
  * WHAT DRIVES IT. Two different signals, because the two directions of a
  * conversation expose different things:
  *
- *   listening — a real FFT of the microphone. Each radial shard is bound to a
+ *   listening, a real FFT of the microphone. Each radial shard is bound to a
  *               frequency bin, so the shape genuinely is the spectrum of your
  *               voice and not a decoration timed to look busy.
  *
- *   speaking  — word-boundary events from speechSynthesis. TTS audio never
+ *   speaking, word-boundary events from speechSynthesis. TTS audio never
  *               enters the WebAudio graph (the platform plays it directly), so
  *               there is no spectrum to analyse and pretending otherwise would
  *               be an animation lying about its source. Pulsing on each spoken
@@ -26,7 +26,7 @@ export type SphereMode = "idle" | "listening" | "thinking" | "speaking";
  *  laptop holds 60fps while a transformer is also running on the main thread. */
 // Density over length. The first attempt used 340 long spikes and read as a
 // sea urchin: an explosion, not a sphere. The reference silhouette is a dense
-// SHELL — short structures packed on a surface, with the volume carried by
+// SHELL, short structures packed on a surface, with the volume carried by
 // concentric arcs rather than by radial reach.
 const SHARDS = 620;
 const RINGS = 22;
@@ -83,7 +83,7 @@ export class Sphere {
   private raf = 0;
   private t = 0;
   private mode: SphereMode = "idle";
-  /** Decays to zero after each pulse() — the speaking envelope. */
+  /** Decays to zero after each pulse(), the speaking envelope. */
   private hit = 0;
   private reduced = false;
 
@@ -351,7 +351,7 @@ export class Sphere {
       // the sphere reads as a flat disc of noise.
       const depth = (s.z + 1) / 2;
       const alpha = (0.12 + depth * 0.55) * (0.45 + amp * 1.5);
-      // Hotter core, cooler rim — the gradient the reference gets from bloom.
+      // Hotter core, cooler rim, the gradient the reference gets from bloom.
       const g = 150 + Math.floor(depth * 90 + amp * 60);
       ctx.strokeStyle = `rgba(255, ${Math.min(240, g)}, ${Math.floor(40 + amp * 120)}, ${Math.min(1, alpha)})`;
       ctx.lineWidth = (s.spar ? 1.6 : 0.9) * (0.5 + depth);
