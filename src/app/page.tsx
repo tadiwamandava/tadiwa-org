@@ -1,127 +1,206 @@
 import Link from "next/link";
-import { Container, SectionHeading } from "@/components/ui";
+import { Container, PageSection } from "@/components/ui";
 import { ProjectCard } from "@/components/project-card";
 import { PcbHero } from "@/components/pcb-hero";
+import { SocialLinks } from "@/components/social-links";
 import { getFeaturedProjects, getAllProjects, getAllPosts } from "@/lib/content";
 import { SITE } from "@/lib/site";
 
+/**
+ * The home page is the index of everything.
+ *
+ * Every section here has a full route behind it. That is deliberate: a reader
+ * who scrolls once should reach the end knowing what is on the site, and a
+ * reader who wants depth follows the link at the section heading. The routes
+ * are not decoration either. A single page cannot be crawled per topic, cannot
+ * be deep-linked in an application, and cannot be parsed by an ATS as separate
+ * documents, so the sections summarise and the routes carry the detail.
+ */
+
+const DEMOS = [
+  {
+    href: "/lab/inference",
+    title: "A language model, in your tab",
+    blurb:
+      "SmolLM2-135M answering questions through a transformer forward pass written by hand in C++ and compiled to WebAssembly. It retrieves from this site before it answers, and declines when the sources do not cover the question.",
+    meta: "C++ · WebAssembly · 25 tok/s",
+  },
+  {
+    href: "/lab/search",
+    title: "Vector search, client-side",
+    blurb:
+      "An HNSW graph written in Rust, compiled to WebAssembly, searching this site in your browser. The page draws the layer structure and measures recall against an exhaustive scan while you watch.",
+    meta: "Rust · WebAssembly · 43 KB",
+  },
+];
+
 export default function HomePage() {
   const featured = getFeaturedProjects();
-  const fallback = featured.length > 0 ? featured : getAllProjects().slice(0, 6);
+  const projects = (featured.length > 0 ? featured : getAllProjects()).slice(0, 4);
   const posts = getAllPosts().slice(0, 3);
 
   return (
-    <>
-      {/* ---- hero -----------------------------------------------------------
-          No greeting, no "passionate developer". A screener has ~30 seconds and
-          spends them deciding whether this person does hard things. Lead with
-          the specific claim and let the projects underneath prove it. */}
-      <section className="border-b border-border">
-        <Container wide className="py-20 sm:py-28">
-          <div className="max-w-3xl">
-            <p className="font-mono text-xs tracking-[0.14em] text-accent uppercase">
-              {SITE.role}
-            </p>
+    <Container wide className="pb-24">
+      {/* ---- hero ---------------------------------------------------------
+          No greeting and no "passionate developer". A screener has about
+          thirty seconds and spends them deciding whether this person does
+          hard things, so the specific claim goes first and everything below
+          is evidence for it. */}
+      <section className="py-16 sm:py-24">
+        <p className="font-mono text-xs tracking-[0.14em] text-accent uppercase">
+          {SITE.role}
+        </p>
 
-            <h1 className="mt-5 font-display text-display leading-[1.02] tracking-tight">
-              I build across the
-              <br />
-              hardware/software boundary.
-            </h1>
+        <h1 className="mt-5 max-w-4xl font-display text-display leading-[1.02] tracking-tight">
+          I build across the hardware/software boundary.
+        </h1>
 
-            <p className="mt-7 max-w-2xl text-xl leading-relaxed text-muted">
-              Storage engines, RTOS kernels, RISC-V cores, and the
-              verification rigs that prove them correct. The layer I care about
-              is where software stops being an abstraction and starts being a
-              voltage.
-            </p>
+        <p className="mt-7 max-w-3xl text-xl leading-relaxed text-muted">
+          Storage engines, RTOS kernels, RISC-V cores, and the verification rigs
+          that prove them correct. The layer I care about is where software
+          stops being an abstraction and starts being a voltage.
+        </p>
 
-            <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-3">
-              <Link
-                href="/projects"
-                className="rounded bg-accent px-4 py-2 text-sm font-medium text-accent-contrast transition-colors hover:bg-accent-hover"
-              >
-                See the work
-              </Link>
-              <Link
-                href="/resume"
-                className="text-sm text-muted underline decoration-border underline-offset-4 transition-colors hover:text-accent"
-              >
-                Résumé
-              </Link>
-            </div>
-          </div>
-        </Container>
+        <div className="mt-9 flex flex-wrap items-center gap-x-4 gap-y-3">
+          <Link
+            href="/projects"
+            className="rounded bg-accent px-4 py-2 text-sm font-medium text-accent-contrast transition-colors hover:bg-accent-hover"
+          >
+            See the work
+          </Link>
+          <Link
+            href="/resume"
+            className="rounded border border-border-strong px-4 py-2 text-sm text-muted transition-colors hover:text-text"
+          >
+            Résumé
+          </Link>
+          <SocialLinks className="sm:hidden" />
+        </div>
+
+        <p className="mt-8 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+          <span className="font-mono text-2xs tracking-[0.14em] text-subtle uppercase">
+            Now
+          </span>
+          <span className="text-muted">Building {SITE.nowBuilding}.</span>
+        </p>
       </section>
 
-      {/* ---- currently building --------------------------------------------
-          Recruiters track recency. Saying what is in flight, with the honest
-          "in progress" framing, beats a page of only-finished work. */}
-      <section className="border-b border-border bg-surface">
-        <Container wide className="py-4">
-          <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-            <span className="font-mono text-2xs tracking-[0.14em] text-subtle uppercase">
-              Now
-            </span>
-            <span className="text-muted">Building {SITE.nowBuilding}.</span>
-          </p>
-        </Container>
-      </section>
-
-      {/* ---- the bench ------------------------------------------------------
-          The projects as one printed circuit board. Progressive enhancement:
-          this renders a server-side <ul> of project links, and only layers a
-          hand-written Canvas2D board over it once the chunk has loaded on a
-          wide-enough viewport. See src/components/pcb-hero.tsx. */}
+      {/* ---- the bench ----------------------------------------------------
+          Progressive enhancement. This renders a server-side list of project
+          links, and only layers a hand-written Canvas2D board over it once the
+          chunk has loaded on a wide-enough viewport. */}
       <PcbHero />
 
-      <Container wide className="py-16">
-        <SectionHeading action={{ href: "/projects", label: "All projects" }}>
-          Selected work
-        </SectionHeading>
+      <div className="mt-16 space-y-14 sm:mt-24 sm:space-y-20">
+        <PageSection
+          id="work"
+          title="Selected work"
+          lead="Each one has a writeup covering the architecture, the decisions I made and the ones I rejected, and where there are numbers, the methodology behind them."
+          action={{ href: "/projects", label: "All projects" }}
+        >
+          {projects.length === 0 ? (
+            <EmptyState
+              what="projects"
+              hint="Add an .mdx file to content/projects/. The schema in src/lib/content/schema.ts describes every field."
+            />
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2">
+              {projects.map((project) => (
+                <ProjectCard key={project.slug} project={project} />
+              ))}
+            </div>
+          )}
+        </PageSection>
 
-        {fallback.length === 0 ? (
-          <EmptyState
-            what="projects"
-            hint="Add an .mdx file to content/projects/. The schema in src/lib/content/schema.ts describes every field."
-          />
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {fallback.map((project) => (
-              <ProjectCard key={project.slug} project={project} />
+        <PageSection
+          id="lab"
+          title="Things you can run"
+          lead="Claims are cheap, so these are things you can run yourself. Both execute in your browser, from source I wrote, with no server doing the interesting part off-screen."
+          action={{ href: "/lab", label: "The lab" }}
+        >
+          <div className="grid gap-4 sm:grid-cols-2">
+            {DEMOS.map((demo) => (
+              <article
+                key={demo.href}
+                className="group relative flex flex-col rounded-lg border border-border bg-surface p-5 transition-colors hover:border-border-strong"
+              >
+                <p className="font-mono text-2xs tracking-wide text-subtle uppercase">
+                  {demo.meta}
+                </p>
+                <h3 className="mt-3 font-display text-xl leading-snug">
+                  <Link href={demo.href} className="after:absolute after:inset-0">
+                    {demo.title}
+                  </Link>
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted">{demo.blurb}</p>
+              </article>
             ))}
           </div>
-        )}
-      </Container>
+        </PageSection>
 
-      {posts.length > 0 && (
-        <Container wide className="pb-20">
-          <SectionHeading action={{ href: "/writing", label: "All writing" }}>
-            Writing
-          </SectionHeading>
-          <ul className="divide-y divide-border border-y border-border">
-            {posts.map((post) => (
-              <li key={post.slug}>
-                <Link
-                  href={`/writing/${post.slug}`}
-                  className="group flex flex-col gap-1 py-4 sm:flex-row sm:items-baseline sm:justify-between sm:gap-8"
-                >
-                  <span className="font-display text-lg transition-colors group-hover:text-accent">
-                    {post.title}
-                  </span>
-                  <time
-                    dateTime={post.published}
-                    className="shrink-0 font-mono text-xs text-subtle tabular-nums"
+        {posts.length > 0 && (
+          <PageSection
+            id="writing"
+            title="Writing"
+            lead="Mostly post-mortems on things I got wrong and the check that caught it."
+            action={{ href: "/writing", label: "All writing" }}
+          >
+            <ul className="divide-y divide-border border-y border-border">
+              {posts.map((post) => (
+                <li key={post.slug}>
+                  <Link
+                    href={`/writing/${post.slug}`}
+                    className="group flex flex-col gap-1 py-4 sm:flex-row sm:items-baseline sm:justify-between sm:gap-8"
                   >
-                    {post.published}
-                  </time>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </Container>
-      )}
-    </>
+                    <span className="font-display text-lg transition-colors group-hover:text-accent">
+                      {post.title}
+                    </span>
+                    <time
+                      dateTime={post.published}
+                      className="shrink-0 font-mono text-xs text-subtle tabular-nums"
+                    >
+                      {post.published}
+                    </time>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </PageSection>
+        )}
+
+        {/* ---- the one centred block ------------------------------------
+            The rhythm above is uniformly left-aligned, which is what makes
+            this read as an ending rather than another section. */}
+        <section
+          id="contact"
+          className="border-t border-border pt-14 text-center sm:pt-20"
+        >
+          <h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+            Looking for a Summer 2027 internship
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-lg leading-relaxed text-muted">
+            Systems, ML infrastructure, and the silicon underneath. The résumé
+            is generated from the same writeups linked above, so it cannot drift
+            from them.
+          </p>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+            <Link
+              href="/resume"
+              className="rounded bg-accent px-5 py-2.5 text-sm font-medium text-accent-contrast transition-colors hover:bg-accent-hover"
+            >
+              Read the résumé
+            </Link>
+            <Link
+              href="/colophon"
+              className="rounded border border-border-strong px-5 py-2.5 text-sm text-muted transition-colors hover:text-text"
+            >
+              How this site is built
+            </Link>
+          </div>
+          <SocialLinks className="mt-8 justify-center" />
+        </section>
+      </div>
+    </Container>
   );
 }
 

@@ -2,18 +2,30 @@ import Link from "next/link";
 import { NAV, SITE } from "@/lib/site";
 import { ThemeToggle } from "./theme-toggle";
 import { SearchTrigger } from "./search/search-trigger";
+import { SocialLinks } from "./social-links";
 import { NavLink } from "./nav-link";
 
+/**
+ * Name and one-line tagline on the left, controls on the right.
+ *
+ * The text nav stays, which the reference layout does not have. That is not an
+ * oversight in either direction: the reference is a single page and has nowhere
+ * to navigate to, while this site has five real routes plus every project
+ * writeup. Dropping wayfinding to match a site that does not need it would be
+ * copying a constraint rather than a design.
+ */
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-bg/85 backdrop-blur-sm">
-      <div className="mx-auto flex h-14 max-w-(--container-wide) items-center gap-6 px-5 sm:px-8">
-        <Link
-          href="/"
-          className="font-display text-lg font-semibold tracking-tight whitespace-nowrap"
-        >
-          {SITE.name.split(" ")[0]}
-          <span className="text-accent">.</span>
+      <div className="mx-auto flex min-h-16 max-w-(--container-wide) flex-wrap items-center gap-x-6 gap-y-2 px-5 py-2.5 sm:px-8">
+        <Link href="/" className="group leading-tight">
+          <span className="block font-display text-lg font-semibold tracking-tight whitespace-nowrap">
+            {SITE.name}
+            <span className="text-accent">.</span>
+          </span>
+          <span className="block font-mono text-2xs tracking-wide text-subtle">
+            {SITE.role}
+          </span>
         </Link>
 
         <nav aria-label="Main" className="flex-1">
@@ -26,8 +38,11 @@ export function SiteHeader() {
           </ul>
         </nav>
 
-        <SearchTrigger />
-        <ThemeToggle />
+        <div className="flex items-center gap-1.5">
+          <SocialLinks className="hidden sm:flex" />
+          <SearchTrigger />
+          <ThemeToggle />
+        </div>
       </div>
     </header>
   );
