@@ -4,6 +4,8 @@ import { useCallback, useRef, useState } from "react";
 import { NanoEngine, type Precision } from "./engine";
 import { LlamaEngine, chatPrompt, type GenStats, type LoadProgress } from "./llama";
 import { retrieve, groundedPrompt, usedCount, REFUSAL, type Grounding } from "./ground";
+import { Recorder, Speaker, loadTranscriber, MAX_SECONDS } from "./voice";
+import { askHosted, type HostedState } from "./hosted";
 
 /**
  * The demo, for both models the engine can run.
@@ -72,6 +74,9 @@ export function NanoPlayground({
   const llamaRef = useRef<LlamaEngine | null>(null);
   const nanoRef = useRef<NanoEngine | null>(null);
   const stopRef = useRef(false);
+  const recorderRef = useRef<Recorder | null>(null);
+  const speakerRef = useRef<Speaker | null>(null);
+  const tickRef = useRef<number | null>(null);
 
   const [model, setModel] = useState<ModelId>(smolAvailable ? "smol" : "nano");
   const [mode, setMode] = useState<Mode>("grounded");
@@ -95,6 +100,12 @@ export function NanoPlayground({
    *  retrieval, mostly, which is fast but not instant on a cold index. */
   const [status, setStatus] = useState<string | null>(null);
   const [smolReady, setSmolReady] = useState(false);
+  const [speak, setSpeak] = useState(false);
+  const [listening, setListening] = useState<number | null>(null);
+  const [voiceNote, setVoiceNote] = useState<string | null>(null);
+  /** The hosted comparison. Never runs unless asked for — it costs money and
+   *  leaves the machine, which is the opposite of everything else here. */
+  const [hosted, setHosted] = useState<HostedState>({ status: "idle" });
   /** The passages the model was actually shown, listed under the answer so a
    *  visitor can check the answer against its evidence rather than trust it. */
   const [grounding, setGrounding] = useState<Grounding | null>(null);
@@ -130,6 +141,73 @@ export function NanoPlayground({
     }
   }, []);
 
+  /**
+   * Stops recording, transcribes locally, and puts the text in the box.
+   *
+   * Deliberately does NOT auto-submit. A wrong transcription that silently
+   * becomes a question produces an answer to something nobody asked, and the
+   * visitor has no way to tell that is what happened — so the transcript lands
+   * in the textarea where it can be read and corrected first.
+   */
+  const stopMic = useCallback(async () => {
+    const rec = recorderRef.current;
+    if (!rec?.recording) return;
+    if (tickRef.current !== null) {
+      window.clearInterval(tickRef.current);
+      tickRef.current = null;
+    }
+    setListening(null);
+    try {
+      const { audio, seconds } = await rec.stop();
+      if (seconds < 0.4) {
+        setVoiceNote("too short — hold the button while you speak");
+        return;
+      }
+      const transcribe = await loadTranscriber((n) => setVoiceNote(`loading ${n}`));
+      setVoiceNote("transcribing…");
+      const text = await transcribe(audio);
+      if (!text) {
+        setVoiceNote("nothing recognised — try again");
+        return;
+      }
+      setPrompt(text);
+      setVoiceNote(null);
+    } catch (err) {
+      setVoiceNote(err instanceof Error ? err.message : String(err));
+    }
+  }, [setPrompt]);
+
+  const startMic = useCallback(async () => {
+    const rec = (recorderRef.current ??= new Recorder());
+    if (rec.recording) return;
+    try {
+      setVoiceNote(null);
+      await rec.start();
+      setListening(0);
+      tickRef.current = window.setInterval(() => {
+        setListening((n) => {
+          const next = (n ?? 0) + 1;
+          // Whisper-tiny works on 30-second windows and drops the tail past
+          // that without complaining, so stop before it can.
+          if (next >= MAX_SECONDS) void stopMic();
+          return next;
+        });
+      }, 1000);
+    } catch (err) {
+      setVoiceNote(
+        err instanceof Error && err.name === "NotAllowedError"
+          ? "microphone permission denied — the browser blocked it, not the page"
+          : err instanceof Error
+            ? err.message
+            : String(err),
+      );
+    }
+  }, [stopMic]);
+
+  const toggleMic = useCallback(() => {
+    return recorderRef.current?.recording ? stopMic() : startMic();
+  }, [startMic, stopMic]);
+
   const run = useCallback(async () => {
     setBusy(true);
     setOutput("");
@@ -139,16 +217,26 @@ export function NanoPlayground({
     setStatus(null);
     setEchoed(model === "smol" && mode === "complete" ? prompt : null);
     setGrounding(null);
+    setHosted({ status: "idle" });
     stopRef.current = false;
+
+    const speaker = (speakerRef.current ??= new Speaker(speak));
+    speaker.setEnabled(speak);
+    speaker.cancel();
+    const say = (text: string) => speaker.push(text);
     try {
       if (model === "nano") {
         const engine = (nanoRef.current ??= new NanoEngine());
         if (engine.precision !== precision) await engine.load(precision);
         const { tokens, ms } = await engine.generate(
           prompt, 260, 0.85, 0.95, 1234,
-          (text) => setOutput((prev) => prev + text),
+          (text) => {
+            setOutput((prev) => prev + text);
+            say(text);
+          },
           () => stopRef.current,
         );
+        speaker.flush();
         setStats({
           promptTokens: 0, tokens, prefillMs: 0, genMs: ms, stopped: "limit",
           resident: engine.info?.weightBytes ?? 0, kv: 0,
@@ -171,6 +259,8 @@ export function NanoPlayground({
         // forward pass to be less certain.
         if (g.empty) {
           setOutput(REFUSAL);
+          say(REFUSAL);
+          speaker.flush();
           setStats(null);
           return;
         }
@@ -194,9 +284,13 @@ export function NanoPlayground({
           stopAtEos: mode !== "complete",
         },
         (done, total) => setPrefill({ done, total }),
-        (text) => setOutput((prev) => prev + text),
+        (text) => {
+          setOutput((prev) => prev + text);
+          say(text);
+        },
         () => stopRef.current,
       );
+      speaker.flush();
       setStats({ ...s, resident: engine.info?.residentBytes ?? 0, kv: engine.info?.kvBytes ?? 0 });
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -205,9 +299,44 @@ export function NanoPlayground({
       setStatus(null);
       setBusy(false);
     }
-  }, [model, mode, precision, prompt]);
+  }, [model, mode, precision, prompt, speak]);
+
+  /**
+   * Asks the hosted model the same question, on demand.
+   *
+   * Per question rather than per session: this is the only thing on the page
+   * that leaves the machine and the only thing that costs money, so a visitor
+   * who never presses it never sends anything and never spends anything.
+   */
+  const compare = useCallback(async () => {
+    setHosted({ status: "streaming", text: "" });
+    try {
+      const { text, model: used, ms } = await askHosted(prompt, (chunk) =>
+        setHosted((prev) =>
+          prev.status === "streaming" ? { ...prev, text: prev.text + chunk } : prev,
+        ),
+      );
+      setHosted({ status: "done", text, model: used, ms });
+    } catch (err) {
+      const unavailable =
+        typeof err === "object" && err !== null && "unavailable" in err && err.unavailable;
+      const message = err instanceof Error ? err.message : String(err);
+      setHosted(
+        unavailable
+          ? { status: "unavailable", detail: message }
+          : { status: "error", message },
+      );
+    }
+  }, [prompt]);
 
   const needsDownload = model === "smol" && !smolReady;
+
+  // Feature detection, not user-agent sniffing. getUserMedia is absent on
+  // insecure origins and in some embedded webviews; speechSynthesis is absent
+  // in a few. Each control simply does not render where it cannot work.
+  const voiceSupported =
+    typeof navigator !== "undefined" && !!navigator.mediaDevices?.getUserMedia;
+  const speakSupported = Speaker.supported();
 
   return (
     <div className="rounded-lg border border-border bg-surface p-5">
@@ -363,21 +492,72 @@ export function NanoPlayground({
         <button
           type="button"
           onClick={run}
-          disabled={busy || needsDownload}
+          disabled={busy || needsDownload || listening !== null}
           className="rounded bg-accent px-4 py-2 text-sm font-medium text-accent-contrast transition-colors hover:bg-accent-hover disabled:opacity-60"
         >
-          {busy && !needsDownload ? "Generating…" : "Generate"}
+          {busy && !needsDownload ? "Generating…" : "Ask"}
         </button>
+
+        {/* ---- voice in ------------------------------------------------ */}
+        {voiceSupported && (
+          <button
+            type="button"
+            onClick={toggleMic}
+            disabled={busy || needsDownload}
+            aria-pressed={listening !== null}
+            aria-label={listening !== null ? "Stop recording" : "Ask by voice"}
+            className={`flex items-center gap-2 rounded border px-3 py-2 text-sm transition-colors disabled:opacity-50 ${
+              listening !== null
+                ? "border-accent bg-accent text-accent-contrast"
+                : "border-border-strong text-muted hover:text-text"
+            }`}
+          >
+            <span aria-hidden="true" className={listening !== null ? "animate-pulse" : ""}>
+              ●
+            </span>
+            {listening !== null ? `${MAX_SECONDS - listening}s` : "Speak"}
+          </button>
+        )}
+
+        {/* ---- voice out ----------------------------------------------- */}
+        {speakSupported && (
+          <button
+            type="button"
+            onClick={() => {
+              setSpeak((on) => {
+                if (on) speakerRef.current?.cancel();
+                return !on;
+              });
+            }}
+            aria-pressed={speak}
+            className={`rounded border px-3 py-2 font-mono text-2xs uppercase transition-colors ${
+              speak
+                ? "border-accent text-accent"
+                : "border-border text-subtle hover:text-muted"
+            }`}
+          >
+            {speak ? "Speaking on" : "Speak replies"}
+          </button>
+        )}
         {busy && !needsDownload && (
           <button
             type="button"
-            onClick={() => { stopRef.current = true; }}
+            onClick={() => {
+              stopRef.current = true;
+              speakerRef.current?.cancel();
+            }}
             className="rounded border border-border-strong px-3 py-2 text-sm text-muted transition-colors hover:text-text"
           >
             Stop
           </button>
         )}
         {status && <span className="font-mono text-2xs text-subtle">{status}</span>}
+        {voiceNote && <span className="font-mono text-2xs text-subtle">{voiceNote}</span>}
+        {listening !== null && (
+          <span className="font-mono text-2xs text-accent">
+            listening — press again when you&rsquo;re done
+          </span>
+        )}
         {prefill && prefill.done < prefill.total && (
           <span className="font-mono text-2xs text-subtle">
             prefill {prefill.done}/{prefill.total} tokens
@@ -450,6 +630,49 @@ export function NanoPlayground({
           asked. The refusal above is the retrieval stage&rsquo;s, not the
           model&rsquo;s — which is the only way to be sure it happens.
         </p>
+      )}
+
+      {/* ---- the hosted comparison -------------------------------------- */}
+      {mode === "grounded" && output && !busy && (
+        <div className="mt-3 rounded border border-border bg-bg p-3">
+          {hosted.status === "idle" ? (
+            <>
+              <button
+                type="button"
+                onClick={compare}
+                className="rounded border border-border-strong px-3 py-1.5 font-mono text-2xs uppercase text-muted transition-colors hover:text-text"
+              >
+                Ask Kimi K3 the same question →
+              </button>
+              <p className="mt-2 text-2xs leading-relaxed text-subtle">
+                2.8 trillion parameters, in a datacentre. It cannot run here —
+                even at four bits that is about a terabyte of weights, and
+                mixture-of-experts needs every expert resident regardless of
+                which ones a token uses. This is the one control on the page
+                that sends anything anywhere.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="font-mono text-2xs tracking-wide text-subtle uppercase">
+                {hosted.status === "streaming"
+                  ? "Kimi K3 · streaming…"
+                  : hosted.status === "done"
+                    ? `${hosted.model ?? "hosted"} · ${(hosted.ms / 1000).toFixed(1)}s · same sources`
+                    : "Kimi K3"}
+              </p>
+              <div className="mt-2 font-mono text-sm leading-relaxed whitespace-pre-wrap text-text">
+                {hosted.status === "streaming" || hosted.status === "done" ? (
+                  hosted.text
+                ) : hosted.status === "unavailable" ? (
+                  <span className="text-subtle">{hosted.detail}</span>
+                ) : (
+                  <span className="text-subtle">{hosted.message}</span>
+                )}
+              </div>
+            </>
+          )}
+        </div>
       )}
 
       {stats && (

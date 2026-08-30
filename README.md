@@ -181,6 +181,59 @@ reasoning:
 ceiling. See `DEPLOY.md` for how to serve it and what the page does when it is
 absent.
 
+## Voice
+
+The microphone, the retrieval, the model and the speech all run on the visitor's
+machine. Whisper-tiny.en (42 MB, int8) transcribes through ONNX Runtime Web,
+fetched same-origin; `speechSynthesis` reads the answer back. The browser's own
+`SpeechRecognition` would have been one line and no download — and in Chrome it
+uploads the audio to Google. A site arguing that no server does the interesting
+part cannot put its microphone on someone else's server.
+
+The transcript lands in the textarea rather than auto-submitting. A wrong
+transcription that silently becomes a question produces an answer to something
+nobody asked, and the visitor has no way to tell that is what happened.
+
+**Whisper does not load in the browser with default settings**, and the reason
+is worth recording because it cost real time. ONNX Runtime Web's QDQ graph
+optimiser throws on whisper's merged decoder:
+
+```
+qdq_actions.cc:137 TransposeDQWeightsForMatMulNBits
+Missing required scale: model.decoder.embed_tokens.weight_merged_0_scale
+```
+
+Measured, not guessed: it fails on `onnx-community` **and** `Xenova`
+whisper-tiny.en, at q8, int8, uint8, q4 and fp32 alike, and on moonshine-tiny
+too — while MiniLM loads fine through the same runtime, which is what ruled out
+a broken ORT setup. `session_options: { graphOptimizationLevel: "disabled" }`
+is what makes the session build. It is a correctness requirement here, not a
+tuning knob.
+
+The trap underneath it: the same q8 files load fine in **onnxruntime-node**, so
+the Node smoke test in `scripts/fetch-voice-model.ts` passes and proves nothing
+about the browser. Only a real browser can check this, which is what
+`scripts/cdp.mjs` is for.
+
+## The hosted comparison
+
+`/lab/inference` can send the same grounded question to **Kimi K3** and render
+its answer beside the local one. Kimi K3 is 2.8 trillion parameters — roughly a
+terabyte of weights even at four bits, and mixture-of-experts needs every expert
+resident regardless of which ones a token activates. It is four orders of
+magnitude past what a tab can hold, and that gap is the content: both models get
+the same four retrieved passages and the same system prompt, so what differs is
+attributable.
+
+It is the only thing here that leaves the machine, it is opt-in per question
+rather than per session, and it is off unless `OPENROUTER_API_KEY` is set. The
+client sends only a question, truncated to 300 characters; the server does its
+own retrieval over the committed corpus and builds the prompt itself, so the
+endpoint cannot be used to relay arbitrary text to a paid API. Rate limiting is
+per-IP and best-effort by construction — serverless instances do not share
+memory — so the bound that actually holds is a spend cap set at the provider.
+See `DEPLOY.md`.
+
 ## Build gates
 
 | Command | What it enforces |
