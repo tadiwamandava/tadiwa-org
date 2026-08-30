@@ -19,6 +19,49 @@ export function Container({
   );
 }
 
+/**
+ * One stacked section of the home page.
+ *
+ * The rhythm is the whole point of this layout: a large left-aligned heading,
+ * one paragraph saying what the section is, the content, and a lot of air
+ * before the next one. The gap is deliberately larger than feels comfortable
+ * while editing, because a reader scrolling past at speed needs the break to
+ * register as "new topic" rather than "next paragraph".
+ */
+export function PageSection({
+  id,
+  title,
+  lead,
+  action,
+  children,
+}: {
+  id: string;
+  title: string;
+  lead?: React.ReactNode;
+  action?: { href: string; label: string };
+  children: React.ReactNode;
+}) {
+  return (
+    <section id={id} className="scroll-mt-24 border-t border-border pt-14 sm:pt-20">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2">
+        <h2 className="font-display text-3xl tracking-tight sm:text-4xl">{title}</h2>
+        {action && (
+          <Link
+            href={action.href}
+            className="font-mono text-2xs tracking-wide text-accent uppercase underline decoration-dotted underline-offset-4 transition-colors hover:text-text"
+          >
+            {action.label} →
+          </Link>
+        )}
+      </div>
+      {lead && (
+        <p className="mt-4 max-w-3xl text-lg leading-relaxed text-muted">{lead}</p>
+      )}
+      <div className="mt-8">{children}</div>
+    </section>
+  );
+}
+
 const STATUS_COPY = {
   shipped: { label: "Shipped", cls: "text-shipped" },
   building: { label: "Building", cls: "text-building" },

@@ -86,6 +86,17 @@ try {
     if (r.error) console.error("  grantPermissions:", JSON.stringify(r.error));
   }
 
+  // Viewport. macOS clamps a real Chrome window to about 500px wide, so
+  // --window-size=390 silently lays out wider and crops. Overriding the device
+  // metrics through the protocol actually resizes the layout viewport, which
+  // is what makes a genuine mobile check possible. CDP_VIEWPORT=390x844.
+  if (process.env.CDP_VIEWPORT) {
+    const [w, h] = process.env.CDP_VIEWPORT.split("x").map(Number);
+    await cdp.send("Emulation.setDeviceMetricsOverride", {
+      width: w, height: h, deviceScaleFactor: 2, mobile: true,
+    });
+  }
+
   // Colour scheme. Headless Chrome defaults to DARK, so a light-theme
   // screenshot needs this rather than a DOM poke: setting data-theme by hand
   // races the paint and produces screenshots with a light header over dark

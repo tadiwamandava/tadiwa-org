@@ -1,4 +1,3 @@
-import { Container } from "@/components/ui";
 import { Bench } from "@/components/game/bench";
 import type { BenchProject } from "@/components/game/types";
 import { getAllProjects } from "@/lib/content";
@@ -38,26 +37,30 @@ export function PcbHero() {
 
   if (projects.length === 0) return null;
 
+  // No Container and no bottom border of its own. The page places this inside
+  // its own measure, and the section below already opens with a rule; two
+  // hairlines with a gap between them reads as an empty box rather than a
+  // divider.
   return (
-    <section
-      className="border-b border-border"
-      aria-labelledby="bench-heading"
-    >
-      <Container wide className="py-14">
-        <div className="mb-6 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 border-b border-border pb-2">
+    <section aria-labelledby="bench-heading">
+      <div className="mt-4">
+        {/* Same heading treatment as every other section on the page. It was
+            a small mono label, which made the one interactive thing on the
+            home page read as a caption for the section above it. */}
+        <div className="mb-6 flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2">
           <h2
             id="bench-heading"
-            className="font-mono text-xs tracking-[0.14em] text-muted uppercase"
+            className="font-display text-3xl tracking-tight sm:text-4xl"
           >
-            The Bench
+            The bench
           </h2>
-          <p className="font-mono text-2xs text-subtle">
+          <p className="font-mono text-2xs tracking-wide text-subtle uppercase">
             Every project, as one board
           </p>
         </div>
 
         <Bench projects={projects} />
-      </Container>
+      </div>
     </section>
   );
 }

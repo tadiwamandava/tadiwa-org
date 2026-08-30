@@ -24,26 +24,27 @@ export function SiteFooter() {
 
           <nav aria-label="Elsewhere">
             <ul className="flex flex-col gap-2 text-sm">
-              <li>
-                <a
-                  href={SITE.github}
-                  className="text-muted underline decoration-border underline-offset-4 transition-colors hover:text-accent"
-                  rel="me noreferrer"
-                  target="_blank"
-                >
-                  GitHub
-                </a>
-              </li>
-              <li>
-                <a
-                  href={SITE.linkedin}
-                  className="text-muted underline decoration-border underline-offset-4 transition-colors hover:text-accent"
-                  rel="me noreferrer"
-                  target="_blank"
-                >
-                  LinkedIn
-                </a>
-              </li>
+              {/* Same rule as the header's icon row: a URL still containing
+                  CONFIRM is not rendered. check:links validates internal hrefs
+                  only, so a placeholder would ship as a 404 with every gate
+                  green. An absent link is a visible gap; a broken one is not. */}
+              {([
+                ["GitHub", SITE.github],
+                ["LinkedIn", SITE.linkedin],
+              ] as const)
+                .filter(([, href]) => href.length > 0 && !href.includes("CONFIRM"))
+                .map(([label, href]) => (
+                  <li key={label}>
+                    <a
+                      href={href}
+                      className="text-muted underline decoration-border underline-offset-4 transition-colors hover:text-accent"
+                      rel="me noreferrer"
+                      target="_blank"
+                    >
+                      {label}
+                    </a>
+                  </li>
+                ))}
               <li>
                 <Link
                   href="/colophon"
