@@ -114,7 +114,7 @@ export default async function ProjectsPage(props: PageProps<"/projects">) {
               )}
             </div>
           ) : (
-            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-8 grid gap-4 sm:grid-cols-2">
               {filtered.map((project) => (
                 <ProjectCard key={project.slug} project={project} />
               ))}
@@ -133,7 +133,7 @@ function Group({ title, projects }: { title: string; projects: Project[] }) {
         {title}
         <span className="ml-2 text-subtle tabular-nums">{projects.length}</span>
       </h2>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2">
         {projects.map((project) => (
           <ProjectCard key={project.slug} project={project} />
         ))}

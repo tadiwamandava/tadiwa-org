@@ -1,6 +1,19 @@
 import Link from "next/link";
 import type { ProjectFrontmatter } from "@/lib/content/schema";
 
+/**
+ * The page measure.
+ *
+ * Both variants share ONE outer column, so every page starts at the same left
+ * edge as the header. The narrow variant caps the line length inside that
+ * column rather than centring a second, narrower column of its own.
+ *
+ * Centring it independently is what the first version did, and it put the
+ * header at x=98 and the body of six pages at x=248 on a 1200px viewport. Two
+ * left edges 150px apart is the single most legible sign that a layout was
+ * assembled rather than designed, and it is invisible while editing any one
+ * page on its own.
+ */
 export function Container({
   children,
   wide = false,
@@ -11,10 +24,8 @@ export function Container({
   className?: string;
 }) {
   return (
-    <div
-      className={`mx-auto px-5 sm:px-8 ${wide ? "max-w-(--container-wide)" : "max-w-3xl"} ${className}`}
-    >
-      {children}
+    <div className={`mx-auto max-w-(--container-wide) px-5 sm:px-8 ${wide ? className : ""}`}>
+      {wide ? children : <div className={`max-w-3xl ${className}`}>{children}</div>}
     </div>
   );
 }
@@ -130,10 +141,21 @@ export function MetricStat({
   label: string;
   title?: string;
 }) {
+  // An unfilled metric renders as an unfilled metric, not as a headline number
+  // whose value happens to be the word TODO. Setting it at display size in the
+  // same weight as a real figure is how "TODO / active users" ends up looking
+  // like a shipped statistic on a project card.
+  const pending = /^(TODO|CONFIRM)\b/i.test(value);
   return (
     <div title={title}>
-      <div className="font-mono text-xl font-medium text-text tabular-nums">
-        {value}
+      <div
+        className={
+          pending
+            ? "rounded border border-dashed border-border-strong px-1.5 py-0.5 font-mono text-2xs tracking-wide text-subtle uppercase"
+            : "font-mono text-xl font-medium text-text tabular-nums"
+        }
+      >
+        {pending ? "unset" : value}
       </div>
       <div className="mt-0.5 text-xs text-subtle">{label}</div>
     </div>
