@@ -5,7 +5,9 @@ import { NanoMount } from "@/components/nano/mount";
 import {
   getNanoReport,
   getParity,
+  getSmolParity,
   getModelMeta,
+  getSmolInfo,
   getEngineBytes,
   OP_NOTES,
 } from "@/lib/nano";
@@ -13,16 +15,25 @@ import {
 export const metadata: Metadata = {
   title: "Inference engine",
   description:
-    "A transformer forward pass written by hand in C++, compiled to WebAssembly, generating text in your browser — with the logit-parity numbers against PyTorch.",
+    "A transformer forward pass written by hand in C++, compiled to WebAssembly, running a 135M-parameter model in your browser — with the logit-parity numbers against PyTorch.",
 };
 
 const kb = (n: number) => `${(n / 1024).toFixed(0)} KB`;
+const mb = (n: number) => `${(n / 1048576).toFixed(0)} MB`;
 
 export default function InferenceLabPage() {
   const ops = getNanoReport();
   const parity = getParity();
+  const smolParity = getSmolParity();
   const meta = getModelMeta();
+  const smol = getSmolInfo();
   const engineBytes = getEngineBytes();
+
+  // The weights are 129 MB, which is over GitHub's per-file ceiling, so a
+  // clone may not have them. They are available if they are on disk, or if
+  // this deployment points at an origin that serves them.
+  const smolAvailable =
+    smol?.weightBytes != null || !!process.env.NEXT_PUBLIC_NANO_WEIGHTS_BASE;
 
   return (
     <Container className="py-16">
@@ -34,36 +45,102 @@ export default function InferenceLabPage() {
       </h1>
       <p className="mt-5 max-w-2xl text-lg leading-relaxed text-muted">
         A transformer forward pass written by hand in C++ and compiled to
-        WebAssembly — no ML framework, no BLAS, no server. The weights come from
-        a small model trained on this site&rsquo;s own prose, so what it
-        generates is this writing, badly.
+        WebAssembly — no ML framework, no BLAS, no server, no API key. Ask the
+        box below a question and the answer is computed on your machine, by
+        about a thousand lines of code that I can explain line by line.
       </p>
 
-      {meta && (
-        <dl className="mt-8 grid grid-cols-2 gap-5 sm:grid-cols-4">
-          {[
-            ["parameters", `${(meta.params / 1000).toFixed(0)}K`],
-            ["layers × dim", `${meta.n_layer} × ${meta.n_embd}`],
-            ["engine", engineBytes ? `${(engineBytes / 1024).toFixed(0)} KB wasm` : "wasm"],
-            ["network calls", "0"],
-          ].map(([k, v]) => (
+      <dl className="mt-8 grid grid-cols-2 gap-5 sm:grid-cols-4">
+        {[
+          smol ? ["parameters", `${(smol.meta.params / 1e6).toFixed(0)}M`] : null,
+          smol
+            ? ["layers × dim", `${smol.meta.n_layer} × ${smol.meta.n_embd}`]
+            : null,
+          ["engine", engineBytes ? `${kb(engineBytes)} wasm` : "wasm"],
+          ["network calls after load", "0"],
+        ]
+          .filter((x): x is [string, string] => x !== null)
+          .map(([k, v]) => (
             <div key={k}>
               <dd className="font-mono text-xl tabular-nums text-text">{v}</dd>
               <dt className="mt-0.5 text-xs text-subtle">{k}</dt>
             </div>
           ))}
-        </dl>
-      )}
+      </dl>
+
+      {/* ---- the credit, up front ---------------------------------------- */}
+      <p className="mt-8 max-w-2xl border-l-2 border-border-strong pl-4 leading-relaxed text-muted">
+        <strong className="font-medium text-text">The weights are not mine.</strong>{" "}
+        {smol?.meta.model ?? "SmolLM2-135M-Instruct"} was trained by Hugging
+        Face; I quantised it and wrote the code that runs it. That distinction
+        is the whole point of this page, so it goes above the demo rather than
+        in a footnote: <em>the engine is the artefact, the model is a payload</em>.
+        The second model in the selector is the opposite trade — 359K parameters
+        I did train, on this site&rsquo;s own prose, and it is much worse.
+      </p>
 
       <section className="mt-12">
         <h2 className="mb-5 border-b border-border pb-2 font-mono text-xs tracking-[0.14em] text-muted uppercase">
           Run it
         </h2>
-        <NanoMount />
+        <NanoMount
+          smolWeightBytes={smol?.weightBytes ?? null}
+          smolParams={smol?.meta.params ?? null}
+          smolName={smol?.meta.model.split("/").pop() ?? null}
+          smolAvailable={smolAvailable}
+        />
       </section>
 
+      {/* ---- what the engine implements ---------------------------------- */}
+      {smol && (
+        <section className="mt-14">
+          <h2 className="border-b border-border pb-2 font-mono text-xs tracking-[0.14em] text-muted uppercase">
+            What running a modern model actually takes
+          </h2>
+          <p className="mt-4 max-w-2xl leading-relaxed text-muted">
+            GPT-2 is the model everyone reimplements, and it is nine years
+            old. Everything released since Llama uses a different set of
+            primitives, and each of these is a place an implementation can be
+            wrong while every unit test still passes.
+          </p>
+          <ul className="mt-5 space-y-3">
+            {[
+              [
+                "RMSNorm",
+                "LayerNorm with the mean subtraction removed. Fewer operations, one fewer parameter tensor, and no centring step to get subtly wrong.",
+              ],
+              [
+                "RoPE",
+                `Position is a rotation applied to query and key pairs rather than a vector added to the embedding. θ = ${smol.meta.rope_theta.toLocaleString()} here — and the converter refuses to guess it, because a wrong θ is exact at position 0 and drifts further every token after, which looks like a working engine for exactly as long as you test it with one token.`,
+              ],
+              [
+                "Grouped-query attention",
+                `${smol.meta.n_head} query heads share ${smol.meta.n_kv_head} key/value heads, so the KV cache is a third the size it would otherwise be. Each query head has to read the right group, and reading the wrong one produces fluent text that is subtly off.`,
+              ],
+              [
+                "SwiGLU",
+                `Two projections into ${smol.meta.n_inter} dimensions, one gated by SiLU against the other, then back down. Swapping gate and up is invisible in a shape check.`,
+              ],
+              [
+                "Tied embeddings",
+                "The token table is also the output projection, read as rows on the way in and as a matrix on the way out — which is why it is quantised per row and every other matrix per column.",
+              ],
+              [
+                "int8, resident",
+                "The codes are multiplied where they lie. Dequantising on load would be simpler and would cost 513 MB instead of 129 MB, which is the difference between a demo and a tab that dies.",
+              ],
+            ].map(([term, note]) => (
+              <li key={term} className="grid gap-1 sm:grid-cols-[11rem_1fr] sm:gap-4">
+                <span className="font-mono text-sm text-text">{term}</span>
+                <span className="text-sm leading-relaxed text-muted">{note}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {/* ---- parity ------------------------------------------------------ */}
-      {parity.length > 0 && (
+      {(smolParity.length > 0 || parity.length > 0) && (
         <section className="mt-14">
           <h2 className="border-b border-border pb-2 font-mono text-xs tracking-[0.14em] text-muted uppercase">
             Does it match the model it came from?
@@ -74,45 +151,42 @@ export default function InferenceLabPage() {
             KV cache and all, one token at a time, exactly as generation runs —
             and the final logits are diffed against PyTorch&rsquo;s.
           </p>
-          <table className="mt-5 w-full border-collapse">
-            <caption className="sr-only">Logit agreement with PyTorch.</caption>
-            <thead>
-              <tr className="border-b border-border text-left">
-                {["Weights", "Max |diff|", "RMS", "Argmax", "Verdict"].map((h) => (
-                  <th key={h} scope="col" className="py-2 font-mono text-2xs tracking-wide text-subtle uppercase">
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {parity.map((p) => (
-                <tr key={p.weights} className="border-b border-border">
-                  <td className="py-3 font-mono text-sm">{p.weights}</td>
-                  <td className="py-3 font-mono text-sm tabular-nums text-muted">
-                    {p.maxAbsDiff.toExponential(2)}
-                  </td>
-                  <td className="py-3 font-mono text-sm tabular-nums text-muted">
-                    {p.rmsDiff.toExponential(2)}
-                  </td>
-                  <td className="py-3 font-mono text-2xs uppercase text-muted">
-                    {p.argmaxMatch ? "match" : "differs"}
-                  </td>
-                  <td className={`py-3 font-mono text-2xs uppercase ${p.pass ? "text-shipped" : "text-accent"}`}>
-                    {p.pass ? "pass" : "fail"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-subtle">
-            fp32 agrees to about 8 × 10⁻⁶, which is float noise — the layout,
-            the head slicing and the cache are right. int8 diverges by 0.24 in
-            the worst logit, which is not a bug but the quantisation error
-            itself, and it still selects the same token. That gap is the
-            entire trade: a quarter of the download for a distortion small
-            enough not to change the answer here.
-          </p>
+
+          {smolParity.length > 0 && (
+            <>
+              <h3 className="mt-6 font-mono text-2xs tracking-wide text-subtle uppercase">
+                SmolLM2-135M · {smolParity[0].vocab.toLocaleString()} logits
+              </h3>
+              <ParityTable rows={smolParity} />
+              <p className="mt-4 max-w-2xl text-sm leading-relaxed text-subtle">
+                fp32 agrees to{" "}
+                <span className="font-mono">
+                  {smolParity.find((p) => p.weights === "fp32")?.maxAbsDiff.toExponential(1) ??
+                    "float noise"}
+                </span>{" "}
+                across thirty layers, which is accumulated float noise and not a
+                bug. int8 diverges by{" "}
+                <span className="font-mono">
+                  {smolParity.find((p) => p.weights === "int8")?.maxAbsDiff.toFixed(2) ?? "more"}
+                </span>{" "}
+                in the worst logit and still picks the same token — that gap is
+                the quantisation itself, stated as a measurement rather than
+                waved at. This number is what caught the one bug that mattered:
+                a silently-defaulted RoPE θ left the engine exact at position
+                zero, still selecting the right token, and wrong by 6 × 10⁻¹ by
+                the fifth. Nothing but a logit diff would have found it.
+              </p>
+            </>
+          )}
+
+          {parity.length > 0 && (
+            <>
+              <h3 className="mt-8 font-mono text-2xs tracking-wide text-subtle uppercase">
+                tadiwa-nano-359K · {parity[0].vocab} logits
+              </h3>
+              <ParityTable rows={parity} />
+            </>
+          )}
         </section>
       )}
 
@@ -145,6 +219,16 @@ export default function InferenceLabPage() {
               </li>
             ))}
           </ul>
+          <p className="mt-5 max-w-2xl text-sm leading-relaxed text-subtle">
+            The fixtures are data produced by a numpy oracle, not a second
+            implementation — otherwise the test only proves the two copies agree.
+            One of them was too weak and said so: the softmax fixture was written
+            to catch a missing max-subtraction, and when a deliberately broken
+            softmax was dropped in, it passed. The sampled maximum simply never
+            reached the float32 <span className="font-mono">expf</span> ceiling.
+            It pins an extreme value now, and the broken version fails with{" "}
+            <span className="font-mono">inf</span>.
+          </p>
         </section>
       )}
 
@@ -154,32 +238,53 @@ export default function InferenceLabPage() {
           What this is not
         </h2>
         <div className="mt-5 max-w-2xl space-y-4 leading-relaxed text-muted">
+          <p>
+            <strong className="font-medium text-text">It is not fast.</strong> The
+            matmul is a cache-aware triple loop with SIMD left to the compiler.
+            {smolParity.length > 0 && (
+              <>
+                {" "}
+                Natively it runs a token in about{" "}
+                <span className="font-mono">
+                  {smolParity.find((p) => p.weights === "int8")?.msPerToken.toFixed(0)} ms
+                </span>
+                , and in WebAssembly it is slower again.
+              </>
+            )}{" "}
+            The optimisation ladder — blocking, hand-written SIMD, a fused
+            dequantise-and-multiply — is the interesting part and it has not
+            been climbed. Anyone reporting competitive numbers from an engine at
+            this stage has a benchmark bug.
+          </p>
+          <p>
+            <strong className="font-medium text-text">It is not a good model.</strong>{" "}
+            135M parameters is small enough that it gets facts wrong
+            confidently, and the demo does not hide that. It is here because it
+            is the largest thing that will honestly fit down a browser
+            connection, not because it is impressive on its own.
+          </p>
           {meta && (
             <p>
-              <strong className="font-medium text-text">The model is bad, and measurably so.</strong>{" "}
-              {(meta.params / 1000).toFixed(0)}K parameters trained on{" "}
-              {kb(meta.corpusBytes)} of prose: final training loss{" "}
+              <strong className="font-medium text-text">The one I trained is worse still,</strong>{" "}
+              and measurably: {(meta.params / 1000).toFixed(0)}K parameters on{" "}
+              {kb(meta.corpusBytes)} of prose, final training loss{" "}
               <span className="font-mono">{meta.trainLoss.toFixed(2)}</span> against
               validation <span className="font-mono">{meta.valLoss.toFixed(2)}</span>.
-              That gap is memorisation — there are more parameters here than
-              characters to learn from, which is why the output reproduces
-              fragments of this site rather than saying anything. Fixing it needs
-              a bigger corpus, not a better engine.
+              That gap is memorisation — more parameters than characters to learn
+              from — so it reproduces fragments of this site rather than saying
+              anything. It stays in the selector because the comparison is the
+              content: same engine, same kernels, and the entire difference in
+              output quality is the weights.
             </p>
           )}
           <p>
-            <strong className="font-medium text-text">It is not fast.</strong> The
-            matmul is a cache-aware triple loop and nothing more. The optimisation
-            ladder — blocking, SIMD, an int8 kernel that skips dequantisation — is
-            the interesting part and it has not been climbed yet. Anyone reporting
-            competitive numbers from an engine at this stage has a benchmark bug.
-          </p>
-          <p>
             <strong className="font-medium text-text">What it is</strong> is the
             whole path from a weights file to a token, written out and checked
-            against a reference: the format, the loader, the KV cache, the
-            attention, the sampler. The engine is the artefact. The model is a
-            payload that happens to fit.
+            against a reference: the format, the loader, the tokeniser, the KV
+            cache, grouped-query attention, the int8 kernel and the sampler.
+            {smol?.weightBytes && (
+              <> Loading it costs {mb(smol.weightBytes)}, once, and only if you ask.</>
+            )}
           </p>
         </div>
       </section>
@@ -190,5 +295,45 @@ export default function InferenceLabPage() {
         </Link>
       </p>
     </Container>
+  );
+}
+
+function ParityTable({
+  rows,
+}: {
+  rows: { weights: string; maxAbsDiff: number; rmsDiff: number; argmaxMatch: boolean; pass: boolean }[];
+}) {
+  return (
+    <table className="mt-3 w-full border-collapse">
+      <caption className="sr-only">Logit agreement with PyTorch.</caption>
+      <thead>
+        <tr className="border-b border-border text-left">
+          {["Weights", "Max |diff|", "RMS", "Argmax", "Verdict"].map((h) => (
+            <th key={h} scope="col" className="py-2 font-mono text-2xs tracking-wide text-subtle uppercase">
+              {h}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((p) => (
+          <tr key={p.weights} className="border-b border-border">
+            <td className="py-3 font-mono text-sm">{p.weights}</td>
+            <td className="py-3 font-mono text-sm tabular-nums text-muted">
+              {p.maxAbsDiff.toExponential(2)}
+            </td>
+            <td className="py-3 font-mono text-sm tabular-nums text-muted">
+              {p.rmsDiff.toExponential(2)}
+            </td>
+            <td className="py-3 font-mono text-2xs uppercase text-muted">
+              {p.argmaxMatch ? "match" : "differs"}
+            </td>
+            <td className={`py-3 font-mono text-2xs uppercase ${p.pass ? "text-shipped" : "text-accent"}`}>
+              {p.pass ? "pass" : "fail"}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 }

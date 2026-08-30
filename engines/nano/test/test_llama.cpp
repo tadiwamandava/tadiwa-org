@@ -100,5 +100,23 @@ int main(int argc, char** argv) {
   std::printf("    argmax        %s (got %d, want %d)\n",
               arg_got == arg_ref ? "match" : "DIFFER", arg_got, arg_ref);
   std::printf("\n  %s\n\n", ok ? "PASSED" : "FAILED");
+
+  // The page renders these rather than a hand-written table, so it cannot
+  // claim a parity number the test did not produce. Written on failure too —
+  // a page that silently keeps showing the last passing figures would be
+  // worse than one that shows a red row.
+  const std::string out = std::string("engines/nano/fixtures/smollm-parity-") +
+                          (quantised ? "int8" : "fp32") + ".json";
+  if (std::FILE* f = std::fopen(out.c_str(), "w")) {
+    std::fprintf(f,
+                 "{\n  \"weights\": \"%s\",\n  \"tokens\": %u,\n  \"vocab\": %u,\n"
+                 "  \"maxAbsDiff\": %.6e,\n  \"rmsDiff\": %.6e,\n  \"tolerance\": %.6e,\n"
+                 "  \"argmaxMatch\": %s,\n  \"argmax\": %d,\n"
+                 "  \"msPerToken\": %.3f,\n  \"residentBytes\": %zu,\n  \"pass\": %s\n}\n",
+                 quantised ? "int8" : "fp32", n_tok, n_vocab, max_abs, rms, tol,
+                 arg_got == arg_ref ? "true" : "false", arg_ref, ms / n_tok,
+                 m.resident_bytes(), ok ? "true" : "false");
+    std::fclose(f);
+  }
   return ok ? 0 : 1;
 }

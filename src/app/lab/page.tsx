@@ -51,7 +51,7 @@ const DEMOS: Demo[] = [
     slug: "inference",
     title: "A language model running in this tab",
     blurb:
-      "A transformer forward pass written by hand in C++ and compiled to WebAssembly — no framework, no BLAS, no server. It generates in your tab from a model trained on this site's own prose. The page carries the logit-parity numbers against PyTorch, and is equally specific about what is still wrong: the model overfits 66 KB of text, and the matmul has not been optimised at all.",
+      "A transformer forward pass written by hand in C++ and compiled to WebAssembly — no framework, no BLAS, no server. Ask SmolLM2-135M a question and it answers in your tab at about 25 tokens a second, on RMSNorm, RoPE, grouped-query attention and an int8 matmul I wrote. The weights are Hugging Face's and the page says so first; the page also carries the logit-parity numbers against PyTorch and is specific about what is still slow.",
     status: "live",
     href: "/lab/inference",
     since: "August 2026",

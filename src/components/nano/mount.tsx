@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import type { PlaygroundProps } from "./playground";
 
 /** Keeps the engine, the WASM glue and the weights out of the first-paint
  *  bundle. `npm run check:bundle` fails the build if they leak in. */
@@ -16,6 +17,6 @@ const NanoPlayground = dynamic(
   },
 );
 
-export function NanoMount() {
-  return <NanoPlayground />;
+export function NanoMount(props: PlaygroundProps) {
+  return <NanoPlayground {...props} />;
 }

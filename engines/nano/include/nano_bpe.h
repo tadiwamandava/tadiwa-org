@@ -35,8 +35,14 @@ class Bpe {
   /// sequence; callers accumulate and decode as a stream.
   const std::string& token_bytes(int id) const;
 
+  /// Id for an added token written out literally — "<|im_end|>" and friends —
+  /// or -1 if this vocabulary has no such token. Chat templates are built from
+  /// these, so a caller that gets -1 should say so rather than guess an id.
+  int special_id(const std::string& text) const;
+
   std::size_t vocab_size() const { return vocab_.size(); }
   std::size_t merge_count() const { return merges_.size(); }
+  std::size_t special_count() const { return specials_.size(); }
   const std::string& error() const { return error_; }
 
  private:
@@ -46,10 +52,16 @@ class Bpe {
   std::unordered_map<uint64_t, std::pair<uint32_t, uint32_t>> merges_;
   /// Single-byte token ids, for seeding a word before any merging.
   int byte_id_[256];
+  /// Added tokens, longest first so a prefix can never shadow a longer match.
+  /// Matched against the raw input BEFORE pre-tokenisation, which is the order
+  /// the reference implementation uses.
+  std::vector<std::pair<std::string, int>> specials_;
   std::string error_;
   std::string empty_;
 
   void merge_word(std::vector<int>& ids) const;
+  /// Encodes a span with no added tokens in it — the ordinary BPE path.
+  void encode_plain(const std::string& text, std::vector<int>& out) const;
 };
 
 /// Splits on the GPT-2 partition. Exposed for testing.

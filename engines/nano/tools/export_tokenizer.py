@@ -11,10 +11,18 @@ Two decisions that make the C++ side small:
      string pairs. Rank is the array index. The merge loop becomes a hash lookup
      on a pair of ints instead of string concatenation in an inner loop.
 
+  3. ADDED TOKENS are listed explicitly at the end. They are not byte-level, so
+     the merge loop can never produce them — without this list the C++ encoder
+     would tokenise the literal text "<|im_end|>" as fourteen ordinary bytes and
+     an instruct model would never see the turn boundary it was trained on.
+     Reference tokenisers split on these before the pre-tokeniser runs; so does
+     ours, and this is the data that makes that possible.
+
 Format (little-endian):
     magic "TDTK" | n_vocab | n_merges
     n_vocab x { u16 len, bytes }
     n_merges x { u32 left, u32 right, u32 result }
+    u32 n_special | n_special x { u32 id }        (optional trailing section)
 
 Run: engines/nano/tools/.venv/bin/python engines/nano/tools/export_tokenizer.py
 """
@@ -81,9 +89,22 @@ def main() -> int:
     # Rewrite the count with what was actually emitted.
     struct.pack_into("<I", buf, 8, n_written)
 
+    # The ids the merge loop can never reach. `added_tokens` is the tokenizer's
+    # own record of them, so this stays correct if the model adds one later.
+    special = sorted(
+        {int(t["id"]) for t in tjson.get("added_tokens", [])}
+        | {vocab[s] for s in tok.all_special_tokens if s in vocab}
+    )
+    buf += struct.pack("<I", len(special))
+    for i in special:
+        buf += struct.pack("<I", i)
+
     (OUT / "smollm-tokenizer.bin").write_bytes(bytes(buf))
     print(f"\n  vocab   {n_vocab}")
     print(f"  merges  {n_written} of {len(merges)}")
+    print(f"  special {len(special)}: "
+          + ", ".join(by_id[i].decode("utf-8", "replace") for i in special[:4])
+          + (" …" if len(special) > 4 else ""))
     print(f"  wrote   public/nano/smollm-tokenizer.bin  {len(buf)/1024:.0f} KB")
 
     # Golden cases for the C++ tokeniser test.

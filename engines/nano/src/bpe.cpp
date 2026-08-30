@@ -1,5 +1,6 @@
 #include "nano_bpe.h"
 
+#include <algorithm>
 #include <cstring>
 #include <limits>
 
@@ -65,9 +66,6 @@ bool is_letter_cp(uint32_t cp) {
   return false;
 }
 
-inline bool is_letter(unsigned char c) {
-  return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
-}
 inline bool is_digit(unsigned char c) { return c >= '0' && c <= '9'; }
 inline bool is_space(unsigned char c) {
   return c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\f' || c == '\v';
@@ -171,7 +169,35 @@ bool Bpe::load(const uint8_t* d, std::size_t len) {
     off += 12;
     merges_[(static_cast<uint64_t>(a) << 32) | b] = {r, c};
   }
+
+  // Trailing added-token section. Optional: a tokenizer blob written before
+  // this section existed still loads, and simply has no tokens to split on.
+  specials_.clear();
+  if (off + 4 <= len) {
+    const uint32_t n_special = rd32(d + off);
+    off += 4;
+    for (uint32_t i = 0; i < n_special && off + 4 <= len; ++i) {
+      const uint32_t id = rd32(d + off);
+      off += 4;
+      if (id < vocab_.size() && !vocab_[id].empty()) {
+        specials_.emplace_back(vocab_[id], static_cast<int>(id));
+      }
+    }
+    // Longest first: "<|im_start|>" must win over any added token that is a
+    // prefix of it, and a leftmost-longest scan is what the reference does.
+    std::sort(specials_.begin(), specials_.end(),
+              [](const auto& a, const auto& b) {
+                return a.first.size() > b.first.size();
+              });
+  }
   return true;
+}
+
+int Bpe::special_id(const std::string& text) const {
+  for (const auto& s : specials_) {
+    if (s.first == text) return s.second;
+  }
+  return -1;
 }
 
 void Bpe::merge_word(std::vector<int>& ids) const {
@@ -199,8 +225,7 @@ void Bpe::merge_word(std::vector<int>& ids) const {
   }
 }
 
-std::vector<int> Bpe::encode(const std::string& text) const {
-  std::vector<int> out;
+void Bpe::encode_plain(const std::string& text, std::vector<int>& out) const {
   for (const std::string& word : bpe_pretokenize(text)) {
     std::vector<int> ids;
     ids.reserve(word.size());
@@ -211,6 +236,36 @@ std::vector<int> Bpe::encode(const std::string& text) const {
     merge_word(ids);
     out.insert(out.end(), ids.begin(), ids.end());
   }
+}
+
+std::vector<int> Bpe::encode(const std::string& text) const {
+  std::vector<int> out;
+  if (specials_.empty()) {
+    encode_plain(text, out);
+    return out;
+  }
+
+  // Added tokens are cut out of the text first and emitted as themselves; the
+  // spans between them go through the ordinary path. Doing this before
+  // pre-tokenisation is not an optimisation — "<|im_end|>" contains characters
+  // the pre-tokeniser would split on, so afterwards would be too late.
+  std::size_t seg = 0, i = 0;
+  const std::size_t n = text.size();
+  while (i < n) {
+    const std::pair<std::string, int>* hit = nullptr;
+    for (const auto& s : specials_) {
+      if (i + s.first.size() <= n && text.compare(i, s.first.size(), s.first) == 0) {
+        hit = &s;
+        break;   // specials_ is longest-first, so the first match is the longest
+      }
+    }
+    if (!hit) { ++i; continue; }
+    if (i > seg) encode_plain(text.substr(seg, i - seg), out);
+    out.push_back(hit->second);
+    i += hit->first.size();
+    seg = i;
+  }
+  if (seg < n) encode_plain(text.substr(seg), out);
   return out;
 }
 
