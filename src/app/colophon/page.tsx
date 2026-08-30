@@ -79,7 +79,7 @@ export default function ColophonPage() {
               because the embedding model is 22 MB. Detail below.
             </StackRow>
             <StackRow term="Code samples">
-              Shiki through rehype-pretty-code, at build time, in both themes.
+              Shiki through rehype-pretty-code, at build time.
             </StackRow>
             <StackRow term="Type">
               Saira for headings, self-hosted by <Code>next/font</Code>. Body
@@ -101,8 +101,8 @@ export default function ColophonPage() {
               nothing about a document benefits from being an application.
               Server Components let me act on that literally: the HTML arrives
               finished, and the only JavaScript that reaches the browser on a
-              typical page is a theme toggle, plus a print button on the
-              résumé. Not &ldquo;a small bundle&rdquo;. Those two things.
+              typical page is a print button on the résumé. Not &ldquo;a small
+              bundle&rdquo;. One button.
             </p>
             <p>
               What that ruled out was the default answer, which is a
@@ -342,11 +342,10 @@ export default function ColophonPage() {
             <p>
               <Code>scripts/check-contrast.ts</Code> reads{" "}
               <Code>src/app/globals.css</Code>, walks the brace structure to pull
-              the three token blocks out of it, and computes WCAG contrast for
-              every foreground/background pairing the design actually uses, in
-              the light theme and the dark theme both. It exits non-zero on
-              failure, and it runs in CI ahead of the build. Today it clears 54
-              contrast pairs and 8 perceptual-separation pairs.
+              the token block out of it, and computes WCAG contrast for every
+              foreground/background pairing the design actually uses. It exits
+              non-zero on failure, and it runs in CI ahead of the build. Today
+              it clears 27 contrast pairs and 8 perceptual-separation pairs.
             </p>
             <p>
               The design decision worth defending is the parsing. The obvious
@@ -363,10 +362,9 @@ export default function ColophonPage() {
               It asserts four things: AA body contrast for text; the 3:1
               non-text ratio from WCAG 1.4.11 for anything that identifies a
               control, which is why there are two border tokens and not one;
-              byte-for-byte parity between the two dark-theme blocks, since the
-              media query and the <Code>data-theme</Code> attribute both have to
-              carry the palette and a drift between them means the OS preference
-              and the toggle render different sites; and OKLab distance between
+              that no colour is defined anywhere but bare <Code>:root</Code>,
+              which is the structural drift a ratio cannot see; and OKLab
+              distance between
               the token pairs that have to stay tellable apart, which contrast
               against a background cannot catch. Two colours can both sit at
               5.5:1 on the page and still be the same colour.
@@ -453,9 +451,10 @@ export default function ColophonPage() {
               configured with two themes, and instead of baking one palette into
               the markup it emits both as custom properties on every token
               span:{" "}
-              <Code>--shiki-light</Code> and <Code>--shiki-dark</Code>. Three CSS
-              rules in the stylesheet decide which one applies, keyed off the same{" "}
-              <Code>data-theme</Code> attribute everything else uses.
+              <Code>--shiki-light</Code> and <Code>--shiki-dark</Code>. One CSS
+              rule picks the dark one. The light variable is still emitted and
+              now goes unused, which costs nothing at runtime because the
+              highlighting already happened at build.
             </p>
             <p>
               Three things fall out of that. The page ships no highlighter
@@ -500,29 +499,32 @@ export default function ColophonPage() {
               one-line fix I have not made.
             </Regret>
 
-            <Regret n={2} title="The palette exists in two places, and one of them is not the stylesheet">
+            <Regret n={2} title="One colour still lives outside the stylesheet">
               <Code>src/app/layout.tsx</Code> sets{" "}
-              <Code>viewport.themeColor</Code> with two literal hex values: the
-              light and dark page backgrounds, copied out of the token block. It
-              is the only colour on the site that does not come from a custom
-              property, which makes it the only colour the contrast checker
-              cannot see, which makes it precisely the drift that script was
-              written to prevent. I noticed while writing this paragraph. That is
-              an argument for writing colophons.
+              <Code>viewport.themeColor</Code> to a literal hex, the page
+              background copied out of the token block. It is metadata rather
+              than CSS, so there is nowhere else it can go, and it is therefore
+              the one colour the contrast checker cannot see. It used to be two
+              literals, for a light theme and a dark one. Dropping the light
+              theme halved the problem without solving it.
             </Regret>
 
-            <Regret n={3} title="The dark theme is written out twice">
-              Every dark token appears in both a{" "}
-              <Code>prefers-color-scheme</Code> block and a{" "}
-              <Code>[data-theme=&quot;dark&quot;]</Code> block, because an explicit
-              choice has to beat the OS in both directions. The duplication is
-              deliberate and I still pay for it: the parity assertion in the
-              contrast checker exists solely to catch the two copies diverging.
-              A test that guards a duplication I chose is a workaround wearing a
-              lab coat. CSS <Code>light-dark()</Code> would collapse them, at the
-              price of a user&rsquo;s explicit choice no longer being able to
-              override their system setting. That is the wrong trade, so this
-              one may just stay.
+            <Regret n={3} title="Dropping the light theme deleted a gate as well as a feature">
+              The palette used to exist three times: a light block, a{" "}
+              <Code>prefers-color-scheme</Code> dark block, and a{" "}
+              <Code>[data-theme]</Code> dark block that had to stay byte-identical
+              to it. The contrast checker asserted that parity, and that
+              assertion was doing real work, because a drift meant the OS
+              preference and the toggle rendered different sites.
+              <br />
+              <br />
+              There is one block now and nothing to compare, so the check was
+              removed rather than left passing vacuously. What replaced it is
+              weaker and worth naming: a scan for colour tokens defined anywhere
+              other than bare <Code>:root</Code>. It catches the structural
+              mistake, not a value drift, because with one block there is no
+              second value to drift from. Verified by adding a stray{" "}
+              <Code>@media</Code> block and watching it fail.
             </Regret>
 
             <Regret n={4} title="The corpus is validated twice, by two code paths">

@@ -91,7 +91,7 @@ export default function HomePage() {
           chunk has loaded on a wide-enough viewport. */}
       <PcbHero />
 
-      <div className="mt-16 space-y-14 sm:mt-24 sm:space-y-20">
+      <div className="mt-10 space-y-4 sm:mt-16">
         <PageSection
           id="work"
           title="Selected work"
@@ -171,10 +171,7 @@ export default function HomePage() {
         {/* ---- the one centred block ------------------------------------
             The rhythm above is uniformly left-aligned, which is what makes
             this read as an ending rather than another section. */}
-        <section
-          id="contact"
-          className="border-t border-border pt-14 text-center sm:pt-20"
-        >
+        <section id="contact" className="pt-20 text-center sm:pt-28">
           <h2 className="font-display text-3xl tracking-tight sm:text-4xl">
             Looking for a Summer 2027 internship
           </h2>

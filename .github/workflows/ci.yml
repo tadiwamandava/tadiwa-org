@@ -34,8 +34,9 @@ jobs:
         run: npm run lint
 
       # Parses the real token blocks out of globals.css and asserts WCAG AA in
-      # both themes, plus parity between the two dark blocks. Fails the build.
-      - name: Contrast (WCAG AA, both themes)
+      # every pair the design uses, plus a structural check that no colour is
+      # defined anywhere but bare :root. Fails the build.
+      - name: Contrast (WCAG AA)
         run: npm run check:contrast
 
       # Validates every MDX file against the Zod corpus schema.

@@ -237,44 +237,38 @@ const SEPARATIONS: Separation[] = [
 function run(): number {
   const css = readFileSync(CSS_PATH, "utf8");
 
+  // One theme, so one block. The parity check that used to live here compared
+  // the media-query dark block against the [data-theme="dark"] block, because
+  // a toggle and an OS preference rendering two different themes is a bug
+  // nothing else would catch. There is no toggle now and no second block, so
+  // the check has nothing to compare and is gone rather than left passing
+  // vacuously.
+  //
+  // What replaces it: a token defined anywhere OTHER than bare :root is a
+  // failure. That is the drift this file exists to prevent, and it is still
+  // possible to reintroduce by hand.
   const themes: Array<{ name: string; palette: Palette }> = [
-    {
-      name: "light",
-      palette: extractBlock(css, /^:root\s*\{/m, "light (:root)"),
-    },
-    {
-      name: "dark",
-      palette: extractBlock(
-        css,
-        /^:root\[data-theme="dark"\]\s*\{/m,
-        'dark (:root[data-theme="dark"])',
-      ),
-    },
+    { name: "dark", palette: extractBlock(css, /^:root\s*\{/m, "dark (:root)") },
   ];
 
-  // The media-query dark block must agree with the attribute dark block, or the
-  // toggle and the OS preference render two different themes.
-  const mediaDark = extractBlock(
-    css,
-    /:root:not\(\[data-theme="light"\]\)\s*\{/,
-    "dark (prefers-color-scheme)",
-  );
-  const attrDark = themes[1].palette;
   let failures = 0;
 
-  console.log("\n  Dark-theme parity (media query vs [data-theme])");
-  const allDarkKeys = new Set([...Object.keys(mediaDark), ...Object.keys(attrDark)]);
-  let parityOk = true;
-  for (const key of [...allDarkKeys].sort()) {
-    if (mediaDark[key] !== attrDark[key]) {
-      parityOk = false;
-      failures++;
-      console.log(
-        `  ✗ ${key.padEnd(20)} media=${mediaDark[key] ?? "(absent)"} attr=${attrDark[key] ?? "(absent)"}`,
-      );
+  const strays = [
+    ...css.matchAll(/^(@media[^{]*|:root\[[^\]]+\])\s*\{/gm),
+  ].filter((m) => {
+    // Only care about blocks that actually define a colour token.
+    const from = m.index ?? 0;
+    return /--[\w-]+\s*:\s*#[0-9a-fA-F]{3,8}\s*;/.test(css.slice(from, from + 900));
+  });
+  console.log("\n  Single-theme structure");
+  if (strays.length > 0) {
+    failures += strays.length;
+    for (const m of strays) {
+      console.log(`  ✗ colour tokens defined outside :root, in \`${m[1].trim()}\``);
     }
+  } else {
+    console.log("  ✓ every colour token is defined once, on bare :root");
   }
-  if (parityOk) console.log(`  ✓ ${allDarkKeys.size} tokens identical in both dark blocks`);
 
   for (const { name, palette } of themes) {
     console.log(`\n  ${name.toUpperCase()} theme`);
@@ -319,8 +313,8 @@ function run(): number {
     return 1;
   }
   console.log(
-    `  PASSED: ${CHECKS.length * 2} pairs meet WCAG AA and ` +
-      `${SEPARATIONS.length * 2} pairs stay distinguishable, in both themes.\n`,
+    `  PASSED: ${CHECKS.length} pairs meet WCAG AA and ` +
+      `${SEPARATIONS.length * 2} pairs stay distinguishable.\n`,
   );
   return 0;
 }

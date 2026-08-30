@@ -3,7 +3,7 @@
 
    Nothing in the canvas hardcodes a colour. What it reads are the `--board-*`
    role aliases defined in bench.module.css, NOT the design tokens directly:
-   the board is a dark object in both themes, so which token plays "substrate"
+   the board is a dark object on a dark page, so which token plays "substrate"
    depends on the theme, and that decision belongs in the stylesheet next to the
    contrast working that justifies it, not in TypeScript.
 
@@ -99,9 +99,10 @@ export function paletteEquals(a: Palette, b: Palette): boolean {
 /**
  * Fires whenever the resolved palette may have changed.
  *
- * Two triggers, because the theme has three states: an explicit choice writes
- * `data-theme` on <html>, and "system" writes nothing at all, so the OS
- * preference change is the only signal for the default case.
+ * With a single theme neither trigger can currently fire. It is kept because
+ * the board reads its colours from CSS rather than holding literals, and this
+ * is the five lines that make that still true if a theme is ever added back.
+ * The alternative is a canvas that silently renders last month's palette.
  */
 export function watchTheme(onChange: () => void): () => void {
   const observer = new MutationObserver(onChange);
