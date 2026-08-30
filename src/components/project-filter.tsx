@@ -72,17 +72,24 @@ function FilterGroup({
   const headingId = `filter-${id}-heading`;
 
   return (
-    <div role="group" aria-labelledby={headingId}>
+    // Label beside the chips rather than above them. Stacked, the three groups
+    // cost ~230px of filtering UI above eleven projects, which is more chrome
+    // than corpus. Inline, the same controls take about half that.
+    <div
+      role="group"
+      aria-labelledby={headingId}
+      className="flex flex-wrap items-baseline gap-x-4 gap-y-2 sm:flex-nowrap"
+    >
       {/* h2, not h3: this sits directly under the page's <h1>, and skipping a
           level is a real WCAG heading-order violation. Lighthouse scored the
           route 98/100 on it. The visual size comes from the class, not the tag. */}
       <h2
         id={headingId}
-        className="font-mono text-2xs tracking-[0.14em] text-subtle uppercase"
+        className="w-20 shrink-0 font-mono text-2xs tracking-[0.14em] text-subtle uppercase"
       >
         {label}
       </h2>
-      <ul className="mt-2 flex flex-wrap gap-1.5">
+      <ul className="flex flex-wrap gap-1.5">
         {options.map(({ value, count }) => {
           const active = value === selectedValue;
           return (
@@ -136,8 +143,8 @@ export function ProjectFilter({
   const hasActiveFilter = Boolean(selected.domain || selected.lang || selected.status);
 
   return (
-    <div className="mt-10 flex flex-wrap items-start justify-between gap-x-8 gap-y-5 border-y border-border py-5">
-      <div className="flex flex-wrap gap-x-8 gap-y-5">
+    <div className="mt-10 flex flex-wrap items-start justify-between gap-x-8 gap-y-4 border-y border-border py-5">
+      <div className="flex w-full flex-col gap-2.5">
         <FilterGroup
           id="domain"
           label="Domain"

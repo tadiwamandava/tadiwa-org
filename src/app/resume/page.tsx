@@ -101,7 +101,8 @@ export default async function ResumePage(props: PageProps<"/resume">) {
       <header
         className={`${styles.noPrint} border-b border-border bg-surface`}
       >
-        <div className="mx-auto max-w-3xl px-5 py-14 sm:px-8">
+        <div className="mx-auto max-w-(--container-wide) px-5 py-14 sm:px-8">
+          <div className="max-w-3xl">
           <p className="font-mono text-xs tracking-[0.14em] text-accent uppercase">
             Résumé
           </p>
@@ -136,7 +137,8 @@ export default async function ResumePage(props: PageProps<"/resume">) {
             , in that order of priority.
           </p>
 
-          {placeholders.length > 0 && <ConfirmBanner items={placeholders} />}
+            {placeholders.length > 0 && <ConfirmBanner items={placeholders} />}
+          </div>
         </div>
       </header>
 
@@ -299,7 +301,7 @@ export default async function ResumePage(props: PageProps<"/resume">) {
 
         {/* ---- how it works (screen only) ------------------------------- */}
         <aside
-          className={`${styles.noPrint} mx-auto mt-10 max-w-3xl border-t border-border pt-6`}
+          className={`${styles.noPrint} mt-10 max-w-3xl border-t border-border pt-6`}
         >
           <h2 className="font-mono text-2xs tracking-[0.14em] text-subtle uppercase">
             How this page is assembled
