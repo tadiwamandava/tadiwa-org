@@ -174,8 +174,19 @@ def main() -> int:
     for t in top:
         print(f"    {t:6d}  {tok.decode([int(t)])!r:14s} logit {ref[t]:.3f}")
 
+    # Tied embeddings appear in state_dict() twice — once as embed_tokens and
+    # once as lm_head — and they are the same tensor. Summing sizes naively
+    # reports 163M for a model everyone else, including its own name, calls
+    # 135M. Deduplicate on storage address.
+    seen, n_params = set(), 0
+    for v in model.state_dict().values():
+        if v.data_ptr() in seen:
+            continue
+        seen.add(v.data_ptr())
+        n_params += v.numel()
+
     (OUT / "smollm-meta.json").write_text(json.dumps({
-        "model": MODEL, "params": int(sum(v.size for v in sd.values())),
+        "model": MODEL, "params": int(n_params),
         "n_embd": E, "n_layer": L, "n_head": H, "n_kv_head": KVH,
         "n_inter": I, "vocab": V, "n_ctx": N_CTX,
         "rope_theta": theta, "rms_eps": eps,

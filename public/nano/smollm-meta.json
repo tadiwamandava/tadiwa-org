@@ -1,6 +1,6 @@
 {
   "model": "HuggingFaceTB/SmolLM2-135M-Instruct",
-  "params": 162826560,
+  "params": 134515008,
   "n_embd": 576,
   "n_layer": 30,
   "n_head": 9,

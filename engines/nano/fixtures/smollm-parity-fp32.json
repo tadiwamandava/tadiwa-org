@@ -7,7 +7,7 @@
   "tolerance": 5.000000e-03,
   "argmaxMatch": true,
   "argmax": 7042,
-  "msPerToken": 25.187,
+  "msPerToken": 24.478,
   "residentBytes": 585246008,
   "pass": true
 }
