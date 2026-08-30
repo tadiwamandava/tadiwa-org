@@ -20,7 +20,10 @@ export interface EngineInfo {
   downloadBytes: number;
 }
 
-interface NanoModule {
+export interface NanoModule {
+  /** Re-read on every use. ALLOW_MEMORY_GROWTH detaches and replaces this
+   *  view whenever the heap grows, and staging a 129 MB model definitely
+   *  grows it — a reference cached across that call points at a dead buffer. */
   HEAPU8: Uint8Array;
   _malloc(n: number): number;
   _free(p: number): void;
@@ -37,12 +40,38 @@ interface NanoModule {
   _nano_prime(ptr: number, len: number, seed: number): number;
   _nano_next(temperature: number, topP: number): number;
   _nano_token_byte(id: number): number;
+
+  // The Llama-family surface — SmolLM2 and anything with its shape.
+  _llama_stage(len: number): number;
+  _llama_commit_tokenizer(): number;
+  _llama_commit_weights(): number;
+  _llama_last_error(): number;
+  _llama_ready(): number;
+  _llama_n_vocab(): number;
+  _llama_n_ctx(): number;
+  _llama_n_embd(): number;
+  _llama_n_head(): number;
+  _llama_n_kv_head(): number;
+  _llama_n_layer(): number;
+  _llama_n_inter(): number;
+  _llama_quant(): number;
+  _llama_pos(): number;
+  _llama_resident_bytes(): number;
+  _llama_kv_bytes(): number;
+  _llama_special(ptr: number): number;
+  _llama_begin(ptr: number, len: number, seed: number): number;
+  _llama_prefill_step(): number;
+  _llama_next(temperature: number, topP: number, repeatPenalty: number): number;
+  _llama_token_bytes(id: number, out: number, cap: number): number;
+
   UTF8ToString(ptr: number): string;
 }
 
 let modPromise: Promise<NanoModule> | null = null;
 
-async function getModule(): Promise<NanoModule> {
+/** The one WASM instance. Both engines are compiled into it, so loading the
+ *  small model and then the large one costs one module, not two. */
+export async function getModule(): Promise<NanoModule> {
   if (!modPromise) {
     modPromise = (async () => {
       // The specifier is a variable on purpose. Emscripten's glue is a build

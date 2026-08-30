@@ -72,6 +72,21 @@ jobs:
       - name: Inference logit parity
         run: npm run test:nano:parity
 
+      # The tokeniser is checked separately from the ops because it fails
+      # differently: a 95%-correct tokeniser produces no error at all, just a
+      # sequence the model was never trained on and output that reads as
+      # fluent nonsense. The blob and the golden cases are both committed.
+      - name: Tokeniser vs HuggingFace
+        run: npm run test:nano:bpe
+
+      # Logit parity for the Llama-family engine. The SmolLM2 weights are too
+      # large to commit, so this SKIPS rather than fails when they are absent
+      # (see DEPLOY.md) — it is a gate for anyone who has them locally and a
+      # no-op here. The compile itself still runs, so a syntax error in the
+      # engine is caught on every push regardless.
+      - name: SmolLM2 logit parity
+        run: npm run test:nano:llama
+
       - name: Build
         run: npm run build
 

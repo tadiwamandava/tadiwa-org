@@ -280,44 +280,57 @@ export default function ColophonPage() {
         </Section>
 
         {/* ---- inference ---------------------------------------------------- */}
-        <Section label="A transformer, in 782 lines of C++">
+        <Section label="A transformer, in 1,700 lines of C++">
           <div className="prose mt-5">
             <p>
               <Code>/lab/inference</Code> runs a forward pass I wrote by hand —
               no framework, no BLAS, no server. It compiles to{" "}
               {engineKb ? `${(engineKb / 1024).toFixed(0)} KB` : "a few tens of KB"}{" "}
-              of WebAssembly and generates from a model trained on this
-              repository&rsquo;s own prose, which is why the output reads like a
-              corrupted draft of these pages.
+              of WebAssembly and runs SmolLM2-135M in the visitor&rsquo;s tab at
+              about 25 tokens a second, from a 129 MB int8 file that is fetched
+              once, on an explicit click, and then cached.
+            </p>
+            <p>
+              The weights are Hugging Face&rsquo;s. Everything between the file
+              and the token is mine, and that list is the reason the project was
+              worth doing: RMSNorm, RoPE, grouped-query attention, SwiGLU, tied
+              embeddings, a KV cache, byte-level BPE, and a weight-only int8
+              matmul that multiplies the codes where they lie instead of
+              dequantising them. That last one is not a micro-optimisation — it
+              is the difference between 129 MB resident and 513 MB, and only one
+              of those numbers survives contact with a browser tab.
             </p>
             <p>
               The only claim worth making about an engine is that it computes
-              what the reference computes, so that is the number the page
-              leads with. A fixed prompt is replayed through the C++ one token
-              at a time, KV cache included, and the final logits are diffed
-              against the PyTorch model the weights came from. In fp32 they
-              agree to 7.6 × 10⁻⁶ — float noise, which is what tells you the
-              weight layout, the attention head slicing and the cache are all
-              right. Nothing else would.
+              what the reference computes, so that is the number the page leads
+              with. A fixed prompt is replayed through the C++ one token at a
+              time, KV cache included, and the final logits are diffed against
+              PyTorch. In fp32 they agree to 4.1 × 10⁻⁵ across thirty layers —
+              accumulated float noise, which is what tells you the weight
+              layout, the head slicing and the cache are all right. Nothing
+              else would.
             </p>
             <p>
-              The int8 weights diverge by 0.24 in the worst logit and still
-              select the same token. That is not a defect; it is the
-              quantisation trade with a number attached — a quarter of the
-              download for a distortion too small to change the answer at this
-              size. It is also a saving on the wire and <em>not</em> in memory,
-              because the weights dequantise on load. Reporting it as a memory
-              saving would have been the easiest overstatement available on the
-              page, which is roughly why it is worth naming.
+              That diff earned its place by catching the one bug that mattered.
+              The converter read <Code>rope_theta</Code> with a default, this
+              transformers version nests the real value elsewhere, and so the
+              engine used 10,000 where the model was trained on 100,000. RoPE&rsquo;s
+              angle is zero at position zero, so single-token output was exact;
+              the error grew with every token after, and the argmax stayed
+              right anyway. It looked like a working engine. The logit diff said
+              6 × 10⁻¹, and after the fix, 4 × 10⁻⁵. The converter now raises
+              rather than defaulting.
             </p>
             <p>
-              What the page does not do is flatter the model. 359K parameters
-              trained on 66 KB gives a training loss of 1.19 against a
-              validation loss of 1.94, and that gap is memorisation — there are
-              more parameters here than characters to learn from. The matmul is
-              a cache-aware triple loop with the entire optimisation ladder
-              still unclimbed. The engine is the artefact; the model is a
-              payload that happens to fit.
+              What the page does not do is flatter the model. 135M parameters
+              gets facts wrong with total confidence, and the demo shows that
+              rather than curating around it. The second model in the selector
+              is one I trained here — 359K parameters on 66 KB of prose, train
+              loss 1.19 against validation 1.94, which is memorisation — and it
+              is there precisely because it is bad: same engine, same kernels,
+              and the entire difference in output is the weights. The matmul
+              underneath both is a cache-aware triple loop with the optimisation
+              ladder still unclimbed.
             </p>
           </div>
         </Section>

@@ -41,10 +41,13 @@ because two of the three generated artefacts are committed to the repo:
 | `npm run build:wasm` | `public/search/hnsw_bg.wasm`, `src/lib/search/hnsw-glue.js` | **yes** | No — already in the tree |
 | `npm run build:search` | `public/search/{chunks,lexical}.json`, `vectors.bin` | **yes** | No — already in the tree |
 | `npm run build:model` | `public/models/all-MiniLM-L6-v2/**` (~22 MB) | **no — gitignored** | No — the app degrades gracefully without it (§6) |
+| `tools/convert_smollm.py` | `public/nano/smollm-int8.bin` (129 MB) | **no — over GitHub's file limit** | No — the app degrades gracefully without it (§5b) |
 
-The one thing this means in practice: **a deployed build, by default, ships
-lexical search only.** That's a deliberate decision, not an oversight — see
-§6 for why, and for the troubleshooting steps if that's ever surprising.
+Two things this means in practice, both deliberate and both visible in the UI
+rather than silent: **a deployed build ships lexical search only** (§6), and
+**the SmolLM2 demo is unavailable unless its weights are hosted** (§5b). The
+second one is worth fixing before showing the site to anybody — it is the
+demo the lab page leads with.
 
 ## 3. Vercel project settings
 
@@ -63,10 +66,17 @@ Nothing in this repo needs a `vercel.json`. See §7 for why one wasn't added.
 
 ## 4. Environment variables
 
-**None are required.** The only `process.env` reads anywhere in `src/` or
-`scripts/` are both `process.env.NODE_ENV` — Vercel sets this automatically
-(`production` for a deploy, never `development`), so neither needs a value
-you set:
+**None are required.** One is worth setting.
+
+`NEXT_PUBLIC_NANO_WEIGHTS_BASE` — a directory URL for the SmolLM2 weights,
+defaulting to `/nano` (same-origin). Set it when the 129 MB weights file is
+hosted somewhere other than this deployment, which it usually has to be; §5b
+covers the options and what the page does when it is unset and the file is
+absent. Public by construction — it is a URL the browser fetches, not a secret.
+
+The only other `process.env` reads anywhere in `src/` or `scripts/` are both
+`process.env.NODE_ENV` — Vercel sets this automatically (`production` for a
+deploy, never `development`), so neither needs a value you set:
 
 - `src/lib/content/index.ts` — hides draft posts outside development.
 - `src/lib/admin/guard.ts` — gates the entire `/admin` content editor behind
@@ -108,32 +118,75 @@ up serving traffic** — same scheme, same host, no trailing slash.
 
 ## 5b. The inference engine
 
-`/lab/inference` needs three things at runtime, **all committed**, so a normal
-deploy requires no Rust, no Emscripten and no PyTorch:
+`/lab/inference` runs two models through the same WebAssembly engine, and they
+have opposite deployment stories.
 
-| Path | Size | Produced by |
-|---|---|---|
-| `public/nano/nano.{mjs,wasm}` | 39 KB | `npm run build:nano` (needs `emcc`) |
-| `public/nano/nano-int8.bin` | 400 KB | `npm run build:fixtures` → trainer |
-| `public/nano/nano-fp32.bin` | 1.4 MB | same |
+| Path | Size | Committed? | Produced by |
+|---|---|---|---|
+| `public/nano/nano.{mjs,wasm}` | 97 KB | **yes** | `npm run build:nano` (needs `emcc`) |
+| `public/nano/nano-int8.bin` | 400 KB | **yes** | `npm run build:fixtures` → trainer |
+| `public/nano/nano-fp32.bin` | 1.4 MB | **yes** | same |
+| `public/nano/smollm-tokenizer.bin` | 994 KB | **yes** | `tools/export_tokenizer.py` |
+| `public/nano/smollm-meta.json` | 243 B | **yes** | `tools/convert_smollm.py` |
+| `public/nano/smollm-int8.bin` | **129 MB** | **no** | `tools/convert_smollm.py` |
+| `public/nano/smollm-fp32.bin` | 513 MB | no | same (local parity checks only) |
 
-Regenerating them is the part with heavy prerequisites:
+The small model deploys itself. **SmolLM2 does not, and cannot**: at 129 MB it
+is over GitHub's 100 MiB per-file limit, so a push carrying it is rejected
+outright.
+
+### What happens if you deploy without it
+
+The page degrades on purpose rather than breaking. `getSmolInfo()` stats the
+file at render time; when it is absent and no external origin is configured,
+the SmolLM2 entry in the model selector is disabled and labelled *"not served
+by this deployment"*, and the demo falls back to the 359K model. No 404, no
+button that does nothing. This is the same rule the semantic-search stage
+follows in §6.
+
+It also means the flagship demo is the weak one, so this is worth fixing.
+
+### Serving the weights
+
+Set `NEXT_PUBLIC_NANO_WEIGHTS_BASE` to a directory URL holding
+`smollm-int8.bin` and `smollm-tokenizer.bin`. It defaults to `/nano`
+(same-origin). The value is inlined at build time and is a public URL, not a
+secret. Three ways to get one:
+
+1. **Cloudflare R2** — recommended. No egress fees, which matters when the
+   asset is 129 MB and one curious visitor costs 129 MB of it. Attach a custom
+   domain (`weights.tadiwa.org`) and set the variable to that. R2 needs a CORS
+   rule allowing `GET` from the site's origin, or the browser fetch fails with
+   an opaque network error rather than a status code.
+2. **Vercel Blob** — least setup if the site is already on Vercel. `vercel blob
+   put public/nano/smollm-int8.bin` returns a public URL; check the free
+   tier's bandwidth allowance against the 129 MB figure before relying on it.
+3. **A GitHub Release asset** — zero new accounts. Releases allow files up to
+   2 GB, and the download URL sends `Access-Control-Allow-Origin: *`. Slowest
+   of the three and it 302-redirects, but it works and costs nothing.
+
+The browser caches the file under `caches.open("nano-weights-v3")` after the
+first successful load, so a returning visitor pays nothing. **Bump that cache
+name in `src/components/nano/llama.ts` whenever the weights change** — a stale
+hit on a re-quantised file is an unexplainable crash rather than a clean miss.
+
+### Regenerating
 
 - **`emcc`** — `brew install emscripten`. Pulls `python@3.14`, which will shadow
   the system `python3` on PATH. Anything of yours that depended on the old
   interpreter's packages breaks quietly; the fixture tooling pins its own venv
   for exactly this reason.
-- **PyTorch** — training only, in `engines/nano/tools/.venv`. Inference is C++
-  and depends on none of it.
-
-The 1.8 MB of weights is committed deliberately. Regenerating on Vercel would
-mean installing PyTorch in the build, which is minutes of build time and a new
-way for an unrelated copy edit to fail. If the weights ever grow past a few MB,
-the honest answer is a release artefact fetched at build time, not Git LFS.
+- **PyTorch** — conversion and training only, in `engines/nano/tools/.venv`.
+  Inference is C++ and depends on none of it.
+- `tools/convert_smollm.py` downloads SmolLM2 from Hugging Face and writes both
+  the fp32 and int8 blobs. It **raises** rather than defaulting on
+  `rope_theta`; see the README for why that line exists.
 
 **If `/lab/inference` shows an error instead of generating**, check in this
-order: `/nano/nano.wasm` returns 200; `/nano/nano-int8.bin` returns 200 and is
-~400 KB; and the browser console for a WebAssembly instantiation failure, which
+order: `/nano/nano.wasm` returns 200; the weights URL returns 200 with a
+`Content-Length` header (the loader reserves the heap from it, and a response
+without one falls back to buffering); CORS if the weights are on another
+origin; and the browser console for a WebAssembly instantiation failure, which
 usually means the `.wasm` was served with the wrong MIME type.
 
 ## 6. The search index and the model — what to actually do

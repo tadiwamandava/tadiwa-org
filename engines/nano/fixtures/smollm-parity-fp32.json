@@ -1,0 +1,13 @@
+{
+  "weights": "fp32",
+  "tokens": 5,
+  "vocab": 49152,
+  "maxAbsDiff": 4.100800e-05,
+  "rmsDiff": 1.347036e-05,
+  "tolerance": 5.000000e-03,
+  "argmaxMatch": true,
+  "argmax": 7042,
+  "msPerToken": 25.187,
+  "residentBytes": 585246008,
+  "pass": true
+}

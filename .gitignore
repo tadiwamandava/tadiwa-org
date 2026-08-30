@@ -51,6 +51,9 @@ next-env.d.ts
 /engines/nano/.build/
 /engines/nano/tools/.venv/
 
-# SmolLM2 weights (129 MB int8 / 513 MB fp32) — regenerate with
-# engines/nano/tools/convert_smollm.py
+# SmolLM2 weights. Neither is committed: the int8 file is 129 MB, which is over
+# GitHub's 100 MiB per-file limit, and the fp32 file is 513 MB. Regenerate with
+# engines/nano/tools/convert_smollm.py, or point the deployment at a host that
+# serves them — see DEPLOY.md §5b.
 /public/nano/smollm-fp32.bin
+/public/nano/smollm-int8.bin
