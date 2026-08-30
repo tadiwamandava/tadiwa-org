@@ -73,6 +73,12 @@ needs to know about it beyond `SITE.url` (§8).
 
 ### The build
 
+Verified end to end on Colima before this was written: `docker build` succeeds,
+the image is **693 MB**, and the container reports `healthy` to Docker's own
+health check. Inside it: MiniLM 23 MB and Whisper 42 MB both downloaded and
+served same-origin, the search index present, the corpus present, and the
+process running as uid 1001 rather than root.
+
 Four stages, and the reason for the split is the models rather than Next:
 
 - `deps` runs `npm ci` against the committed lockfile.
@@ -105,6 +111,22 @@ broken build rather than an empty disk. The image therefore keeps a pristine
 copy at `/app/content-image` and `docker-entrypoint.sh` seeds the volume the
 first time it finds it empty, and never again, because overwriting it later
 would silently discard whatever had been edited.
+
+**If you do mount one, it has to be writable by uid 1001.** The image runs as
+the non-root `nextjs` user. Docker copies the image's files into an empty
+*named* volume by itself, so that case works with no ceremony; a *bind mount*
+to a host path does not get copied, and the host directory is root-owned as far
+as the container is concerned. The container then refuses to start with an
+explicit message rather than serving a site with no content:
+
+```
+FATAL: /app/content is mounted but not writable by this container.
+  On the host:  chown -R 1001:1001 <the directory you mounted>
+```
+
+That is a verified path, not a guess: the first version of the entrypoint let
+`cp` fail under `set -e` and exited with three lines of `cp: Permission denied`
+and no indication of the fix.
 
 The real cost of the volume is not technical. Once it diverges, the deployed
 corpus and the repository are two different things, and nothing reconciles
