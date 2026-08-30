@@ -12,7 +12,7 @@
     "check:contrast": "node scripts/check-contrast.ts",
     "check:content": "node scripts/check-content.ts",
     "check:bundle": "node scripts/check-bundle.ts",
-    "check": "npm run typecheck && npm run lint && npm run check:contrast && npm run check:content && npm run check:links && npm run check:search && npm run check:admin && npm run check:bundle",
+    "check": "npm run typecheck && npm run lint && npm run check:contrast && npm run check:content && npm run check:links && npm run check:search && npm run check:prompt && npm run check:admin && npm run check:bundle",
     "check:links": "node scripts/check-links.ts",
     "build:wasm": "bash scripts/build-wasm.sh",
     "build:search": "node scripts/build-embeddings.ts",
@@ -28,7 +28,8 @@
     "nano": "bash engines/nano/run.sh",
     "test:nano:bpe": "bash engines/nano/build-bpe.sh",
     "test:nano:llama": "bash engines/nano/build-llama.sh",
-    "chat": "bash engines/nano/chat.sh"
+    "chat": "bash engines/nano/chat.sh",
+    "check:prompt": "node scripts/check-prompt.ts"
   },
   "dependencies": {
     "@huggingface/transformers": "^4.2.0",

@@ -159,6 +159,35 @@ class SearchEngine {
     return dedupeByUrl(bm25(query, this.lexIndex, this.chunks, limit * 4), limit);
   }
 
+  /**
+   * Retrieval for grounding, which wants PASSAGES where search wants pages.
+   *
+   * `dedupeByUrl` exists so the palette does not show one project five times.
+   * A grounded answer wants exactly the opposite: the pitch AND the hardest
+   * thing from the same writeup are two different facts, and collapsing them
+   * throws away the second one. Same index, same scorer, different tail.
+   *
+   * Returns [] when no query term appears in the corpus at all, which is the
+   * signal the caller needs to refuse without spending a forward pass.
+   */
+  searchPassages(query: string, limit = 4): Hit[] {
+    if (!this.lexIndex) return [];
+    return bm25(query, this.lexIndex, this.chunks, limit);
+  }
+
+  /** searchPassages, re-ranked by the vector index when it is loaded. */
+  async searchPassagesSemantic(query: string, limit = 4, ef = 64): Promise<Hit[]> {
+    if (!this.wasmIndex || !this.embed) return this.searchPassages(query, limit);
+    const vec = await this.embed(query);
+    const flat = this.wasmIndex.search(vec, limit, ef);
+    const hits: Hit[] = [];
+    for (let i = 0; i < flat.length; i += 2) {
+      const chunk = this.chunks[flat[i]];
+      if (chunk) hits.push({ chunk, score: flat[i + 1] });
+    }
+    return hits;
+  }
+
   /** Only meaningful once `semanticReady`. Falls back rather than throwing. */
   async searchSemantic(query: string, limit = 8, ef = 64): Promise<Hit[]> {
     if (!this.wasmIndex || !this.embed) return this.searchLexical(query, limit);

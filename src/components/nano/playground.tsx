@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 import { NanoEngine, type Precision } from "./engine";
 import { LlamaEngine, chatPrompt, type GenStats, type LoadProgress } from "./llama";
+import { retrieve, groundedPrompt, usedCount, REFUSAL, type Grounding } from "./ground";
 
 /**
  * The demo, for both models the engine can run.
@@ -33,7 +34,14 @@ export interface PlaygroundProps {
 }
 
 type ModelId = "smol" | "nano";
-type Mode = "chat" | "complete";
+type Mode = "grounded" | "chat" | "complete";
+
+const GROUNDED_PROMPTS = [
+  "What is tadiwa-nano?",
+  "How does the search index work?",
+  "What was the hardest part of the K20 project?",
+  "What is the capital of France?",
+];
 
 const CHAT_PROMPTS = [
   "What is a transformer, in two sentences?",
@@ -66,9 +74,10 @@ export function NanoPlayground({
   const stopRef = useRef(false);
 
   const [model, setModel] = useState<ModelId>(smolAvailable ? "smol" : "nano");
-  const [mode, setMode] = useState<Mode>("chat");
+  const [mode, setMode] = useState<Mode>("grounded");
   const [precision, setPrecision] = useState<Precision>("int8");
 
+  const [groundedText, setGroundedText] = useState(GROUNDED_PROMPTS[0]);
   const [chatText, setChatText] = useState(CHAT_PROMPTS[0]);
   const [completeText, setCompleteText] = useState(COMPLETE_PROMPTS[0]);
   const [nanoText, setNanoText] = useState(NANO_PROMPTS[0]);
@@ -82,17 +91,29 @@ export function NanoPlayground({
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState<LoadProgress | null>(null);
   const [prefill, setPrefill] = useState<{ done: number; total: number } | null>(null);
+  /** Short-lived note for a step that is neither download nor generation —
+   *  retrieval, mostly, which is fast but not instant on a cold index. */
+  const [status, setStatus] = useState<string | null>(null);
   const [smolReady, setSmolReady] = useState(false);
+  /** The passages the model was actually shown, listed under the answer so a
+   *  visitor can check the answer against its evidence rather than trust it. */
+  const [grounding, setGrounding] = useState<Grounding | null>(null);
   const [stats, setStats] = useState<
     (GenStats & { resident: number; kv: number }) | null
   >(null);
 
-  const prompt =
-    model === "nano" ? nanoText : mode === "chat" ? chatText : completeText;
-  const setPrompt =
-    model === "nano" ? setNanoText : mode === "chat" ? setChatText : setCompleteText;
-  const suggestions =
-    model === "nano" ? NANO_PROMPTS : mode === "chat" ? CHAT_PROMPTS : COMPLETE_PROMPTS;
+  const byMode = <T,>(grounded: T, chat: T, complete: T, nano: T): T =>
+    model === "nano"
+      ? nano
+      : mode === "grounded"
+        ? grounded
+        : mode === "chat"
+          ? chat
+          : complete;
+
+  const prompt = byMode(groundedText, chatText, completeText, nanoText);
+  const setPrompt = byMode(setGroundedText, setChatText, setCompleteText, setNanoText);
+  const suggestions = byMode(GROUNDED_PROMPTS, CHAT_PROMPTS, COMPLETE_PROMPTS, NANO_PROMPTS);
 
   const loadSmol = useCallback(async () => {
     setBusy(true);
@@ -115,7 +136,9 @@ export function NanoPlayground({
     setStats(null);
     setError(null);
     setPrefill(null);
+    setStatus(null);
     setEchoed(model === "smol" && mode === "complete" ? prompt : null);
+    setGrounding(null);
     stopRef.current = false;
     try {
       if (model === "nano") {
@@ -135,18 +158,40 @@ export function NanoPlayground({
 
       const engine = llamaRef.current;
       if (!engine?.loaded) throw new Error("model not loaded");
+
+      let built = prompt;
+      if (mode === "grounded") {
+        setStatus("retrieving…");
+        const g = await retrieve(prompt);
+        setGrounding(g);
+        setStatus(null);
+        // Nothing in the corpus matched, so there is nothing to answer FROM.
+        // Refusing here rather than prompting the model is not a shortcut: it
+        // is the only way to be certain the refusal happens, and it costs a
+        // forward pass to be less certain.
+        if (g.empty) {
+          setOutput(REFUSAL);
+          setStats(null);
+          return;
+        }
+        built = groundedPrompt(prompt, g.passages);
+      } else {
+        setGrounding(null);
+        built = mode === "chat" ? chatPrompt(prompt) : prompt;
+      }
+
       const s = await engine.generate(
-        mode === "chat" ? chatPrompt(prompt) : prompt,
+        built,
         {
           maxTokens: 220,
-          // Greedy in chat: a 135M model asked a factual question and given
-          // temperature will confabulate more, not less, and the interesting
-          // failure here is the model's, not the sampler's.
-          temperature: mode === "chat" ? 0.0 : 0.8,
+          // Greedy whenever the model is answering rather than continuing: a
+          // 135M model given temperature confabulates more, not less, and the
+          // interesting failure here is the model's, not the sampler's.
+          temperature: mode === "complete" ? 0.8 : 0.0,
           topP: 0.9,
           repeatPenalty: 1.12,
           seed: 1234,
-          stopAtEos: mode === "chat",
+          stopAtEos: mode !== "complete",
         },
         (done, total) => setPrefill({ done, total }),
         (text) => setOutput((prev) => prev + text),
@@ -157,6 +202,7 @@ export function NanoPlayground({
       setError(err instanceof Error ? err.message : String(err));
     } finally {
       setPrefill(null);
+      setStatus(null);
       setBusy(false);
     }
   }, [model, mode, precision, prompt]);
@@ -206,6 +252,7 @@ export function NanoPlayground({
           <Segmented
             label="Prompting"
             options={[
+              ["grounded", "Grounded"],
               ["chat", "Chat"],
               ["complete", "Complete"],
             ]}
@@ -230,9 +277,11 @@ export function NanoPlayground({
             ? precision === "int8"
               ? "399 KB download"
               : "1.4 MB download"
-            : mode === "chat"
-              ? "Wrapped in the <|im_start|> turn structure it was fine-tuned on, and stopped at <|im_end|>."
-              : "Fed in verbatim. No template, no stop token — it just continues the text."}
+            : mode === "grounded"
+              ? "The BM25 index behind ⌘K retrieves the passages first; the model answers only from those, and they are listed underneath."
+              : mode === "chat"
+                ? "Asked cold, with no sources. This is the control — try the same question in both and watch it invent an answer here."
+                : "Fed in verbatim. No template, no stop token — it just continues the text."}
         </p>
       </div>
 
@@ -328,6 +377,7 @@ export function NanoPlayground({
             Stop
           </button>
         )}
+        {status && <span className="font-mono text-2xs text-subtle">{status}</span>}
         {prefill && prefill.done < prefill.total && (
           <span className="font-mono text-2xs text-subtle">
             prefill {prefill.done}/{prefill.total} tokens
@@ -363,6 +413,44 @@ export function NanoPlayground({
           </span>
         )}
       </div>
+
+      {/* ---- what it was allowed to read -------------------------------- */}
+      {grounding && !grounding.empty && (
+        <details className="mt-3 rounded border border-border bg-bg p-3" open>
+          <summary className="cursor-pointer font-mono text-2xs tracking-wide text-subtle uppercase">
+            {usedCount(grounding.passages)} source
+            {usedCount(grounding.passages) === 1 ? "" : "s"} the model was shown ·{" "}
+            {grounding.stage}
+          </summary>
+          <ol className="mt-3 space-y-2">
+            {grounding.passages.slice(0, usedCount(grounding.passages)).map((hit, i) => (
+              <li key={hit.chunk.id} className="text-xs leading-relaxed">
+                <span className="font-mono text-2xs text-subtle">[{i + 1}]</span>{" "}
+                <a
+                  href={hit.chunk.url}
+                  className="text-accent underline decoration-dotted underline-offset-2"
+                >
+                  {hit.chunk.title} — {hit.chunk.section}
+                </a>
+                <p className="mt-0.5 text-muted">{hit.chunk.text}</p>
+              </li>
+            ))}
+          </ol>
+          <p className="mt-3 text-2xs leading-relaxed text-subtle">
+            Every claim in the answer above should be checkable against these.
+            If one isn&rsquo;t, the model made it up — which is the failure this
+            mode exists to make visible rather than to hide.
+          </p>
+        </details>
+      )}
+
+      {grounding?.empty && (
+        <p className="mt-3 rounded border border-dashed border-border-strong bg-bg p-3 text-xs leading-relaxed text-muted">
+          Nothing in the corpus matched that question, so the model was never
+          asked. The refusal above is the retrieval stage&rsquo;s, not the
+          model&rsquo;s — which is the only way to be sure it happens.
+        </p>
+      )}
 
       {stats && (
         <dl className="mt-4 grid grid-cols-2 gap-4 border-t border-border pt-4 sm:grid-cols-4">

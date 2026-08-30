@@ -26,6 +26,13 @@ export function tokenize(s: string): string[] {
     .toLowerCase()
     .replace(/[^a-z0-9+#./-]+/g, " ")
     .split(/\s+/)
+    // Punctuation is kept INSIDE a token so "next.js", "c++" and "grep-clone"
+    // survive as one term, but a trailing "." is sentence punctuation, not part
+    // of the word. Without this strip, "quantisation" and "quantisation." are
+    // two terms with two posting lists, and a query for the first silently
+    // misses every document that happened to end a sentence with it. 13% of
+    // this index's vocabulary was punctuation-terminated when it was measured.
+    .map((t) => t.replace(/[.\-/]+$/, ""))
     .filter((t) => t.length > 1 && !STOP.has(t));
 }
 
