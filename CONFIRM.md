@@ -11,7 +11,7 @@ than an obviously missing one, and an interviewer *will* ask about the number.
 
 ## 1. Identity, `src/lib/site.ts`
 
-- [ ] `github`, currently `CONFIRM-github-handle`
+- [x] `github`, set to `https://github.com/tadiwamandava`
 - [ ] `linkedin`, currently `CONFIRM-linkedin-slug`
 - [ ] `email`, left **blank on purpose**. Decide before filling: publishing an
       address invites scrapers. An alias (`hi@tadiwa.org`) is better than your
