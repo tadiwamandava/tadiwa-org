@@ -1,6 +1,6 @@
 # Where we left off
 
-Repo state: **all seven gates green, build clean, tree fully committed.**
+Repo state: **every gate green, build clean, tree fully committed.**
 A clean `git clone` + `npm ci` + `npm run build` was verified end to end during
 the deploy-readiness pass (see `DEPLOY.md`) — no Rust toolchain, no
 `wasm-pack`, and no model download are needed for a normal build, because the
@@ -40,6 +40,16 @@ npm run dev       # http://localhost:3000
   an honest "semantic unavailable" with the real reason when the model isn't
   present. `npm run check:search` runs the shipped scorer against the shipped
   index in CI on every push. Full writeup in `README.md`'s Search section.
+- **Inference engine** — `/lab/inference` runs SmolLM2-135M-Instruct in the
+  visitor's tab from a hand-written C++ forward pass compiled to WebAssembly
+  (80,275 bytes raw / 34,827 gzip): RMSNorm, RoPE, grouped-query attention,
+  SwiGLU, tied embeddings, a KV cache, byte-level BPE matching HuggingFace
+  10/10, and a weight-only int8 matmul that keeps the weights packed. Measured
+  in Chrome through the real UI: 40-token prefill in 1339 ms, then 25.1 tok/s,
+  174 MB resident. Logit parity against PyTorch is fp32 4.101e-05 / int8
+  8.086e-01 with matching argmax, and the ten ops each match a numpy oracle.
+  The 359K model trained on this site's prose is kept in the selector because
+  the comparison is the content.
 
 ## Next up
 
@@ -51,10 +61,20 @@ Everything below is blocked on you, not on more building.
    K20 and the DSP coursework is `planned`, and the résumé deliberately excludes
    planned work — "Built X" is false for something unstarted — so it currently
    shows two projects. One sentence about what is genuinely underway fixes that.
-2. **Push and deploy.** `DEPLOY.md` covers Vercel settings, DNS, `SITE.url`, and
-   the two decisions with real consequences: semantic search is lexical-only on
-   a deploy unless the 22 MB model is shipped, and the inference weights are
-   committed so no Rust/Emscripten/PyTorch is needed at build time.
+2. **Host the SmolLM2 weights, then push and deploy.** `DEPLOY.md` covers
+   Vercel settings, DNS, `SITE.url`, and the two decisions with real
+   consequences — both of which are the same shape: a large model file that is
+   not in the repo, and a page that degrades honestly without it.
+   - Semantic search is lexical-only unless the 22 MB embedding model is
+     shipped (§6).
+   - **`/lab/inference` shows only the 359K model** unless the 129 MB
+     `smollm-int8.bin` is served (§5b). It is gitignored because it is over
+     GitHub's 100 MiB per-file limit. Put it on R2 / Vercel Blob / a GitHub
+     Release and set `NEXT_PUBLIC_NANO_WEIGHTS_BASE`. This is the one that
+     matters most: it is the demo the lab page leads with, and without it the
+     flagship feature is the deliberately-bad model.
+   - The small model's weights and the WASM binary *are* committed, so a normal
+     build still needs no Rust, no Emscripten and no PyTorch.
 3. **Rewrite `engines/nano/src/ops.cpp` from the header contracts.** The kernels
    there are not yours. The comments explain every choice — two-pass variance to
    avoid catastrophic cancellation, `i-k-j` loop order for cache locality,
@@ -76,8 +96,9 @@ Everything below is blocked on you, not on more building.
   `scripts/cdp.mjs` documents and works around all of this; prefer it over
   `--screenshot`, which fires at `load` and misses anything dynamically
   imported (the palette, the WASM, the model).
-- CI's named steps (`.github/workflows/ci.yml`) run typecheck, lint, contrast,
-  content, search, build, bundle, and Lighthouse — but not `check:links` as
-  its own step, even though it's part of the local `npm run check` aggregate.
-  Worth reconciling the two lists so "everything CI runs" and "everything
-  `check` runs" mean the same thing.
+- **CI and `npm run check` do not run the same set.** CI runs typecheck, lint,
+  contrast, content, search, admin, the three nano gates, build, bundle and
+  Lighthouse. It does **not** run `check:links` (which `npm run check` does) or
+  `test:rust` (which neither does, though the HNSW crate has 10 tests including
+  the recall assertion). Reconciling the two lists is small and worth doing, so
+  that "everything CI runs" and "everything `check` runs" mean the same thing.
