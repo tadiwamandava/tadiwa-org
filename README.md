@@ -276,7 +276,7 @@ See `DEPLOY.md`.
 |---|---|
 | `npm run typecheck` | Strict TS. Runs `next typegen` first, without it, route types lag behind new routes. |
 | `npm run lint` | ESLint, including React correctness rules. |
-| `npm run check:contrast` | WCAG AA across **both** themes, plus parity between the two dark-theme blocks. Parses the real stylesheet rather than a copy of the palette, a duplicated palette drifts and then certifies a theme nobody ships. |
+| `npm run check:contrast` | WCAG AA for every pair the design uses, plus a structural check that no colour is defined anywhere but bare `:root`. Parses the real stylesheet rather than a copy of the palette, because a duplicated palette drifts and then certifies a theme nobody ships. |
 | `npm run check:content` | Every MDX file against the corpus schema; flags leftover `TODO`/`CONFIRM` placeholders; catches corpus-level bugs a per-file schema cannot see (duplicate `pinOrder`, `finished` before `started`). |
 | `npm run check:links` | Every internal href resolves, including template-literal prefixes, so a typo like `/project/${slug}` is caught rather than silently killing every project link. |
 | `npm run check:search` | The shipped lexical scorer against the shipped index, on real queries. Guards against the build-time and runtime tokenizers drifting apart. Needs no model download, the index it checks is already committed. |

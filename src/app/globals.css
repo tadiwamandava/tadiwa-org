@@ -28,11 +28,8 @@
        categorical pair: the subject is saturated, the baseline is near-grey.
 
    Structural rules (enforced by scripts/check-contrast.ts in CI):
-     - Every colour is defined on bare :root first (light).
-     - Dark overrides appear twice: under prefers-color-scheme (guarded so an
-       explicit light choice wins) and under [data-theme="dark"] (so the toggle
-       wins in both directions). The two blocks must be byte-identical.
-     - No colour gets its ONLY definition inside a media query.
+     - Every colour is defined once, on bare :root. There is one theme.
+     - No colour is defined anywhere else, and none inside a media query.
 
    Layering rules:
      - Token blocks, @theme, @keyframes, @view-transition and the
@@ -43,107 +40,48 @@
        the top level silently defeats `class="font-mono"`.
    ========================================================================= */
 
+/* One palette. There is no light theme and no toggle.
+   Surfaces are lifted straight off the reference this layout follows:
+   zinc-950 for the page, zinc-400 for secondary text, pure white for
+   headings. Teal stays as the accent because it is this site's, and the
+   reference simply has no accent colour to copy.
+
+   Because there is only one theme now, the contrast gate checks one set of
+   pairs rather than two plus a parity check between duplicate dark blocks.
+   That duplication existed so a media-query dark theme and a toggle-selected
+   dark theme could not drift; with nothing to toggle, it is gone. */
 :root {
-  /* --- surfaces: white page, two grey steps ---------------------------- */
-  --bg: #ffffff;
-  --surface: #f8fafc;
-  --surface-2: #f1f5f9;
+  /* --- surfaces: near-black page, two lifted steps --------------------- */
+  --bg: #09090b;
+  --surface: #131316;
+  --surface-2: #1c1c20;
 
   /* --- text ------------------------------------------------------------ */
-  --text: #0f172a;
-  --text-muted: #475569;
-  --text-subtle: #55637a;
+  --text: #ffffff;
+  --text-muted: #a1a1aa;
+  --text-subtle: #8b8b94;
 
   /* --- lines -----------------------------------------------------------
      --border is a decorative hairline. --border-strong identifies a control
      (inputs, toggles) and therefore clears WCAG 1.4.11's 3:1. Do not swap. */
-  --border: #e2e8f0;
-  --border-strong: #7c8ca1;
+  --border: #27272a;
+  --border-strong: #71717a;
 
   /* --- accent ---------------------------------------------------------- */
-  --accent: #0f766e;
-  --accent-hover: #115e59;
-  --accent-contrast: #ffffff;
-  --accent-subtle: #f0fdfa;
-  /* Brief's teal-600. Non-text use only; see the header. */
-  --accent-bright: #0d9488;
-
-  /* --- project status: ranked by tone, named by the label -------------- */
-  --status-shipped: #334155;
-  --status-building: #0f766e;
-  --status-planned: #55637a;
-
-  /* --- benchmark marks: emphasis hierarchy, not a categorical pair -----
-     A step darker than --accent on purpose. Against the near-grey baseline the
-     accent itself measured only ΔE 14.8, under the 15 floor the gate enforces;
-     teal-800 clears it at 20.8, and a deeper tone reads better as a large fill
-     than it would as link text. */
-  --chart-mine: #115e59;
-  --chart-reference: #7c8ca1;
-
-  --focus: #0f766e;
-
-  color-scheme: light;
-}
-
-/* System preference = dark, and the user has NOT explicitly chosen light. */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #0f172a;
-    --surface: #1e293b;
-    --surface-2: #293548;
-
-    --text: #f8fafc;
-    --text-muted: #cbd5e1;
-    --text-subtle: #94a3b8;
-
-    --border: #334155;
-    --border-strong: #64748b;
-
-    --accent: #2dd4bf;
-    --accent-hover: #5eead4;
-    --accent-contrast: #0f172a;
-    --accent-subtle: #134e4a;
-    --accent-bright: #2dd4bf;
-
-    --status-shipped: #e2e8f0;
-    --status-building: #2dd4bf;
-    --status-planned: #94a3b8;
-
-    --chart-mine: #2dd4bf;
-    --chart-reference: #7c8ca1;
-
-    --focus: #2dd4bf;
-
-    color-scheme: dark;
-  }
-}
-
-/* Explicit dark choice always wins. Values duplicated on purpose; see header. */
-:root[data-theme="dark"] {
-  --bg: #0f172a;
-  --surface: #1e293b;
-  --surface-2: #293548;
-
-  --text: #f8fafc;
-  --text-muted: #cbd5e1;
-  --text-subtle: #94a3b8;
-
-  --border: #334155;
-  --border-strong: #64748b;
-
   --accent: #2dd4bf;
   --accent-hover: #5eead4;
-  --accent-contrast: #0f172a;
-  --accent-subtle: #134e4a;
+  --accent-contrast: #09090b;
+  --accent-subtle: #10302c;
   --accent-bright: #2dd4bf;
 
-  --status-shipped: #e2e8f0;
+  /* --- project status: ranked by tone, named by the label -------------- */
+  --status-shipped: #e4e4e7;
   --status-building: #2dd4bf;
-  --status-planned: #94a3b8;
+  --status-planned: #8b8b94;
 
+  /* --- benchmark marks: emphasis hierarchy, not a categorical pair ----- */
   --chart-mine: #2dd4bf;
-  --chart-reference: #7c8ca1;
+  --chart-reference: #71717a;
 
   --focus: #2dd4bf;
 
@@ -214,12 +152,10 @@
 
   /* Content measure. ~68ch is the readable ceiling for long prose. */
   --container-measure: 68ch;
-  /* 64rem, not 76. At 76 the prose measure (42rem) sat in a 76rem container
-     and left a third of the viewport empty beside every heading, which reads
-     as an unfinished layout rather than a deliberate one. 64 keeps three
-     cards on a row while putting the right edge close enough to the text for
-     the asymmetry to look chosen. */
-  --container-wide: 64rem;
+  /* 66.75rem = 1068px, measured off the reference layout rather than picked.
+     At a 1200px viewport that leaves 66px gutters, which is what gives the
+     page its full-bleed feel without the text actually running edge to edge. */
+  --container-wide: 66.75rem;
 }
 
 /* ============================================================================
@@ -486,19 +422,14 @@
     -webkit-overflow-scrolling: touch;
   }
 
-  /* ---- Shiki dual-theme ------------------------------------------------
-     rehype-pretty-code emits both palettes as custom properties; we pick one.
-     Highlighting is done at BUILD time, so this costs zero runtime JS. */
+  /* ---- Shiki ------------------------------------------------------------
+     rehype-pretty-code emits both palettes as custom properties and this
+     picks the dark one. The light variable is still emitted into the markup
+     and now goes unused; leaving the dual-theme config in place costs nothing
+     at runtime (highlighting happens at BUILD time) and means a light theme
+     is one selector away if it ever comes back. */
   .prose pre code span {
-    color: var(--shiki-light);
-  }
-  :root[data-theme="dark"] .prose pre code span {
     color: var(--shiki-dark);
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) .prose pre code span {
-      color: var(--shiki-dark);
-    }
   }
 }
 

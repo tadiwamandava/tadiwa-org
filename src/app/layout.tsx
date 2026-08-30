@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Saira } from "next/font/google";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { ThemeScript } from "@/components/theme-script";
 import { PaletteMount } from "@/components/search/palette-mount";
 import { SITE } from "@/lib/site";
 import "./globals.css";
@@ -56,11 +55,12 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
+/* One theme, so one colour. This is the last literal hex on the site that the
+   contrast checker cannot see, because it is metadata rather than CSS; it must
+   stay equal to --bg in globals.css. */
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0f172a" },
-  ],
+  colorScheme: "dark",
+  themeColor: "#09090b",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -75,7 +75,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
     >
       <body className="flex min-h-full flex-col bg-bg text-text">
-        <ThemeScript />
         <a href="#main" className="skip-link">
           Skip to content
         </a>

@@ -44,29 +44,25 @@ function extractBlock(css: string, selector: RegExp, label: string): Palette {
   return out;
 }
 
-let cached: { light: Palette; dark: Palette } | null = null;
+let cached: Palette | null = null;
 
-export function getPalette(): { light: Palette; dark: Palette } {
+/** The one token block. There used to be two themes here; there is one now. */
+export function getPalette(): Palette {
   if (cached) return cached;
-  const css = readFileSync(CSS_PATH, "utf8");
-  cached = {
-    light: extractBlock(css, /^:root\s*\{/m, "light"),
-    dark: extractBlock(css, /^:root\[data-theme="dark"\]\s*\{/m, "dark"),
-  };
+  cached = extractBlock(readFileSync(CSS_PATH, "utf8"), /^:root\s*\{/m, "tokens");
   return cached;
 }
 
-/** OG cards render on a dark ground, it reads consistently against both
- *  light and dark chrome in every social client. */
+/** OG cards render on the site's own ground, which is now the only one. */
 export function ogPalette() {
-  const { dark } = getPalette();
+  const t = getPalette();
   return {
-    bg: dark["--bg"],
-    surface: dark["--surface"],
-    text: dark["--text"],
-    muted: dark["--text-muted"],
-    subtle: dark["--text-subtle"],
-    border: dark["--border"],
-    accent: dark["--accent"],
+    bg: t["--bg"],
+    surface: t["--surface"],
+    text: t["--text"],
+    muted: t["--text-muted"],
+    subtle: t["--text-subtle"],
+    border: t["--border"],
+    accent: t["--accent"],
   };
 }

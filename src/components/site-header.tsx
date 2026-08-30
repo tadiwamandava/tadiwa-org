@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { NAV, SITE } from "@/lib/site";
-import { ThemeToggle } from "./theme-toggle";
 import { SearchTrigger } from "./search/search-trigger";
 import { SocialLinks } from "./social-links";
 import { NavLink } from "./nav-link";
@@ -41,7 +40,6 @@ export function SiteHeader() {
         <div className="flex items-center gap-1.5">
           <SocialLinks className="hidden sm:flex" />
           <SearchTrigger />
-          <ThemeToggle />
         </div>
       </div>
     </header>
