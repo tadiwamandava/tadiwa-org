@@ -41,6 +41,7 @@ because two of the three generated artefacts are committed to the repo:
 | `npm run build:wasm` | `public/search/hnsw_bg.wasm`, `src/lib/search/hnsw-glue.js` | **yes** | No — already in the tree |
 | `npm run build:search` | `public/search/{chunks,lexical}.json`, `vectors.bin` | **yes** | No — already in the tree |
 | `npm run build:model` | `public/models/all-MiniLM-L6-v2/**` (~22 MB) | **no — gitignored** | No — the app degrades gracefully without it (§6) |
+| `npm run build:voice` + `build:model` | `public/models/whisper-tiny.en/**` (~42 MB) | **no — gitignored** | No — the microphone button hides itself when the model is absent |
 | `tools/convert_smollm.py` | `public/nano/smollm-int8.bin` (129 MB) | **no — over GitHub's file limit** | No — the app degrades gracefully without it (§5b) |
 
 Two things this means in practice, both deliberate and both visible in the UI
@@ -86,9 +87,30 @@ deploy, never `development`), so neither needs a value you set:
   no configuration needed to make that true. That's a deliberate design (see
   the comment at the top of `guard.ts`), not a gap this doc is flagging.
 
-There is no API key, no database URL, no analytics token — the "why this
+`OPENROUTER_API_KEY` — **optional, and the only secret in this repo.** Enables
+the hosted comparison on `/lab/inference`: the same grounded question sent to
+Kimi K3 (2.8T parameters), rendered beside the local model's answer. Leave it
+unset and the feature reports itself unavailable; everything else on the page
+is untouched, because nothing else ever needed a key.
+
+Set it only when you want that comparison live, and understand what it costs:
+
+- **The provider's spend cap is the only bound that actually holds.** The route
+  rate-limits per IP (5/minute) and caps `max_tokens`, but Vercel functions do
+  not share memory, so a burst spread across cold starts gets more than that.
+  Set a hard monthly limit in the OpenRouter dashboard. Treat the in-process
+  limiter as a speed bump, not a budget.
+- The endpoint cannot be used as a general-purpose proxy. The client sends only
+  a question, truncated to 300 characters; the server does its own retrieval
+  over the committed corpus and builds the prompt itself. Nobody can post
+  arbitrary text through it to a paid API.
+- `COMPARE_MODEL` overrides the model id (default `moonshotai/kimi-k3`).
+
+Other than that there is no database URL and no analytics token — the "why this
 exists" pitch in `README.md` ("infrastructure I wrote, not an API I called")
-is literally true of the build, too.
+is still literally true of everything that runs the site itself. The hosted
+comparison is the one deliberate exception, and the page says so where a
+visitor can see it rather than here.
 
 If a future feature needs a secret (the `/tailor` consumer sketched in
 `README.md`'s architecture diagram is the likely candidate, if it ever calls

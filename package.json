@@ -17,7 +17,7 @@
     "build:wasm": "bash scripts/build-wasm.sh",
     "build:search": "node scripts/build-embeddings.ts",
     "build:model": "bash scripts/copy-model.sh",
-    "build:index": "npm run build:wasm && npm run build:search && npm run build:model",
+    "build:index": "npm run build:wasm && npm run build:search && npm run build:voice && npm run build:model",
     "test:rust": "cargo test --manifest-path crates/hnsw/Cargo.toml",
     "check:search": "node scripts/check-search.ts",
     "check:admin": "node src/lib/admin/selftest.ts",
@@ -33,7 +33,8 @@
     "nano:data": "engines/nano/tools/.venv/bin/python engines/nano/tools/make_sft_data.py",
     "nano:train": "engines/nano/tools/.venv/bin/python engines/nano/tools/train_lora.py",
     "nano:merge": "engines/nano/tools/.venv/bin/python engines/nano/tools/merge_lora.py",
-    "nano:eval": "engines/nano/tools/.venv/bin/python engines/nano/tools/eval_grounded.py"
+    "nano:eval": "engines/nano/tools/.venv/bin/python engines/nano/tools/eval_grounded.py",
+    "build:voice": "node scripts/fetch-voice-model.ts"
   },
   "dependencies": {
     "@huggingface/transformers": "^4.2.0",

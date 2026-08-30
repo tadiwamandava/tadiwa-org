@@ -26,10 +26,17 @@ const PROFILE = `/tmp/cdp-profile-${Date.now()}`;
 const CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const PORT = 9333;
 
+// Extra flags, space-separated, from CDP_FLAGS. Used for microphone testing:
+//   CDP_FLAGS="--use-fake-ui-for-media-stream --use-fake-device-for-media-stream
+//              --use-file-for-fake-audio-capture=/path/q.wav"
+// grants permission without a prompt and feeds a WAV in as the microphone, so
+// the voice path can be driven end to end in headless Chrome.
+const extra = (process.env.CDP_FLAGS ?? "").split(/\s+/).filter(Boolean);
+
 const chrome = spawn(CHROME, [
   "--headless=new", "--disable-gpu", "--no-sandbox", "--hide-scrollbars",
   `--user-data-dir=${PROFILE}`, `--remote-debugging-port=${PORT}`,
-  "--window-size=1200,900", url,
+  "--window-size=1200,900", ...extra, url,
 ], { stdio: "ignore" });
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -65,6 +72,20 @@ function connect(wsUrl) {
 try {
   const cdp = connect((await target()).webSocketDebuggerUrl);
   await cdp.ready;
+
+  // Microphone permission. `--use-fake-ui-for-media-stream` is documented as
+  // auto-accepting the prompt and does NOT work under --headless=new:
+  // getUserMedia rejects with NotAllowedError regardless. Granting through the
+  // protocol does work. Set CDP_GRANT to a comma-separated permission list,
+  // e.g. CDP_GRANT=audioCapture.
+  if (process.env.CDP_GRANT) {
+    const r = await cdp.send("Browser.grantPermissions", {
+      origin: new URL(url).origin,
+      permissions: process.env.CDP_GRANT.split(",").map((s) => s.trim()).filter(Boolean),
+    });
+    if (r.error) console.error("  grantPermissions:", JSON.stringify(r.error));
+  }
+
   await sleep(Number(waitMs));
 
   if (expr) {
