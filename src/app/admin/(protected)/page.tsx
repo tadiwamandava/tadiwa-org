@@ -3,7 +3,7 @@ import Link from "next/link";
 import { NewEntry } from "@/components/admin/new-entry";
 import { RebuildSearch } from "@/components/admin/rebuild-search";
 import { Panel, Tag } from "@/components/admin/ui";
-import { assertAdminEnabled } from "@/lib/admin/guard";
+import { assertAdminAccess } from "@/lib/admin/guard";
 import { getIndexStatus } from "@/lib/admin/search-index";
 import { contentStore } from "@/lib/admin/store-fs";
 import type { EntryKind, EntrySummary } from "@/lib/admin/store";
@@ -23,7 +23,7 @@ import type { EntryKind, EntrySummary } from "@/lib/admin/store";
 export const dynamic = "force-dynamic";
 
 export default async function AdminIndexPage() {
-  assertAdminEnabled();
+  await assertAdminAccess();
 
   const [projects, posts] = await Promise.all([
     contentStore.list("project"),

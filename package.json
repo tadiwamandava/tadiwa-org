@@ -12,7 +12,7 @@
     "check:contrast": "node scripts/check-contrast.ts",
     "check:content": "node scripts/check-content.ts",
     "check:bundle": "node scripts/check-bundle.ts",
-    "check": "npm run typecheck && npm run lint && npm run check:contrast && npm run check:content && npm run check:links && npm run check:search && npm run check:prompt && npm run check:admin && npm run check:bundle",
+    "check": "npm run typecheck && npm run lint && npm run check:contrast && npm run check:content && npm run check:links && npm run check:search && npm run check:prompt && npm run check:auth && npm run check:admin && npm run check:bundle",
     "check:links": "node scripts/check-links.ts",
     "build:wasm": "bash scripts/build-wasm.sh",
     "build:search": "node scripts/build-embeddings.ts",
@@ -34,7 +34,9 @@
     "nano:train": "engines/nano/tools/.venv/bin/python engines/nano/tools/train_lora.py",
     "nano:merge": "engines/nano/tools/.venv/bin/python engines/nano/tools/merge_lora.py",
     "nano:eval": "engines/nano/tools/.venv/bin/python engines/nano/tools/eval_grounded.py",
-    "build:voice": "node scripts/fetch-voice-model.ts"
+    "build:voice": "node scripts/fetch-voice-model.ts",
+    "admin:hash": "node scripts/admin-hash.ts",
+    "check:auth": "node scripts/check-auth.ts"
   },
   "dependencies": {
     "@huggingface/transformers": "^4.2.0",
