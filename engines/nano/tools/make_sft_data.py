@@ -4,7 +4,7 @@ WHAT THIS IS AND IS NOT TEACHING.
 
 It is not teaching facts. 135M parameters trained on 99 passages will not learn
 what a KV cache is, and trying would just overfit. Retrieval already solved the
-facts problem — the passages arrive in the prompt.
+facts problem, the passages arrive in the prompt.
 
 What is left is an INSTRUCTION-FOLLOWING failure, and it is measurable: given
 four sources that do not contain the answer, the base model answers anyway. It
@@ -21,7 +21,7 @@ Two reasons, and the first is the real one:
      the sources teaches exactly the habit we want. Supervision written by a
      smarter model would teach this one to sound like a smarter model, which is
      how you get more confident hallucination, not less.
-  2. It keeps the pipeline honest with the rest of the site — no API call sits
+  2. It keeps the pipeline honest with the rest of the site, no API call sits
      anywhere in this repo, including in the training data.
 
 The prompt format comes from prompts/grounded.v1.json, the same file the
@@ -94,7 +94,7 @@ def bm25(query: str, index: dict, chunks: list[dict], limit: int) -> list[dict]:
 
 
 # --------------------------------------------------------------------------
-#  Prompt rendering — mirrors src/components/nano/prompt.ts
+#  Prompt rendering, mirrors src/components/nano/prompt.ts
 # --------------------------------------------------------------------------
 TPL = json.loads(TEMPLATE.read_text())
 
@@ -135,7 +135,7 @@ def grounded_prompt(question: str, passages: list[dict]) -> str:
 #
 # "Writeup" and "Post" chunks are sliding word windows, so most of them begin
 # and end mid-sentence. An extractive answer taken from one starts mid-clause
-# — "remaining gap exists — occupancy against register pressure" — and training
+#, "remaining gap exists, occupancy against register pressure", and training
 # on that teaches the model to open its answers mid-sentence, which is a worse
 # habit than the one being fixed. They still appear as context and as
 # distractors, which is where they are useful; they just never define the
@@ -162,7 +162,7 @@ QUESTION_BY_SECTION = {
 GOLD_SECTIONS = set(QUESTION_BY_SECTION)
 
 #: Questions per gold chunk. The corpus is small, so squeeze the phrasings
-#: rather than the passages — varied questions over the same fact teach the
+#: rather than the passages, varied questions over the same fact teach the
 #: mapping; the same question repeated teaches the string.
 QUESTIONS_PER_CHUNK = 3
 
@@ -251,13 +251,13 @@ def main() -> int:
 
         # A per-chunk RNG, so what a chunk produces depends only on the chunk.
         # With one shared generator, widening the eval split shifts every
-        # later draw and silently rewrites the training set too — which would
+        # later draw and silently rewrites the training set too, which would
         # mean the "before" and "after" numbers came from different data.
         crng = random.Random(SEED ^ (chunk["id"] * 2654435761))
 
         # Eval uses every phrasing; training samples. The eval set is small
         # because the corpus is small, and a shipping decision measured on
-        # fifteen cases is a decision measured on noise — one case is 6.7%.
+        # fifteen cases is a decision measured on noise, one case is 6.7%.
         asked = (
             list(templates)
             if split == "eval"
@@ -269,8 +269,8 @@ def main() -> int:
 
             # ---- answerable -----------------------------------------------
             # Sources are the REAL BM25 result for this question, with the gold
-            # chunk forced in if ranking missed it. That mismatch — gold
-            # present but not first — is the ordinary case at serve time, so
+            # chunk forced in if ranking missed it. That mismatch, gold
+            # present but not first, is the ordinary case at serve time, so
             # the model should see it during training too.
             retrieved = bm25(question, index, chunks, TPL["budget"]["maxSources"])
             if chunk["id"] not in [c["id"] for c in retrieved]:
@@ -295,7 +295,7 @@ def main() -> int:
             #
             # Only the first phrasing gets a refusal twin. Every phrasing would
             # tip the set past 60% refusals, and a model trained to refuse most
-            # of the time refuses the answerable questions too — trading a
+            # of the time refuses the answerable questions too, trading a
             # visible failure for a useless one.
             if i > 0:
                 continue

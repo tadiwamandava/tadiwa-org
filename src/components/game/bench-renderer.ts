@@ -1,12 +1,12 @@
 /* ============================================================================
-   bench-renderer.ts — the copper.
+   bench-renderer.ts, the copper.
 
    Draws the board on a plain 2D canvas. This module owns the only animation
    loop on the page and nothing else in the app imports it.
 
    WHY NOT PHASER. The previous revision drew exactly these shapes through
    Phaser's Graphics API, and shipped 1.15 MB (312 kB gzipped) of game framework
-   to do it — the largest chunk on the site by a factor of five, and more than
+   to do it, the largest chunk on the site by a factor of five, and more than
    half of all the JavaScript. Its config disabled input, audio, physics and
    every scale manager; there are no textures, no sprites, no tilemaps, no
    scene stack and no preload phase. Every call in the old scene was a
@@ -16,8 +16,8 @@
    Structure:
      · the static board (substrate, copper, packages) is etched ONCE into an
        offscreen canvas and blitted per frame;
-     · only the four things that move — the energised net, the pulses, the
-       active package and the probe — are drawn live.
+     · only the four things that move, the energised net, the pulses, the
+       active package and the probe, are drawn live.
 
    The loop sleeps aggressively. It runs only while the board is on screen, the
    tab is visible, and motion is allowed; anything else gets a single repaint
@@ -124,7 +124,7 @@ export class BenchRenderer {
   }
 
   /* ---------------------------------------------------------------------
-     Imperative surface — everything React is allowed to say to the board.
+     Imperative surface, everything React is allowed to say to the board.
      ------------------------------------------------------------------ */
 
   setActive(index: number | null): void {
@@ -247,7 +247,7 @@ export class BenchRenderer {
   private stepProbe(dt: number): void {
     const target = this.probe.current;
     // Exponential ease expressed per-millisecond, so it is frame-rate
-    // independent — a 144Hz display must not chase the pointer twice as fast.
+    // independent, a 144Hz display must not chase the pointer twice as fast.
     const k = 1 - Math.exp(-dt / 62);
     this.probeX += (target.x - this.probeX) * k;
     this.probeY += (target.y - this.probeY) * k;
@@ -352,7 +352,7 @@ export class BenchRenderer {
 
     /* Ground pour, drawn as 45° hatch. The only pure texture on the board; at
        `--border` over `--surface` it sits barely above the noise floor in
-       either theme, which is the point — it should read as material, not as a
+       either theme, which is the point; it should read as material, not as a
        pattern competing with the traces. */
     stroke(g, c["board-ground-2"], 1, 1);
     g.beginPath();
@@ -401,7 +401,7 @@ export class BenchRenderer {
     const c = this.hex;
 
     /* Chips share copper, so the raw polylines overlap. Stroking them straight
-       would stack alpha and leave the trunk looking blotchy — dedupe to unique
+       would stack alpha and leave the trunk looking blotchy, dedupe to unique
        segments first and every millimetre of trace is drawn exactly once. */
     const segments = uniqueSegments([
       ...this.layout.chips.map((chip) => chip.path),
@@ -549,7 +549,7 @@ export class BenchRenderer {
     const c = this.hex;
     const a = this.probeAlpha;
     const engaged = this.activeIndex !== null;
-    // A slow breath on the outer ring — the only thing that moves when nothing
+    // A slow breath on the outer ring, the only thing that moves when nothing
     // is happening, so it has to be nearly imperceptible.
     const breathe = this.animating ? Math.sin(this.phase / 420) * 1.4 : 0;
     const ring = (engaged ? 15 : 11) + breathe;

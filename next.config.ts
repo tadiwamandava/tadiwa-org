@@ -4,7 +4,7 @@ import type { NextConfig } from "next";
  * Response headers.
  *
  * Deliberately NOT set: `Cross-Origin-Embedder-Policy` / `Cross-Origin-Opener-Policy`.
- * Those two enable `SharedArrayBuffer`, which WebAssembly *threads* require —
+ * Those two enable `SharedArrayBuffer`, which WebAssembly *threads* require,
  * relevant later for the inference engine. They also break any cross-origin
  * embed that does not send CORP, so they get turned on when the engine actually
  * needs threads, not speculatively. The first WASM build is single-threaded with
@@ -12,7 +12,7 @@ import type { NextConfig } from "next";
  *
  * Also not set: a Content-Security-Policy. Doing CSP properly here means a
  * per-request nonce for the inline theme-bootstrap script, which forces every
- * page off the static path. That is a real trade worth making deliberately —
+ * page off the static path. That is a real trade worth making deliberately,
  * tracked, not forgotten.
  */
 const securityHeaders = [

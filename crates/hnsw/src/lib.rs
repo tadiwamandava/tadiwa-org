@@ -6,15 +6,15 @@
 //!
 //! WHY A GRAPH AT THIS SCALE. With ~100–300 chunks a brute-force scan is
 //! already sub-millisecond, so the honest justification for HNSW here is not
-//! raw speed — it is that the structure is the point, and the page reports the
+//! raw speed, it is that the structure is the point, and the page reports the
 //! real numbers either way. `brute_force` is kept and exposed precisely so the
 //! /lab/search page can measure recall against ground truth instead of
 //! asserting it. An index that cannot be checked is a claim, not evidence.
 //!
 //! The module split:
-//!   `hnsw`  — graph construction, the neighbour-selection heuristic, search
-//!   `quant` — the on-disk vector format and its dequantiser
-//!   here    — nothing but marshalling across the JS boundary
+//!   `hnsw`, graph construction, the neighbour-selection heuristic, search
+//!   `quant`, the on-disk vector format and its dequantiser
+//!   here, nothing but marshalling across the JS boundary
 
 mod hnsw;
 mod quant;
@@ -45,7 +45,7 @@ impl Index {
     /// Builds the graph from a `vectors.bin` payload (see `quant`).
     ///
     /// Insertion is the expensive half of HNSW and it happens here, on the main
-    /// thread, once — which is why the caller is expected to do this off the
+    /// thread, once, which is why the caller is expected to do this off the
     /// critical path, after the user has actually engaged with search.
     #[wasm_bindgen(constructor)]
     pub fn build(bytes: &[u8]) -> Result<Index, JsError> {
@@ -151,7 +151,7 @@ impl Index {
     pub fn last_hops(&self) -> u32 {
         self.scratch.hops
     }
-    /// Flat `[layer, node, layer, node, …]` — where each layer's descent landed.
+    /// Flat `[layer, node, layer, node, …]`, where each layer's descent landed.
     #[wasm_bindgen(js_name = lastPath)]
     pub fn last_path(&self) -> Vec<u32> {
         let mut out = Vec::with_capacity(self.scratch.path.len() * 2);
@@ -188,7 +188,7 @@ fn flatten(hits: &[Candidate]) -> Vec<f32> {
 // against brute-force ground truth on the same vectors, which is why
 // `brute_force` is part of the crate rather than a test helper.
 //
-// These run natively via the `rlib` crate type — full speed, no browser.
+// These run natively via the `rlib` crate type, full speed, no browser.
 // ===========================================================================
 
 #[cfg(test)]
@@ -262,7 +262,7 @@ mod tests {
 
         // Querying with a vector that IS in the index must return it first.
         // This is the cheapest possible check that the graph is connected at
-        // all — it fails loudly if the visited set is being reset wrongly
+        // all, it fails loudly if the visited set is being reset wrongly
         // between layers, because the descent then loses its own entry point.
         for &probe in &[0usize, 41, 150, 299] {
             let hits = index.search(&vectors[probe], 1, 64, &mut scratch);
@@ -297,7 +297,7 @@ mod tests {
         let recall = found as f64 / total as f64;
         assert!(
             recall >= 0.90,
-            "recall@10 was {recall:.3} over {total} ground-truth neighbours — \
+            "recall@10 was {recall:.3} over {total} ground-truth neighbours, \
              the graph is losing candidates"
         );
     }
@@ -363,7 +363,7 @@ mod tests {
         index.search(&vectors[3], 10, 64, &mut scratch);
         assert!(
             (scratch.distance_computations as usize) < vectors.len(),
-            "the graph evaluated {} distances for {} nodes — it is not saving work",
+            "the graph evaluated {} distances for {} nodes, it is not saving work",
             scratch.distance_computations,
             vectors.len()
         );

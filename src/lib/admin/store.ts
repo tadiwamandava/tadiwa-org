@@ -1,14 +1,14 @@
 /**
  * The storage seam.
  *
- * Everything above this interface — the pages, the forms, the Server Actions —
+ * Everything above this interface, the pages, the forms, the Server Actions,
  * knows only about entries, slugs and frontmatter. Nothing above it knows that
  * content currently lives in `content/*.mdx` on a local disk.
  *
  * That matters because the obvious next driver is a GitHub one: the same
  * editor, committing through the API instead of writing a file, which is what
- * a deployed admin would need. Deliberately NOT implemented here — a deployed
- * write path needs an auth decision that is not this task's to make — but the
+ * a deployed admin would need. Deliberately NOT implemented here, a deployed
+ * write path needs an auth decision that is not this task's to make, but the
  * seam is drawn so it is a new file implementing `ContentStore`, not a rewrite.
  *
  * Constraints a second driver must honour, and which the filesystem driver
@@ -18,7 +18,7 @@
  *     that `npm run check:content` would reject.
  *   - `create` fails if the slug is taken. Never silently overwrite.
  *
- * Types only — no `node:*` here, so client components can import the shapes.
+ * Types only, no `node:*` here, so client components can import the shapes.
  */
 
 import type { FieldIssue } from "./serialize.ts";
@@ -37,7 +37,7 @@ export function isValidSlug(value: unknown): value is string {
   return typeof value === "string" && value.length <= 80 && SLUG_PATTERN.test(value);
 }
 
-/** A placeholder left in the content — the owner's to-do queue. */
+/** A placeholder left in the content, the owner's to-do queue. */
 export interface Placeholder {
   line: number;
   text: string;
@@ -65,7 +65,7 @@ export interface Entry {
   kind: EntryKind;
   slug: string;
   path: string;
-  /** Raw frontmatter as parsed — NOT schema-defaulted, so nothing is invented. */
+  /** Raw frontmatter as parsed, NOT schema-defaulted, so nothing is invented. */
   frontmatter: Record<string, unknown>;
   body: string;
   /** YAML comments that a save will not preserve. Surfaced, never dropped quietly. */

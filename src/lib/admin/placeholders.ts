@@ -6,7 +6,7 @@
  * the same list. If they drift, the admin starts telling the owner a file is
  * finished while the gate says it is not.
  *
- * Pure — no `node:*`, importable from client components.
+ * Pure, no `node:*`, importable from client components.
  */
 
 import type { Placeholder } from "./store.ts";

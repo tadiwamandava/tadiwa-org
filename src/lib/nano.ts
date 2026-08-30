@@ -28,14 +28,14 @@ export interface NanoReport {
   failing: number;
 }
 
-/** What each op is for, in one line — the page pairs these with the results. */
+/** What each op is for, in one line, the page pairs these with the results. */
 export const OP_NOTES: Record<string, string> = {
   layernorm:
     "Normalise a row to zero mean and unit variance, then scale and shift. Runs twice per transformer block.",
   softmax:
     "Turn scores into a distribution. Must subtract the row max first, or real logits overflow to NaN.",
   matmul:
-    "Where essentially all the time goes. Correct first, then loop order, blocking, and SIMD — each measured.",
+    "Where essentially all the time goes. Correct first, then loop order, blocking, and SIMD, each measured.",
   gelu: "The activation inside the MLP. Tanh approximation, which is what GPT-2 was trained against.",
   attention:
     "Scaled dot-product with a causal mask, applied before the softmax. The mask order is the classic bug.",
@@ -44,7 +44,7 @@ export const OP_NOTES: Record<string, string> = {
     "Weight-only int8: the codes stay packed and the scale is applied once per output. This is what lets a 135M model sit in 129 MB instead of 513 MB.",
   rmsnorm:
     "LayerNorm without the mean subtraction. Cheaper, and what every model since Llama actually uses.",
-  silu: "The SwiGLU gate — x·σ(x), applied to one of the two MLP branches and not the other.",
+  silu: "The SwiGLU gate, x·σ(x), applied to one of the two MLP branches and not the other.",
   rope:
     "Rotary position embedding: position enters as a rotation of query and key pairs. The pairing convention is (i, i + d/2), and getting it wrong is exact at position 0 and worse every token after.",
 };
@@ -68,7 +68,7 @@ export interface ModelMeta {
 
 /** Written by tools/convert_smollm.py alongside the weights. */
 export interface SmolMeta {
-  /** Upstream identity — always the Hugging Face model, so the credit on the
+  /** Upstream identity, always the Hugging Face model, so the credit on the
    *  page survives converting a local fine-tuned checkpoint. */
   model: string;
   /** What was actually converted: the same string, or a local adapter path. */
@@ -127,7 +127,7 @@ export interface GroundedEval {
 
 /**
  * Grounded-behaviour measurements, base first so the page reads as a
- * before/after rather than a claim. Missing files are simply absent — the
+ * before/after rather than a claim. Missing files are simply absent, the
  * section disappears rather than inventing a number for a run nobody did.
  */
 export function getGroundedEvals(): GroundedEval[] {

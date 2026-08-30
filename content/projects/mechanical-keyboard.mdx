@@ -1,6 +1,6 @@
 ---
 title: Custom Mechanical Keyboard
-pitch: A keyboard designed from schematic to firmware — KiCad, a JLCPCB run, and USB HID written against TinyUSB rather than flashing QMK.
+pitch: A keyboard designed from schematic to firmware, with KiCad, a JLCPCB run, and USB HID written against TinyUSB rather than flashing QMK.
 status: planned
 started: "2026-09-01"
 domains: ["embedded"]
@@ -27,8 +27,8 @@ typing on a board you made.
 
 ## The parts that are actually engineering
 
-- **The diode matrix.** Understanding *why* per-key diodes prevent ghosting —
-  being able to draw the current path of a three-key ghost — rather than copying
+- **The diode matrix.** Understanding *why* per-key diodes prevent ghosting,
+  being able to draw the current path of a three-key ghost, rather than copying
   a reference schematic.
 - **Debounce measured, not guessed.** Capture real switch bounce on a logic
   analyzer; it is usually 100–800 µs. Set the window from the capture and put the
@@ -39,6 +39,6 @@ typing on a board you made.
 
 ## Rev A will have a mistake
 
-They always do — a swapped footprint, a mirrored connector, a missing pull-up.
+They always do: a swapped footprint, a mirrored connector, a missing pull-up.
 The industry word for the fix is "respin." The writeup will have a section on
 what rev B corrected, because that section is a feature and not a confession.

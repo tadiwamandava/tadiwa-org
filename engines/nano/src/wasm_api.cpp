@@ -48,7 +48,7 @@ std::string g_ll_error;
 ///
 /// JS asks for `n` bytes, gets a heap pointer, and writes the response body
 /// straight into it chunk by chunk. The commit then MOVES it into the model,
-/// so a 129 MB weights file is one allocation and zero copies — the obvious
+/// so a 129 MB weights file is one allocation and zero copies, the obvious
 /// alternative (fetch to an ArrayBuffer, then copy across the boundary) peaks
 /// at twice that, which is the difference between working and not on a laptop
 /// with other tabs open.
@@ -111,7 +111,7 @@ int nano_next(float temperature, float top_p) {
 }
 
 /// The raw byte a token id maps to. The vocabulary is byte-level, so JS
-/// accumulates these and runs them through a streaming TextDecoder — a single
+/// accumulates these and runs them through a streaming TextDecoder, a single
 /// id can be one third of a multi-byte character.
 EMSCRIPTEN_KEEPALIVE
 int nano_token_byte(int id) {
@@ -128,7 +128,7 @@ int nano_op_implemented(const char* name) {
 EMSCRIPTEN_KEEPALIVE int nano_abi_version() { return 3; }
 
 // ==========================================================================
-//  The Llama-family engine — SmolLM2 and anything else with the same shape.
+//  The Llama-family engine, SmolLM2 and anything else with the same shape.
 // ==========================================================================
 
 /// Reserves `len` bytes in the staging buffer and returns a heap pointer to
@@ -183,7 +183,7 @@ EMSCRIPTEN_KEEPALIVE int llama_pos()       { return g_ll_pos; }
 EMSCRIPTEN_KEEPALIVE int llama_resident_bytes() { return (int)g_llama.resident_bytes(); }
 EMSCRIPTEN_KEEPALIVE int llama_kv_bytes()       { return (int)g_llama.kv_bytes(); }
 
-/// Id of an added token — "<|im_end|>" — or -1 if this vocabulary lacks it.
+/// Id of an added token, "<|im_end|>", or -1 if this vocabulary lacks it.
 EMSCRIPTEN_KEEPALIVE
 int llama_special(const char* text) {
   return g_bpe_ready ? g_bpe.special_id(std::string(text)) : -1;
@@ -205,8 +205,8 @@ int llama_begin(const char* text, int len, uint32_t seed) {
   g_ll_prompt = g_bpe.encode(std::string(text, (std::size_t)len));
 
   // Leave room to actually answer. Truncating the FRONT keeps the most recent
-  // turn — and, for a chat template, the assistant header the model needs to
-  // see last — which is the opposite of what dropping the tail would do.
+  // turn, and, for a chat template, the assistant header the model needs to
+  // see last, which is the opposite of what dropping the tail would do.
   const std::size_t cap = g_llama.config().n_ctx > 64 ? g_llama.config().n_ctx - 64 : 1;
   if (g_ll_prompt.size() > cap) {
     g_ll_prompt.erase(g_ll_prompt.begin(),
@@ -227,7 +227,7 @@ int llama_prefill_step() {
 /// context window is full).
 ///
 /// `repeat_penalty` divides the logit of any token seen in the last 64 emitted
-/// — a 135M model with a short context loops without it, and a demo that loops
+///, a 135M model with a short context loops without it, and a demo that loops
 /// is a demo nobody reads to the end. 1.0 turns it off.
 EMSCRIPTEN_KEEPALIVE
 int llama_next(float temperature, float top_p, float repeat_penalty) {
@@ -239,7 +239,7 @@ int llama_next(float temperature, float top_p, float repeat_penalty) {
     const std::size_t from = g_ll_recent.size() > window ? g_ll_recent.size() - window : 0;
     for (std::size_t i = from; i < g_ll_recent.size(); ++i) {
       float& z = g_ll_logits[(std::size_t)g_ll_recent[i]];
-      // Divide when positive, multiply when negative — scaling a negative
+      // Divide when positive, multiply when negative, scaling a negative
       // logit by 1/p would make it *more* likely, which is the bug every
       // first implementation of this ships with.
       z = z > 0 ? z / repeat_penalty : z * repeat_penalty;

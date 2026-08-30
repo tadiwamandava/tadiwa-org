@@ -15,7 +15,7 @@ import type { SphereMode } from "./sphere";
  * The point of the selector is the comparison, not the choice. One model is
  * 359K parameters trained here on 66 KB of prose and it produces mush; the
  * other is 135M parameters trained by somebody with a GPU cluster and it
- * answers questions. Same C++ forward pass, same WASM, same kernels — the
+ * answers questions. Same C++ forward pass, same WASM, same kernels, the
  * difference is entirely the weights, which is the thing a page like this
  * should demonstrate rather than assert.
  *
@@ -26,13 +26,13 @@ import type { SphereMode } from "./sphere";
 
 export interface PlaygroundProps {
   /** Real byte count from disk, or null when the weights are served from
-   *  another origin. Never a literal — see getSmolInfo(). */
+   *  another origin. Never a literal, see getSmolInfo(). */
   smolWeightBytes: number | null;
   smolParams: number | null;
   smolName: string | null;
   /** False when this deployment has no weights to serve and none configured
    *  elsewhere. The demo then offers only the small model and says why, rather
-   *  than showing a Load button that 404s — the same rule the semantic search
+   *  than showing a Load button that 404s, the same rule the semantic search
    *  stage follows when its model is absent. */
   smolAvailable: boolean;
 }
@@ -97,14 +97,14 @@ export function NanoPlayground({
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState<LoadProgress | null>(null);
   const [prefill, setPrefill] = useState<{ done: number; total: number } | null>(null);
-  /** Short-lived note for a step that is neither download nor generation —
+  /** Short-lived note for a step that is neither download nor generation,
    *  retrieval, mostly, which is fast but not instant on a cold index. */
   const [status, setStatus] = useState<string | null>(null);
   const [smolReady, setSmolReady] = useState(false);
   const [speak, setSpeak] = useState(false);
   const [listening, setListening] = useState<number | null>(null);
   const [voiceNote, setVoiceNote] = useState<string | null>(null);
-  /** The hosted comparison. Never runs unless asked for — it costs money and
+  /** The hosted comparison. Never runs unless asked for; it costs money and
    *  leaves the machine, which is the opposite of everything else here. */
   const [hosted, setHosted] = useState<HostedState>({ status: "idle" });
   /** The live mic spectrum, lifted into state so the visualiser re-binds when
@@ -161,7 +161,7 @@ export function NanoPlayground({
    *
    * Deliberately does NOT auto-submit. A wrong transcription that silently
    * becomes a question produces an answer to something nobody asked, and the
-   * visitor has no way to tell that is what happened — so the transcript lands
+   * visitor has no way to tell that is what happened, so the transcript lands
    * in the textarea where it can be read and corrected first.
    */
   const stopMic = useCallback(async () => {
@@ -176,14 +176,14 @@ export function NanoPlayground({
     try {
       const { audio, seconds } = await rec.stop();
       if (seconds < 0.4) {
-        setVoiceNote("too short — hold the button while you speak");
+        setVoiceNote("too short, hold the button while you speak");
         return;
       }
       const transcribe = await loadTranscriber((n) => setVoiceNote(`loading ${n}`));
       setVoiceNote("transcribing…");
       const text = await transcribe(audio);
       if (!text) {
-        setVoiceNote("nothing recognised — try again");
+        setVoiceNote("nothing recognised, try again");
         return;
       }
       setPrompt(text);
@@ -213,7 +213,7 @@ export function NanoPlayground({
     } catch (err) {
       setVoiceNote(
         err instanceof Error && err.name === "NotAllowedError"
-          ? "microphone permission denied — the browser blocked it, not the page"
+          ? "microphone permission denied, the browser blocked it, not the page"
           : err instanceof Error
             ? err.message
             : String(err),
@@ -455,8 +455,8 @@ export function NanoPlayground({
             : mode === "grounded"
               ? "The BM25 index behind ⌘K retrieves the passages first; the model answers only from those, and they are listed underneath."
               : mode === "chat"
-                ? "Asked cold, with no sources. This is the control — try the same question in both and watch it invent an answer here."
-                : "Fed in verbatim. No template, no stop token — it just continues the text."}
+                ? "Asked cold, with no sources. This is the control, try the same question in both and watch it invent an answer here."
+                : "Fed in verbatim. No template, no stop token, it just continues the text."}
         </p>
       </div>
 
@@ -467,7 +467,7 @@ export function NanoPlayground({
             {smolWeightBytes ? mb(smolWeightBytes) : "The weights"} of int8
             weights, fetched once and kept in the browser&rsquo;s cache. Nothing
             is downloaded until you press this, and nothing leaves your machine
-            afterwards — the whole forward pass runs here.
+            afterwards, the whole forward pass runs here.
           </p>
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <button
@@ -601,7 +601,7 @@ export function NanoPlayground({
         {voiceNote && <span className="font-mono text-2xs text-subtle">{voiceNote}</span>}
         {listening !== null && (
           <span className="font-mono text-2xs text-accent">
-            listening — press again when you&rsquo;re done
+            listening, press again when you&rsquo;re done
           </span>
         )}
         {prefill && prefill.done < prefill.total && (
@@ -626,7 +626,7 @@ export function NanoPlayground({
         {output ? (
           <>
             {/* In completion mode the model is continuing the prompt, so the
-                prompt is part of the output — shown greyed so it stays
+                prompt is part of the output, shown greyed so it stays
                 obvious which half the engine produced. */}
             {model === "smol" && mode === "complete" && (
               <span className="text-subtle">{echoed ?? ""}</span>
@@ -656,7 +656,7 @@ export function NanoPlayground({
                   href={hit.chunk.url}
                   className="text-accent underline decoration-dotted underline-offset-2"
                 >
-                  {hit.chunk.title} — {hit.chunk.section}
+                  {hit.chunk.title}, {hit.chunk.section}
                 </a>
                 <p className="mt-0.5 text-muted">{hit.chunk.text}</p>
               </li>
@@ -664,7 +664,7 @@ export function NanoPlayground({
           </ol>
           <p className="mt-3 text-2xs leading-relaxed text-subtle">
             Every claim in the answer above should be checkable against these.
-            If one isn&rsquo;t, the model made it up — which is the failure this
+            If one isn&rsquo;t, the model made it up, which is the failure this
             mode exists to make visible rather than to hide.
           </p>
         </details>
@@ -674,7 +674,7 @@ export function NanoPlayground({
         <p className="mt-3 rounded border border-dashed border-border-strong bg-bg p-3 text-xs leading-relaxed text-muted">
           Nothing in the corpus matched that question, so the model was never
           asked. The refusal above is the retrieval stage&rsquo;s, not the
-          model&rsquo;s — which is the only way to be sure it happens.
+          model&rsquo;s, which is the only way to be sure it happens.
         </p>
       )}
 
@@ -691,7 +691,7 @@ export function NanoPlayground({
                 Ask Kimi K3 the same question →
               </button>
               <p className="mt-2 text-2xs leading-relaxed text-subtle">
-                2.8 trillion parameters, in a datacentre. It cannot run here —
+                2.8 trillion parameters, in a datacentre. It cannot run here,
                 even at four bits that is about a terabyte of weights, and
                 mixture-of-experts needs every expert resident regardless of
                 which ones a token uses. This is the one control on the page
@@ -748,7 +748,7 @@ export function NanoPlayground({
       <p className="mt-4 text-xs leading-relaxed text-subtle">
         {model === "smol" ? (
           <>
-            <strong className="font-medium text-muted">The weights are not mine</strong> —
+            <strong className="font-medium text-muted">The weights are not mine</strong>,
             SmolLM2 was trained by Hugging Face, and this page would be lying if
             it implied otherwise. What is mine is everything between the file and
             the token: the format, the loader, RMSNorm, RoPE, grouped-query
@@ -757,7 +757,7 @@ export function NanoPlayground({
               <>
                 {" "}
                 Of the {mb(stats.resident)} resident, {mb(stats.kv)} is the KV
-                cache — it grows with every token and is the reason context
+                cache, it grows with every token and is the reason context
                 windows cost memory rather than just time.
               </>
             )}
@@ -767,7 +767,7 @@ export function NanoPlayground({
             <strong className="font-medium text-muted">int8 here is a wire saving, not a memory one:</strong>{" "}
             the small model dequantises to fp32 on load, so &ldquo;resident&rdquo;
             is identical either way. The larger model does keep its weights
-            packed and multiplies them in place — that is what the int8 matmul
+            packed and multiplies them in place, that is what the int8 matmul
             kernel bought, and it is the difference between 129 MB and 513 MB in
             a tab.
           </>

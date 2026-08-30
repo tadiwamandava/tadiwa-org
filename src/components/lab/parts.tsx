@@ -5,9 +5,9 @@
  * page and the measured island can both use them and the section headings
  * match on either side of the boundary.
  *
- * The bar primitive follows src/components/benchmark-chart.tsx deliberately —
+ * The bar primitive follows src/components/benchmark-chart.tsx deliberately,
  * a real <table> that renders as bars, not an SVG with an aria-label. Screen
- * readers get tabular data, it prints, and the numbers are always beside the
+ * readers get tabular data; it prints, and the numbers are always beside the
  * bar so nothing is carried by colour or length alone.
  */
 
@@ -100,7 +100,7 @@ export function Readout({
   );
 }
 
-/** The small print under a figure — where the caveat goes. */
+/** The small print under a figure, where the caveat goes. */
 export function Caption({ children }: { children: React.ReactNode }) {
   return <p className="mt-3 text-xs leading-relaxed text-subtle">{children}</p>;
 }

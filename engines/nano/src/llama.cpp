@@ -22,7 +22,7 @@ bool LlamaModel::load(std::vector<uint8_t>&& blob) {
   const std::size_t len = blob_.size();
 
   if (len < 56) { error_ = "blob shorter than its header"; return false; }
-  if (rd32(d) != kMagic) { error_ = "bad magic — not a nano weights file"; return false; }
+  if (rd32(d) != kMagic) { error_ = "bad magic, not a nano weights file"; return false; }
   if (rd32(d + 4) != kVersion) { error_ = "weights version does not match this engine"; return false; }
 
   cfg_.n_vocab   = rd32(d + 8);
@@ -165,7 +165,7 @@ void LlamaModel::forward(int token, int pos, std::vector<float>& logits) {
 
     for (std::size_t h = 0; h < H; ++h) {
       // Grouped-query attention: query head h reads KV head h / G. With 9 query
-      // heads over 3 KV heads, heads 0-2 share KV head 0, and so on — the KV
+      // heads over 3 KV heads, heads 0-2 share KV head 0, and so on, the KV
       // cache is a third the size it would be with full multi-head attention,
       // which is most of why long contexts are affordable.
       const std::size_t kvh = h / G;
@@ -192,7 +192,7 @@ void LlamaModel::forward(int token, int pos, std::vector<float>& logits) {
     residual_add(xb_.data(), E, x_.data());
 
     // ---- SwiGLU feed-forward -------------------------------------------
-    // down( silu(gate(x)) * up(x) ) — two parallel projections, one gating the
+    // down( silu(gate(x)) * up(x) ), two parallel projections, one gating the
     // other elementwise. That is the whole difference from GPT-2's single
     // fc -> GELU -> proj, and it is why the intermediate width is 1536 rather
     // than 4x the model dimension.

@@ -14,7 +14,7 @@ That is the whole argument for build gates, so here are the three.
 
 ## 1. A border I thought was fine was at 1.88:1
 
-I picked the palette by eye. Warm cream, warm near-black, a rust accent — it
+I picked the palette by eye. Warm cream, warm near-black, a rust accent. It
 looked good, and I have picked enough palettes to trust that feeling.
 
 Then I wrote a script that parses the token blocks straight out of the stylesheet
@@ -23,7 +23,7 @@ actually uses. Forty pairs, both themes.
 
 Three failed.
 
-Two were tertiary text on a card — 4.14:1 against a 4.5:1 requirement. Close
+Two were tertiary text on a card, 4.14:1 against a 4.5:1 requirement. Close
 enough that no amount of squinting would have caught it, far enough that it
 genuinely fails for a lot of people.
 
@@ -33,13 +33,13 @@ The third was worse:
 ✗ emphasised border    1.88:1 (min 3)   --border-strong on --bg
 ```
 
-`--border-strong` is the token for borders that identify a control — the outline
+`--border-strong` is the token for borders that identify a control, the outline
 of a text input. WCAG requires 3:1 for that, because a border you cannot see is a
 form field you cannot find. I had it at 1.88. On the page it read as a
 tasteful hairline. That is exactly the problem: to me it was tasteful, and to
 someone else it was absent.
 
-The fix was ten minutes. Noticing was the hard part, and I did not notice — a
+The fix was ten minutes. Noticing was the hard part, and I did not notice. A
 script did.
 
 One detail that turned out to matter: **the script parses the real stylesheet
@@ -62,7 +62,7 @@ Then I built a section heading with a `font-mono` utility class on an `<h2>`, an
 it rendered in the serif.
 
 Tailwind v4 puts its utilities inside `@layer utilities`. My base styles were
-unlayered. And unlayered CSS does not lose to a layer — it wins against **all** of
+unlayered. And unlayered CSS does not lose to a layer. It wins against **all** of
 them, regardless of specificity. So a bare `h2` element selector was beating
 `.font-mono`, and every font utility on every heading across the site was silently
 dead.
@@ -78,7 +78,7 @@ rest, and neither substitutes for the other.
 
 ## 3. Two colours I thought were distinct measured ΔE 11.7
 
-The benchmark charts compare my implementation against reference implementations —
+The benchmark charts compare my implementation against reference implementations:
 my key-value store against Redis, my `grep` against ripgrep. Two kinds of bar, so
 two colours.
 
@@ -88,38 +88,38 @@ references. They looked different to me.
 Running them through a perceptual-distance check:
 
 ```
-[FAIL] Normal-vision floor   #6b6151 ↔ #9c3d17   ΔE 11.7 — below 15,
+[FAIL] Normal-vision floor   #6b6151 ↔ #9c3d17   ΔE 11.7, below 15,
                              hard to tell apart even with full colour vision
 [WARN] CVD separation        ΔE 6.8 (deutan)
 ```
 
-Not "hard for colourblind readers" — hard for *everyone*, and then considerably
+Not "hard for colourblind readers". Hard for *everyone*, and then considerably
 worse for the roughly one in twelve men with a colour-vision deficiency. Both of
 my colours were mid-tone warm browns. Of course they were: they came out of the
 same warm palette, and my eye had already normalised to it.
 
 The fix was not a better guess. It was realising the two bars are not peers at
 all. My result is the subject; the reference is context. Once framed that way the
-answer is obvious — the reference bar should be visibly recessive, well separated
+answer is obvious. The reference bar should be visibly recessive, well separated
 in lightness, not a competing peer colour. The replacement measures ΔE 27.8.
 
 ## The pattern
 
-All three were things I had looked directly at and approved. Not things I skipped
-— things I inspected and got wrong, because eyes normalise, and taste is not a
+All three were things I had looked directly at and approved. Not things I
+skipped, but things I inspected and got wrong, because eyes normalise, and taste is not a
 measurement.
 
 The gates that now fail this build:
 
-- **contrast** — every token pair, both themes, and a parity check that the
+- **contrast**: every token pair, both themes, and a parity check that the
   media-query dark theme and the toggle-selected dark theme are byte-identical
-- **content** — every article validated against a schema before it can render
+- **content**: every article validated against a schema before it can render
 - **types**, **lint**, **build**
 
 None of them is clever. All of them are faster than the bug they prevent.
 
 The corollary I keep having to relearn: a gate is only worth having if it can fail.
 A checker that reads a copy of the data it is checking, or a threshold quietly
-lowered until things pass, is a green checkmark that means nothing — and a green
+lowered until things pass, is a green checkmark that means nothing. A green
 checkmark that means nothing is more dangerous than a red one, because you stop
 looking.

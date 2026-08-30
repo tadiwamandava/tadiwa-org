@@ -3,7 +3,7 @@ import type { Project } from "@/lib/content/schema";
 
 /**
  * Filter selection, mirrored 1:1 onto URL search params (`domain`, `lang`,
- * `status`). Deliberately single-valued per dimension — combos like
+ * `status`). Deliberately single-valued per dimension, because combos like
  * `?domain=systems&lang=Rust` read as one clean filter to hand a recruiter,
  * and every link below can toggle a value on or off without any client JS.
  */
@@ -26,7 +26,7 @@ function countBy<T extends string>(lists: readonly T[][]): Map<T, number> {
   return counts;
 }
 
-/** Busiest first, alphabetical to break ties — never a fixed list, so a new
+/** Busiest first, alphabetical to break ties. Never a fixed list, so a new
  *  language or domain in a project's frontmatter shows up on its own. */
 function sortedOptions(counts: Map<string, number>): Option[] {
   return [...counts.entries()]
@@ -74,7 +74,7 @@ function FilterGroup({
   return (
     <div role="group" aria-labelledby={headingId}>
       {/* h2, not h3: this sits directly under the page's <h1>, and skipping a
-          level is a real WCAG heading-order violation — Lighthouse scored the
+          level is a real WCAG heading-order violation. Lighthouse scored the
           route 98/100 on it. The visual size comes from the class, not the tag. */}
       <h2
         id={headingId}
@@ -92,8 +92,11 @@ function FilterGroup({
                 aria-current={active ? "true" : undefined}
                 className={
                   active
-                    ? "inline-flex items-center gap-1.5 rounded-sm bg-accent px-2 py-1 font-mono text-2xs tracking-wide text-accent-contrast uppercase transition-colors"
-                    : "inline-flex items-center gap-1.5 rounded-sm border border-border bg-surface-2 px-2 py-1 font-mono text-2xs tracking-wide text-muted uppercase transition-colors hover:border-border-strong hover:text-text"
+                    ? "inline-flex items-center gap-1.5 rounded-full bg-accent px-2.5 py-0.5 font-mono text-2xs tracking-wide text-accent-contrast uppercase transition-colors"
+                    // Border-only when inactive. Filled chips at this count
+                    // (eleven languages) turn the top of the page into a wall
+                    // of grey blocks that outweighs the work below it.
+                    : "inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-0.5 font-mono text-2xs tracking-wide text-subtle uppercase transition-colors hover:border-accent hover:text-text"
                 }
               >
                 {value}
@@ -110,7 +113,7 @@ function FilterGroup({
 /**
  * Instrument-panel filter strip. Every option is a real `<Link>` whose href
  * already contains the resulting search params, so this renders correctly
- * with JavaScript disabled and adds no client bundle of its own — Next's
+ * with JavaScript disabled and adds no client bundle of its own. Next's
  * router still soft-navigates when JS is available, but nothing here depends
  * on it.
  *

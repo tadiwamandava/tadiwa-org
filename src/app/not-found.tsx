@@ -11,7 +11,7 @@ export default function NotFound() {
         Nothing at this address.
       </h1>
       <p className="mx-auto mt-4 max-w-md leading-relaxed text-muted">
-        The page may have moved, or it may not exist yet — a fair amount of this
+        The page may have moved, or it may not exist yet. A fair amount of this
         site is still being written.
       </p>
       <div className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">

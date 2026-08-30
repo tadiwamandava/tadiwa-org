@@ -1,5 +1,5 @@
 /**
- * The grounded prompt format. Pure — no retrieval, no engine, no DOM.
+ * The grounded prompt format. Pure, no retrieval, no engine, no DOM.
  *
  * Separated from ground.ts because this is the half that has to be reachable
  * from a plain Node process: `npm run check:prompt` pins the rendered output
@@ -29,7 +29,7 @@ function fill(pattern: string, vars: Record<string, string>): string {
  * Renders the source block, stopping at whichever budget binds first.
  *
  * The character cap is what keeps the answer from being squeezed out of a
- * 1024-token window by its own context — a failure that looks like the model
+ * 1024-token window by its own context, a failure that looks like the model
  * being terse rather than like a budget being hit.
  */
 export function renderSources(passages: Hit[]): string {
@@ -51,7 +51,7 @@ export function renderSources(passages: Hit[]): string {
 }
 
 /**
- * The full chat prompt. Shared verbatim with the fine-tuning data generator —
+ * The full chat prompt. Shared verbatim with the fine-tuning data generator,
  * see `engines/nano/prompts/grounded.v1.json` for why that matters and
  * `npm run check:prompt` for what stops the two from drifting.
  */

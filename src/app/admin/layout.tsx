@@ -33,7 +33,7 @@ export default function AdminLayout({ children }: LayoutProps<"/admin">) {
           </h1>
           <p className="mt-1 text-xs text-subtle">
             Local only. These routes 404 in a production build, and every write refuses outside
-            the dev server. Edits are file writes — commit them.
+            the dev server. Edits are file writes; commit them.
           </p>
         </div>
         <nav aria-label="Admin">

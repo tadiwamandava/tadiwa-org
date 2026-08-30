@@ -3,7 +3,7 @@
 //
 // The op tests prove each kernel in isolation. They cannot catch a transposed
 // weight matrix, a mis-sliced attention head, a swapped layernorm, or an
-// off-by-one in the KV cache — every one of which still produces text that
+// off-by-one in the KV cache, every one of which still produces text that
 // looks superficially plausible. This replays a fixed prompt through the full
 // forward pass and diffs the final logits against the reference.
 //
@@ -37,7 +37,7 @@ int main(int argc, char** argv) {
 
   auto wbytes = slurp(weights_path);
   if (wbytes.empty()) {
-    std::fprintf(stderr, "  cannot read %s — run the trainer first\n",
+    std::fprintf(stderr, "  cannot read %s, run the trainer first\n",
                  weights_path.c_str());
     return 2;
   }
@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  // Feed the prompt one token at a time, exactly as generation does — so the
+  // Feed the prompt one token at a time, exactly as generation does, so the
   // KV cache is on the hook here too, not bypassed by a batch forward.
   std::vector<float> logits;
   model.reset();
@@ -96,7 +96,7 @@ int main(int argc, char** argv) {
   std::printf("    tolerance     %.1e  (%s)\n", tol,
               quantised ? "int8, lossy by design" : "fp32");
 
-  // Ranking is what actually drives sampling, so check argmax too — logits can
+  // Ranking is what actually drives sampling, so check argmax too, logits can
   // drift within tolerance and still pick a different token.
   int arg_got = 0, arg_ref = 0;
   for (uint32_t v = 1; v < n_vocab; ++v) {

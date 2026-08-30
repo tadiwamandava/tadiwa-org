@@ -100,7 +100,7 @@ export function Assistant({
       </div>
 
       {/* The state the canvas is drawing, in text, for everyone who cannot
-          see it — and as the live region that announces changes. */}
+          see it, and as the live region that announces changes. */}
       <p
         aria-live="polite"
         className="mt-2 text-center font-mono text-2xs tracking-[0.2em] text-[#ffb020] uppercase"
@@ -145,7 +145,7 @@ export function Assistant({
         {current?.preferred ? (
           <>
             Speaking with <span className="text-white/60">{current.name}</span> (
-            {current.lang}) — an African English voice installed on your device.
+            {current.lang}), an African English voice installed on your device.
           </>
         ) : current ? (
           <>

@@ -9,7 +9,7 @@ import { contentStore } from "@/lib/admin/store-fs";
 import type { EntryKind, EntrySummary } from "@/lib/admin/store";
 
 /**
- * The index — and, more usefully, the to-do queue.
+ * The index, and, more usefully, the to-do queue.
  *
  * The list is sorted so anything unfinished floats to the top: a file that
  * fails the schema first, then anything still carrying a TODO/CONFIRM
@@ -131,7 +131,7 @@ function EntryRow({ entry }: { entry: EntrySummary }) {
         <ul className="mb-2 space-y-0.5 font-mono text-2xs text-accent">
           {entry.issues.slice(0, 6).map((issue, i) => (
             <li key={i}>
-              {issue.path || "(root)"} — {issue.message}
+              {issue.path || "(root)"}: {issue.message}
             </li>
           ))}
         </ul>

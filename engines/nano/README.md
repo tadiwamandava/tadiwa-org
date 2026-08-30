@@ -35,7 +35,7 @@ Then, for each op:
 3. `npm run test:nano` again. It prints `pass`, or a max absolute error and the
    index of the worst element.
 
-Suggested order — each one leans on the last:
+Suggested order, each one leans on the last:
 
 ```
 residual_add  →  layernorm  →  softmax  →  gelu  →  matmul  →  attention
@@ -49,9 +49,9 @@ than after.
 ## Why the stubs
 
 An interviewer will pick a file in this repo and ask you to walk through it.
-These are the files they will pick. Everything around them — the fixture
+These are the files they will pick. Everything around them, the fixture
 format, the native test runner, the Emscripten build, the page that renders the
-results — is plumbing, and plumbing you did not write costs you nothing.
+results, is plumbing, and plumbing you did not write costs you nothing.
 
 The fixtures are **data, not code**: inputs and expected outputs in flat f32
 blobs. There is no reference implementation in this repository to copy from.
@@ -62,7 +62,7 @@ get right.
 ## Layout
 
 ```
-include/nano_ops.h     the contract — read this first
+include/nano_ops.h     the contract, read this first
 src/ops.cpp            YOUR WORK
 src/wasm_api.cpp       C ABI for the browser (plumbing)
 test/test_ops.cpp      native runner; writes fixtures/report.json
@@ -81,7 +81,7 @@ page is generated from the real test run and cannot drift from it.
 npm run build:fixtures
 ```
 
-Uses a dedicated venv rather than whatever `python3` currently resolves to —
+Uses a dedicated venv rather than whatever `python3` currently resolves to,
 installing Emscripten via Homebrew pulls in `python@3.14` and silently shadows
 the system interpreter, which is how "it worked yesterday" happens.
 
@@ -100,7 +100,7 @@ A test whose difficulty depends on the random draw is not a test.
 
 ## Weights
 
-Not here yet. The ops come first — they are checkable against fixtures without
+Not here yet. The ops come first; they are checkable against fixtures without
 any model, and a wrong kernel is not worth debugging through a 124M-parameter
 forward pass. Once the ops pass, the two paths are converting GPT-2 124M to a
 flat binary, or training a small character-level model on this site's own
@@ -113,5 +113,5 @@ bash engines/nano/build-wasm.sh     # → public/nano/nano.{mjs,wasm}
 ```
 
 Needs `emcc` (`brew install emscripten`). Not required for the test loop, and
-not required to build the site — only for the browser demo, once there is
+not required to build the site, only for the browser demo, once there is
 something to demonstrate.

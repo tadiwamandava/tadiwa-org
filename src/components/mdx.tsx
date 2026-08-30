@@ -7,7 +7,7 @@ import remarkGfm from "remark-gfm";
 
 /* Syntax highlighting happens at BUILD time via Shiki, so the page ships zero
    highlighter JS. Both palettes are emitted as CSS custom properties and the
-   theme switch picks between them — see the Shiki block in globals.css. */
+   theme switch picks between them, see the Shiki block in globals.css. */
 const prettyCodeOptions: PrettyCodeOptions = {
   theme: { light: "vitesse-light", dark: "vitesse-dark" },
   keepBackground: false,

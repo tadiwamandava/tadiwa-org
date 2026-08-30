@@ -16,7 +16,7 @@ const LABEL: Record<Theme, string> = {
    The theme lives on <html data-theme>, which the blocking script in
    theme-script.tsx sets before first paint. That attribute is the source of
    truth, so this component subscribes to it rather than keeping a parallel
-   copy in React state — no effect, no cascading render, and no window where
+   copy in React state, no effect, no cascading render, and no window where
    the button disagrees with the page it is sitting on.
    ------------------------------------------------------------------------ */
 
@@ -59,7 +59,7 @@ export function ThemeToggle() {
     <button
       type="button"
       onClick={() => setTheme(ORDER[(ORDER.indexOf(theme) + 1) % ORDER.length])}
-      // Announce the current state — the icon alone is not enough.
+      // Announce the current state, the icon alone is not enough.
       aria-label={`Theme: ${LABEL[theme]}. Activate to change.`}
       title={LABEL[theme]}
       className="grid size-9 place-items-center rounded border border-border text-muted transition-colors hover:border-border-strong hover:text-text"
@@ -99,7 +99,7 @@ function Icon({ theme }: { theme: Theme }) {
     );
   }
 
-  // system — a display, i.e. "whatever the machine says"
+  // system, a display, i.e. "whatever the machine says"
   return (
     <svg {...common}>
       <rect x="1.6" y="2.6" width="12.8" height="8.6" rx="1.2" />

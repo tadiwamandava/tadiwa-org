@@ -1,14 +1,14 @@
 // Native op-parity runner for tadiwa-nano.
 //
-// Builds with plain clang++ — no Emscripten, no browser, no npm. The loop you
+// Builds with plain clang++, no Emscripten, no browser, no npm. The loop you
 // want while implementing an op is edit -> `npm run test:nano` -> read the max
 // absolute error, and anything heavier than a native binary gets in the way of
 // that.
 //
 // Reports three states per op:
-//   stub   — not started (nano::is_implemented says so). Not a failure.
-//   pass   — max |error| within tolerance of the golden fixture.
-//   FAIL   — implemented but wrong, with the worst element and its index.
+//   stub, not started (nano::is_implemented says so). Not a failure.
+//   pass, max |error| within tolerance of the golden fixture.
+//   FAIL, implemented but wrong, with the worst element and its index.
 //
 // Also emits engines/nano/fixtures/report.json, which /lab/inference renders,
 // so the site's build-log page is generated from the real test run rather than
@@ -33,7 +33,7 @@ std::vector<float> load(const std::string& name) {
   std::string path = std::string(kFixtureDir) + "/" + name + ".bin";
   std::ifstream f(path, std::ios::binary | std::ios::ate);
   if (!f) {
-    std::fprintf(stderr, "  cannot open %s — run engines/nano/tools/fixtures.sh\n",
+    std::fprintf(stderr, "  cannot open %s, run engines/nano/tools/fixtures.sh\n",
                  path.c_str());
     std::exit(2);
   }
@@ -198,7 +198,7 @@ int main() {
   for (const auto& r : results) {
     if (r.state == "stub") {
       ++stubs;
-      std::printf("  ·  %-14s stub — not implemented yet\n", r.op.c_str());
+      std::printf("  ·  %-14s stub, not implemented yet\n", r.op.c_str());
     } else if (r.state == "pass") {
       ++passes;
       std::printf("  ✓  %-14s max err %.2e\n", r.op.c_str(), r.max_err);

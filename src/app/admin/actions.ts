@@ -6,8 +6,8 @@
  * SECURITY. A `"use server"` export is an HTTP endpoint. It is reachable by
  * anyone who can POST to this origin, whether or not any UI renders a button,
  * and whether or not the page that would call it is even routable. So the
- * first statement of every function here is `assertAdminEnabled()` — before
- * any input is read — and the filesystem driver asserts again underneath. See
+ * first statement of every function here is `assertAdminEnabled()`, before
+ * any input is read, and the filesystem driver asserts again underneath. See
  * `src/lib/admin/guard.ts` for the three layers and why there is no login.
  *
  * INPUT. Payloads arrive from a browser and are treated as hostile: the
@@ -87,7 +87,7 @@ export async function saveEntryAction(
       return {
         ok: false,
         savedAt,
-        message: `${err.issues.length} field(s) need fixing — nothing was written.`,
+        message: `${err.issues.length} field(s) need fixing, nothing was written.`,
         issues: err.issues,
       };
     }
@@ -99,7 +99,7 @@ export async function saveEntryAction(
   const warnings: string[] = [];
   if (existing.comments.length > 0) {
     warnings.push(
-      `${existing.comments.length} YAML comment line(s) in the frontmatter were not preserved — ` +
+      `${existing.comments.length} YAML comment line(s) in the frontmatter were not preserved, ` +
         `frontmatter round-trips through data, and comments are not data.`,
     );
   }
@@ -122,14 +122,14 @@ export async function createEntryAction(
     return { ok: false, message: `"${title}" does not reduce to a usable slug.` };
   }
   if (await contentStore.exists(kind, slug)) {
-    return { ok: false, message: `content/${slug}.mdx already exists — pick another title.` };
+    return { ok: false, message: `content/${slug}.mdx already exists, pick another title.` };
   }
 
   try {
     await contentStore.create(kind, slug, newDraft(kind, title));
   } catch (err) {
     if (err instanceof ContentValidationError) {
-      // Means `newDraft` no longer satisfies the schema — a bug here, not in
+      // Means `newDraft` no longer satisfies the schema, a bug here, not in
       // the owner's input, and worth saying so out loud.
       return {
         ok: false,
@@ -148,7 +148,7 @@ export async function createEntryAction(
 
 // useActionState always passes the previous state as the first argument, so
 // the signature has to accept it even though a rebuild does not depend on what
-// came before. The disable must sit immediately above the parameter — a
+// came before. The disable must sit immediately above the parameter, a
 // multi-line comment in between silently makes the directive apply to the
 // wrong line, which eslint then reports as an unused directive.
 export async function rebuildSearchAction(

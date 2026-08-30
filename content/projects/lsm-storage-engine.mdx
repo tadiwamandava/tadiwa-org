@@ -1,6 +1,6 @@
 ---
 title: LSM Storage Engine
-pitch: A crash-safe key-value store that real redis-cli connects to, with a log-structured merge tree underneath — the hard part is compaction that never loses a key.
+pitch: A crash-safe key-value store that real redis-cli connects to, with a log-structured merge tree underneath. The hard part is compaction that never loses a key.
 status: planned
 started: "2026-08-25"
 domains: ["systems"]
@@ -12,8 +12,8 @@ hardestThing: >-
   Compaction is where this class of project dies. Merging sorted files while
   concurrent writes land, tombstones expire, and a crash can arrive between any
   two syscalls means bugs corrupt data silently and surface hours later. The
-  mitigation is property-based testing from the first commit — random operation
-  sequences checked against a plain HashMap model — plus a manifest log so a
+  mitigation is property-based testing from the first commit (random operation
+  sequences checked against a plain HashMap model) plus a manifest log so a
   crash mid-compaction is replayable rather than fatal.
 roleRelevance:
   systems: 3
@@ -42,6 +42,6 @@ concurrency, and performance measurement.
 ## Why this one
 
 Almost every backend I use sits on a storage engine I couldn't explain past a
-block diagram. The interesting problems — the durability-versus-throughput
-cliff, compaction without corruption, reads across immutable layers — only
+block diagram. The interesting problems (the durability-versus-throughput
+cliff, compaction without corruption, reads across immutable layers) only
 become real when you have to make them work.

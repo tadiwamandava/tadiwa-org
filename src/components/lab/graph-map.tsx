@@ -16,8 +16,8 @@ import type { Chunk } from "@/lib/search/types";
  *   · The POSITIONS are a choice. These are 384-dimensional unit vectors, and
  *     no 2-D placement of them is the truth. This one is the first two
  *     principal components, which is the least arbitrary linear choice
- *     available and comes with a number — the fraction of variance the two
- *     drawn axes actually carry — printed underneath.
+ *     available and comes with a number, the fraction of variance the two
+ *     drawn axes actually carry, printed underneath.
  *
  * A picture of a high-dimensional index that does not say which half is real
  * is a picture that misleads on purpose.
@@ -252,7 +252,7 @@ export function GraphMap({
                 className="size-2.5 rounded-full border border-text"
                 aria-hidden
               />
-              entry point (node {entryPoint ?? "—"})
+              entry point (node {entryPoint ?? ", "})
             </span>
             {pathNodes.length > 0 && (
               <span className="inline-flex items-center gap-1.5">
@@ -273,7 +273,7 @@ export function GraphMap({
           These vectors have 384 dimensions. The dots are placed at their first
           two principal components, which carry{" "}
           <span className="font-mono tabular-nums">{fmt.pct(projection.explained)}</span> of
-          the corpus&rsquo;s variance — the other{" "}
+          the corpus&rsquo;s variance, the other{" "}
           <span className="font-mono tabular-nums">{fmt.pct(1 - projection.explained)}</span>{" "}
           is not on this screen. Two dots that look close here may be far apart in
           the space the graph actually searches, and an edge that looks long may
@@ -310,7 +310,7 @@ export function GraphMap({
           <Caption>
             Greedy descent takes one nearest step per layer until layer 0, where
             the wide <span className="font-mono">ef</span> sweep happens. With{" "}
-            {layers.length} layers that is a short list — which is the point of
+            {layers.length} layers that is a short list, which is the point of
             the hierarchy, not a shortcoming of this corpus.
           </Caption>
         </Panel>
@@ -424,7 +424,7 @@ function DegreeTable({ stats }: { stats: LayerStats }) {
       <Caption>
         The bound is M above layer 0 and 2M at layer 0. Degrees pile up against
         it because the neighbour heuristic prunes back to the cap rather than
-        refusing new edges — a node whose list is full gives up its most
+        refusing new edges, a node whose list is full gives up its most
         redundant link, not the newcomer.
       </Caption>
     </Panel>

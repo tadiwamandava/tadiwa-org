@@ -3,12 +3,12 @@
  *
  * Produces four artefacts under public/search/:
  *   chunks.json   metadata for every chunk (title, url, kind, text)
- *   lexical.json  a small inverted index — the INSTANT half of search
- *   vectors.bin   int8-quantised embeddings — the SEMANTIC half
+ *   lexical.json  a small inverted index, the INSTANT half of search
+ *   vectors.bin   int8-quantised embeddings, the SEMANTIC half
  *   (hnsw_bg.wasm is copied here by `npm run build:wasm`)
  *
  * WHY TWO INDEXES. Semantic search needs the *query* embedded at runtime,
- * which means shipping an embedding model to the browser — tens of megabytes,
+ * which means shipping an embedding model to the browser, tens of megabytes,
  * for a portfolio where most visitors will never open search. So the palette
  * answers the first keystroke from `lexical.json` (a few KB, already loaded)
  * and only fetches the model once someone has actually engaged. When it lands,
@@ -49,7 +49,7 @@ interface Chunk {
   title: string;
   url: string;
   kind: "project" | "post";
-  /** Which part of the document this came from — shown as a breadcrumb. */
+  /** Which part of the document this came from, shown as a breadcrumb. */
   section: string;
   text: string;
 }
@@ -114,8 +114,8 @@ function collect(): Chunk[] {
       if (fm.pitch) parts.push({ section: "Pitch", text: String(fm.pitch) });
       if (fm.hardestThing) parts.push({ section: "What's hard", text: String(fm.hardestThing) });
 
-      // Design decisions are the highest-signal text in the corpus — they are
-      // the part a recruiter is told to look for — so each one is its own
+      // Design decisions are the highest-signal text in the corpus; they are
+      // the part a recruiter is told to look for, so each one is its own
       // chunk rather than being diluted into the body.
       for (const d of (fm.decisions as Array<Record<string, string>>) ?? []) {
         parts.push({
@@ -155,7 +155,7 @@ function collect(): Chunk[] {
 }
 
 // ---------------------------------------------------------------------------
-// lexical index — BM25 over the same chunks
+// lexical index, BM25 over the same chunks
 // ---------------------------------------------------------------------------
 
 const STOP = new Set(
@@ -170,7 +170,7 @@ function tokenize(s: string): string[] {
     .replace(/[^a-z0-9+#./-]+/g, " ")
     .split(/\s+/)
     // Trailing punctuation stripped; internal punctuation kept. MUST stay
-    // identical to tokenize() in src/lib/search/lexical.ts — check:search
+    // identical to tokenize() in src/lib/search/lexical.ts, check:search
     // is what catches it if these two ever disagree.
     .map((t) => t.replace(/[.\-/]+$/, ""))
     .filter((t) => t.length > 1 && !STOP.has(t));
@@ -224,7 +224,7 @@ function quantize(vectors: Float32Array[], dim: number): Buffer {
     let peak = 0;
     for (let j = 0; j < dim; j++) peak = Math.max(peak, Math.abs(v[j]));
     // Per-ROW scale, not per-tensor: these are unit-norm embeddings, so the
-    // per-row peak varies little — but a single global scale would let one
+    // per-row peak varies little, but a single global scale would let one
     // outlier row crush the resolution of every other one.
     const scale = peak / 127 || 1e-8;
     scales.writeFloatLE(scale, i * 4);
@@ -239,7 +239,7 @@ function quantize(vectors: Float32Array[], dim: number): Buffer {
 async function main() {
   const chunks = collect();
   if (chunks.length === 0) {
-    console.error("\n  No content found under content/ — nothing to index.\n");
+    console.error("\n  No content found under content/, nothing to index.\n");
     process.exit(1);
   }
   console.log(`\n  Chunked ${chunks.length} passages from the corpus.`);
@@ -260,7 +260,7 @@ async function main() {
 
   console.log(`  Loading ${MODEL} …  (first run downloads it; subsequent runs are cached)`);
   const { pipeline } = await import("@huggingface/transformers");
-  // q8, NOT fp32 — for two independent reasons.
+  // q8, NOT fp32, for two independent reasons.
   //
   // 1. CORRECTNESS. The browser embeds QUERIES with the q8 model (see
   //    lib/search/engine.ts). Embedding documents at a different precision
@@ -269,7 +269,7 @@ async function main() {
   // 2. REPRODUCIBILITY. `dtype: "fp32"` only ever downloads onnx/model.onnx.
   //    scripts/copy-model.sh copies onnx/model_quantized.onnx, so on a clean
   //    machine `build:model` failed right after `build:search` with "No such
-  //    file or directory" — it only appeared to work locally because an
+  //    file or directory", it only appeared to work locally because an
   //    unrelated q8 load had already warmed that file into the cache.
   const embed = await pipeline("feature-extraction", MODEL, { dtype: "q8" });
 

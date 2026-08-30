@@ -1,5 +1,5 @@
 /* ============================================================================
-   bench.module.css — the two presentations of one list.
+   bench.module.css, the two presentations of one list.
 
    There is exactly one <ul> of project links in the markup. This file decides
    whether it renders as a plain index (server HTML, no JS, narrow viewports, or
@@ -8,7 +8,7 @@
 
    THE STAGE IS ONE BOX AND BOTH PRESENTATIONS FIT IT. Its height is reserved
    here from `--bench-rows`, which the shell computes from the project count on
-   the server — so the reservation is in the first HTML the browser parses, and
+   the server, so the reservation is in the first HTML the browser parses, and
    nothing moves when the canvas takes over. `--bench-rows` is `ceil(n / cols)`
    for the same `cols` the fallback grid uses, so the box is by construction
    exactly the fallback list's height.
@@ -19,13 +19,13 @@
      · a height derived from the board and written back by JavaScript moved the
        page 180px the moment the canvas painted.
 
-   A BOARD IS A DARK OBJECT. From 640px up — the width where the stage becomes a
-   board rather than a bordered list — the panel takes the darkest ground the
+   A BOARD IS A DARK OBJECT. From 640px up, the width where the stage becomes a
+   board rather than a bordered list, the panel takes the darkest ground the
    token set has, in BOTH themes: in dark that is `--surface`, which is what it
    already was; in light that is `--text`, slate-900, so the board reads as a
    dark part sitting on a white desk rather than as copper drawn on paper.
 
-   Nothing here invents a colour. The `--board-*` variables below are aliases —
+   Nothing here invents a colour. The `--board-*` variables below are aliases,
    they only choose WHICH existing token plays each role, and they swap in the
    same three-state pattern globals.css uses (bare :root, prefers-color-scheme
    guarded against an explicit light choice, and [data-theme="dark"]).
@@ -45,14 +45,14 @@
    Note what the ladder forces: on the light board there is no token between
    --border-strong and white that clears AA on a slate-600 package, so the chip
    label and its designator share one ink and separate by size and tracking
-   instead of by tone. That is what real silkscreen does — it is one ink.
+   instead of by tone. That is what real silkscreen does; it is one ink.
 
-   Every colour, font and type step is a token. No hex values live here — the
+   Every colour, font and type step is a token. No hex values live here, the
    palette is owned by globals.css and the canvas reads the same variables at
    runtime.
 
    Note the shape of the font declarations: `font-family: var(--font-mono),
-   monospace` does NOT fall back when `--font-mono` is undefined, it makes the
+   monospace` does NOT fall back when `--font-mono` is undefined; it makes the
    whole declaration invalid at computed-value time and the element inherits.
    That is how these labels silently lost their monospace when the token was
    renamed. The fallback stack belongs INSIDE the var().
@@ -110,7 +110,7 @@
 }
 
 /* The dark theme's page is already the dark object; the board goes back to
-   being a raised panel on it. Duplicated on purpose — see globals.css. */
+   being a raised panel on it. Duplicated on purpose, see globals.css. */
 @media (min-width: 640px) and (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .stage {
     --board-ground: var(--surface);
@@ -178,7 +178,7 @@
 /* ---- the index ------------------------------------------------------------
    Fallback presentation. The column counts come from the shell as custom
    properties, because `auto-fill` cannot balance a row: at 1152px it fits five
-   215px tracks, and eleven cards then render 5/5/1 — one orphan beside four
+   215px tracks, and eleven cards then render 5/5/1, one orphan beside four
    empty cells. `balancedCols()` is the same cost function the board uses, so
    both presentations agree that eleven modules are 4/4/3. */
 
@@ -203,7 +203,7 @@
 /* From here the stage has a reserved height, so the list fills it rather than
    defining it. The column breakpoints below MUST be the ones the reservation
    uses, or the grid wraps to a row the stage did not reserve. `grid-auto-rows`
-   is the CARD_H the reservation was computed from — the two must not drift. */
+   is the CARD_H the reservation was computed from, the two must not drift. */
 @media (min-width: 640px) {
   .index {
     position: absolute;
@@ -214,7 +214,7 @@
   }
 }
 
-/* 960px is not a round number, it is where the board itself switches from three
+/* 960px is not a round number; it is where the board itself switches from three
    columns to four: four legible 160px footprints need an 800px routing grid,
    which needs an ~894px stage, which needs a ~958px viewport. Putting the card
    grid's breakpoint anywhere else would have the fallback reserving rows the
@@ -245,7 +245,7 @@
 /* ---- a chip ---------------------------------------------------------------
    Fallback presentation: an ordinary card. Live presentation: a transparent
    label sitting exactly on the footprint the canvas drew underneath. The link
-   is the same element in both, which is the whole point — the canvas never
+   is the same element in both, which is the whole point, the canvas never
    becomes the thing you have to click. */
 
 .chip {
@@ -269,7 +269,7 @@
   border-color: var(--board-copper);
 }
 
-/* On the board the cards sit ON the substrate rather than above it — a parts
+/* On the board the cards sit ON the substrate rather than above it, a parts
    list silkscreened onto the panel. This is also what keeps the pitch legible:
    the dim ink clears AA on the substrate but not on a package fill. */
 @media (min-width: 640px) {
@@ -296,7 +296,7 @@
 
 /* The focus ring is drawn on the footprint, not on a zero-size box: in live
    mode the link has no border and no background of its own, so without this the
-   only feedback for a keyboard user would be on the canvas underneath — which
+   only feedback for a keyboard user would be on the canvas underneath, which
    assistive tech cannot see and a high-contrast mode would drop. */
 .stage[data-live="true"] .chip:focus-visible {
   outline: 2px solid var(--board-live);
@@ -323,7 +323,7 @@
   letter-spacing: -0.01em;
 }
 
-/* Size and line budget both come from the solver — a media query cannot see how
+/* Size and line budget both come from the solver, a media query cannot see how
    wide the footprint under this label ended up being. */
 .stage[data-live="true"] .title {
   font-family: var(--font-mono, ui-monospace, Menlo, monospace);
@@ -367,7 +367,7 @@
 /* ---- desktop type budget --------------------------------------------------
    MUST come after the base .title/.pitch rules. It lived above them once, at
    equal specificity, so `.pitch { -webkit-line-clamp: 3 }` further down the
-   file silently won and the card rendered three lines into a two-line box —
+   file silently won and the card rendered three lines into a two-line box,
    which the browser then hard-cut through the middle of the glyphs, because
    -webkit-line-clamp only draws an ellipsis when IT is what truncated, not
    when the box ran out of room.
@@ -407,7 +407,7 @@
 }
 
 /* In live mode the pitch and status move to the readout, but they stay in the
-   accessible name of the link — a screen-reader user must not have to watch a
+   accessible name of the link, a screen-reader user must not have to watch a
    canvas to find out what a project is. */
 .stage[data-live="true"] .pitch,
 .stage[data-live="true"] .status {
@@ -424,7 +424,7 @@
 
 /* Active = hovered, or focused via the keyboard. The canvas carries the state:
    it outlines the package, energises the net, runs pulses down it and parks the
-   probe on pin 1. The label deliberately does NOT change colour — on the light
+   probe on pin 1. The label deliberately does NOT change colour, on the light
    board there is no second ink that clears AA on a slate-600 package, and a
    cue that has to fail contrast to exist is not a cue worth having. The
    keyboard cue is the focus ring below, which is real regardless of the canvas.

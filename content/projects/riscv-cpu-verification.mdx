@@ -1,6 +1,6 @@
 ---
 title: RISC-V Core + Verification Environment
-pitch: A pipelined RV32I processor on an FPGA, plus the constrained-random verification rig that proves it correct — two artifacts, because verification is where the intern slots actually are.
+pitch: A pipelined RV32I processor on an FPGA, plus the constrained-random verification rig that proves it correct. Two artifacts, because verification is where the intern slots actually are.
 status: planned
 started: "2027-02-01"
 domains: ["silicon"]
@@ -25,7 +25,7 @@ roleRelevance:
 ## Why the verification half exists
 
 Roughly 60% of chip-design effort is verification, and the undergraduate
-pipeline into it is nearly empty — students consider it unglamorous, mostly
+pipeline into it is nearly empty. Students consider it unglamorous, mostly
 without ever learning what it is. Verification is adversarial systems thinking:
 you are trying to break something on purpose, with evidence.
 
@@ -38,15 +38,15 @@ serious environment that proves it correct.
   in Python; every retired instruction's architectural state is compared
   automatically.
 - **Constrained-random program generation.** Random-but-legal instruction
-  sequences — arithmetic first, then memory ops with address constraints, then
-  branches with bounded targets — thousands of programs a night in CI.
+  sequences: arithmetic first, then memory ops with address constraints, then
+  branches with bounded targets, thousands of programs a night in CI.
 - **Functional coverage.** Which opcodes, hazard patterns, and branch outcomes
   the random tests have actually exercised, so generation can be steered at the
   holes.
 - **Assertions** for the invariants: `x0` reads zero, no writeback conflicts, PC
   alignment.
 
-That is UVM's methodology — stimulus, checking, coverage — without the UVM
+That is UVM's methodology (stimulus, checking, coverage) without the UVM
 boilerplate, and it is describable in exactly those terms.
 
 ## The log that matters

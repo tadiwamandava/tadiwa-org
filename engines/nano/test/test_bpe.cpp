@@ -1,7 +1,7 @@
 // Tokeniser agreement with HuggingFace, token for token.
 //
 // This matters more than it looks. A tokeniser that is 95% right does not
-// produce 95% as good output — it feeds the model sequences it never saw in
+// produce 95% as good output, it feeds the model sequences it never saw in
 // training, and the failure presents as fluent nonsense rather than an error.
 #include <cstdio>
 #include <cstring>
@@ -24,7 +24,7 @@ int main() {
   auto tb = slurp("public/nano/smollm-tokenizer.bin");
   auto cb = slurp("engines/nano/fixtures/tokenizer-cases.bin");
   if (tb.empty() || cb.empty()) {
-    std::fprintf(stderr, "  missing tokenizer blob or cases — run "
+    std::fprintf(stderr, "  missing tokenizer blob or cases, run "
                          "engines/nano/tools/export_tokenizer.py\n");
     return 2;
   }

@@ -1,5 +1,5 @@
 /**
- * The local-filesystem `ContentStore` — the only driver that exists.
+ * The local-filesystem `ContentStore`, the only driver that exists.
  *
  * Two properties are load-bearing:
  *
@@ -143,7 +143,7 @@ export class FilesystemContentStore implements ContentStore {
         const slug = filename.replace(/\.mdx$/, "");
         const raw = readFileSync(join(dir, filename), "utf8");
 
-        // A file whose YAML does not parse must still appear in the list —
+        // A file whose YAML does not parse must still appear in the list,
         // it is the one the owner most needs to find.
         let frontmatter: Record<string, unknown> = {};
         let parseError: string | undefined;
@@ -154,7 +154,7 @@ export class FilesystemContentStore implements ContentStore {
         }
 
         const issues: FieldIssue[] = parseError
-          ? [{ path: "(frontmatter)", message: `YAML did not parse — ${parseError}` }]
+          ? [{ path: "(frontmatter)", message: `YAML did not parse, ${parseError}` }]
           : issuesFor(kind, frontmatter);
 
         const started = typeof frontmatter.started === "string" ? frontmatter.started : undefined;
@@ -176,7 +176,7 @@ export class FilesystemContentStore implements ContentStore {
         };
       });
 
-    // Unfinished work first — that list is the point of the page — then newest.
+    // Unfinished work first, that list is the point of the page, then newest.
     return summaries.sort((a, b) => {
       const aTodo = a.placeholders.length > 0 || !a.valid;
       const bTodo = b.placeholders.length > 0 || !b.valid;
@@ -210,7 +210,7 @@ export class FilesystemContentStore implements ContentStore {
     assertWritesAllowed();
     const file = pathFor(kind, slug);
     if (!existsSync(file)) {
-      throw new Error(`${relPathFor(kind, slug)} does not exist — use create().`);
+      throw new Error(`${relPathFor(kind, slug)} does not exist, use create().`);
     }
     writeAtomic(file, this.render(kind, draft));
   }

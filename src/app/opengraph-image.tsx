@@ -2,16 +2,16 @@ import { ImageResponse } from "next/og";
 import { ogPalette } from "@/lib/palette";
 import { SITE } from "@/lib/site";
 
-export const alt = `${SITE.name} — ${SITE.role}`;
+export const alt = `${SITE.name} · ${SITE.role}`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-/* Satori supports flexbox and a subset of CSS — no grid, no custom properties.
+/* Satori supports flexbox and a subset of CSS: no grid, no custom properties.
    Colours come from lib/palette.ts, which reads the real stylesheet, so this
    card can never drift from the site's palette.
 
    TODO: load Fraunces as an ArrayBuffer via the `fonts` option to match the
-   site's display face. Rendering in the bundled default until then — a correct
+   site's display face. Rendering in the bundled default until then; a correct
    card in the wrong typeface beats no card. */
 
 export default function Image() {

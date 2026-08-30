@@ -14,8 +14,8 @@ export const metadata: Metadata = {
    /colophon
 
    This page is a portfolio piece, not a footnote. It gets the same treatment as
-   a project writeup — name the decision, name what it beat, show the
-   measurement — because a colophon that only lists dependencies is a
+   a project writeup: name the decision, name what it beat, show the
+   measurement. A colophon that only lists dependencies is a
    package.json with nicer type.
 
    Everything asserted here is checkable against the repository. Where something
@@ -75,8 +75,8 @@ export default function ColophonPage() {
             </StackRow>
             <StackRow term="Search">
               An HNSW index I wrote in Rust, compiled to WebAssembly, over a
-              BM25 lexical index that answers first. Semantic is opt-in — the
-              embedding model is 22 MB. Detail below.
+              BM25 lexical index that answers first. Semantic is opt-in,
+              because the embedding model is 22 MB. Detail below.
             </StackRow>
             <StackRow term="Code samples">
               Shiki through rehype-pretty-code, at build time, in both themes.
@@ -86,8 +86,8 @@ export default function ColophonPage() {
               numerals. Self-hosted by <Code>next/font</Code>.
             </StackRow>
             <StackRow term="Gates">
-              Types, lint, WCAG contrast, corpus schema, search quality, build —
-              in that order, cheapest first.
+              Types, lint, WCAG contrast, corpus schema, search quality,
+              build, in that order, cheapest first.
             </StackRow>
             <StackRow term="Not here">
               No CMS, no database, no analytics, no cookies, and no request to a
@@ -101,8 +101,8 @@ export default function ColophonPage() {
               nothing about a document benefits from being an application.
               Server Components let me act on that literally: the HTML arrives
               finished, and the only JavaScript that reaches the browser on a
-              typical page is a theme toggle and — on the résumé — a print
-              button. Not &ldquo;a small bundle&rdquo;. Those two things.
+              typical page is a theme toggle, plus a print button on the
+              résumé. Not &ldquo;a small bundle&rdquo;. Those two things.
             </p>
             <p>
               What that ruled out was the default answer, which is a
@@ -110,8 +110,8 @@ export default function ColophonPage() {
               text that never changes. The trade is real and I want to name it:
               interactive work has to be deliberately opted into rather than
               assumed, and the pieces of this site that genuinely need a
-              client — the WebAssembly demos in the{" "}
-              <Link href="/lab">Lab</Link> — have to be built as islands. That is
+              client, meaning the WebAssembly demos in the{" "}
+              <Link href="/lab">Lab</Link>, have to be built as islands. That is
               more work than starting from an app. It is also why every other
               page can be a file.
             </p>
@@ -119,8 +119,9 @@ export default function ColophonPage() {
               The token layer deserves its own sentence, because it is load-bearing
               for something later on this page. Every colour on this site is
               defined once, as a custom property, in one stylesheet. Components
-              use semantic names — <Code>bg-surface</Code>, <Code>text-muted</Code>,{" "}
-              <Code>border-border-strong</Code> — and never a literal. That is
+              use semantic names like <Code>bg-surface</Code>,{" "}
+              <Code>text-muted</Code> and <Code>border-border-strong</Code>,
+              never a literal. That is
               not tidiness. It is the precondition for a script being able to
               read the palette and tell me it is wrong.
             </p>
@@ -144,11 +145,11 @@ export default function ColophonPage() {
               </li>
               <li>
                 <strong>The résumé</strong> selects and orders{" "}
-                <Code>resumeBullets</Code>. Live — it is the page next door.
+                <Code>resumeBullets</Code>. Live; it is the page next door.
               </li>
               <li>
                 <strong>A client-side vector index</strong> chunks the prose
-                fields for semantic search. Live — press <Code>⌘K</Code>
+                fields for semantic search. Live; press <Code>⌘K</Code>
                 anywhere on the site.
               </li>
               <li>
@@ -160,7 +161,7 @@ export default function ColophonPage() {
             <p>
               Three of those four exist today. Tailoring is the one that
               doesn&rsquo;t, which still makes part of the schema&rsquo;s
-              strictness speculative — but it is also the reason for the rest of
+              strictness speculative. It is also the reason for the rest of
               it: the schema had to assume a reader with no judgment of its own
               before any of the other three consumers existed to prove the
               assumption out. The vector index is the newest evidence that the
@@ -173,7 +174,7 @@ export default function ColophonPage() {
             <p>
               A language model asked to <em>write about this project</em> will
               produce a number. It will be plausible, it will be specific, and it
-              will be invented — and it will be invented on my behalf, to a
+              will be invented, on my behalf, to a
               recruiter, in a tab I am not looking at. A model asked to{" "}
               <em>pick three of these seven pre-written sentences</em> cannot do
               that. The schema is the containment boundary: the corpus is the
@@ -193,16 +194,16 @@ export default function ColophonPage() {
               is the paragraph explaining why the reference implementation is
               still faster than mine. Making it required means a benchmark cannot
               ship as a victory lap. If I beat Redis at something, the schema
-              forces me to write down what Redis is doing that I am not — which,
-              nine times out of ten, is the paragraph that reveals the benchmark
-              was measuring the wrong thing.
+              forces me to write down what Redis is doing that I am not.
+              Nine times out of ten that is the paragraph revealing the
+              benchmark measured the wrong thing.
             </p>
             <p>
               Every design decision must name a <Code>rejected</Code> alternative.
               A decision with no discarded option is not a decision, it is a
               default that got written up in the past tense. Requiring the field
               means that when I sit down to document a choice, I have to be able
-              to say what else was on the table — and if I cannot, I learn that I
+              to say what else was on the table. If I cannot, I learn that I
               never actually chose. This is the field that is hardest to fill in
               honestly and the one interviewers respond to most.
             </p>
@@ -224,21 +225,21 @@ export default function ColophonPage() {
           <div className="prose mt-5">
             <p>
               Press <Code>⌘K</Code>. What answers the first keystroke is BM25
-              over a small inverted index — a few tens of kilobytes, already
+              over a small inverted index: a few tens of kilobytes, already
               loaded, scored synchronously in the main thread. What can answer
               the second keystroke, if you opt in, is a vector search: an
               HNSW graph over int8-quantised embeddings, matched against a
               query embedded by a transformer running in this tab. Both
               indexes are built from the same {projectCount} projects and{" "}
               {postCount} {postCount === 1 ? "post" : "posts"} that feed every
-              other page — chunked into overlapping ~60-word windows so a hit
+              other page, chunked into overlapping ~60-word windows so a hit
               points at a specific claim rather than &ldquo;somewhere in this
               project.&rdquo; No part of a search, lexical or semantic, ever
               reaches a server; the request never leaves the browser.
             </p>
             <p>
-              The index itself — insertion, the graph search, the int8
-              quantisation — is <Code>crates/hnsw</Code>, hand-written Rust
+              The index itself (insertion, the graph search, the int8
+              quantisation) is <Code>crates/hnsw</Code>, hand-written Rust
               compiled to WebAssembly. Not a library wrapped for the browser;
               the graph construction and the layered search are mine, with
               ten tests asserting the properties that actually matter for a
@@ -246,20 +247,20 @@ export default function ColophonPage() {
               back sorted and deduplicated, a larger search-time candidate
               list never reduces recall, and recall@10 clears 90% against a
               brute-force scan of the same vectors. The compiled artefact is
-              43,175 bytes raw, 18,381 gzipped — small enough that shipping it
+              43,175 bytes raw, 18,381 gzipped, small enough that shipping it
               by default was never the hard decision.
             </p>
             <p>
               The embedding model was. Query embedding needs the same
               transformer that built the index, running in the browser, and
-              even quantised to int8 that is a 22 MB download — for a
-              portfolio, on a feature most visitors will never open. So it is
+              even quantised to int8 that is a 22 MB download, on a portfolio,
+              for a feature most visitors will never open. So it is
               not fetched on page load, or on the first keystroke, or even on
               opening the palette. It is fetched once, after an explicit
               click that states the size up front, same-origin rather than
               from a third-party CDN. Until that click, or if it fails, the
-              palette says exactly which mode answered —{" "}
-              <Code>lexical · BM25</Code> or <Code>semantic · HNSW</Code> —
+              palette says exactly which mode answered,{" "}
+              <Code>lexical · BM25</Code> or <Code>semantic · HNSW</Code>,
               because claiming semantic while quietly serving lexical results
               is a lie a visitor has no way to detect, which makes it the
               worst kind of shortcut to take on a page arguing for rigour.
@@ -269,7 +270,7 @@ export default function ColophonPage() {
               committed, so it is not part of a default build or a default
               deploy. A visitor here gets instant lexical search always, and
               semantic search only once the model has actually made it onto
-              this deployment — which, as of this writing, it has not. The
+              this deployment, which as of this writing it has not. The
               palette does not paper over that; it shows &ldquo;semantic
               unavailable&rdquo; and the real reason on hover rather than a
               button that quietly does nothing. Closing that gap is a
@@ -280,10 +281,10 @@ export default function ColophonPage() {
         </Section>
 
         {/* ---- inference ---------------------------------------------------- */}
-        <Section label="A transformer, in 1,700 lines of C++">
+        <Section label="A transformer, in about 1,500 lines of C++">
           <div className="prose mt-5">
             <p>
-              <Code>/lab/inference</Code> runs a forward pass I wrote by hand —
+              <Code>/lab/inference</Code> runs a forward pass I wrote by hand:
               no framework, no BLAS, no server. It compiles to{" "}
               {engineKb ? `${(engineKb / 1024).toFixed(0)} KB` : "a few tens of KB"}{" "}
               of WebAssembly and runs SmolLM2-135M in the visitor&rsquo;s tab at
@@ -296,17 +297,17 @@ export default function ColophonPage() {
               worth doing: RMSNorm, RoPE, grouped-query attention, SwiGLU, tied
               embeddings, a KV cache, byte-level BPE, and a weight-only int8
               matmul that multiplies the codes where they lie instead of
-              dequantising them. That last one is not a micro-optimisation — it
-              is the difference between 129 MB resident and 513 MB, and only one
-              of those numbers survives contact with a browser tab.
+              dequantising them. That last one is not a micro-optimisation.
+              It is the difference between 129 MB resident and 513 MB, and only
+              one of those numbers survives contact with a browser tab.
             </p>
             <p>
               The only claim worth making about an engine is that it computes
               what the reference computes, so that is the number the page leads
               with. A fixed prompt is replayed through the C++ one token at a
               time, KV cache included, and the final logits are diffed against
-              PyTorch. In fp32 they agree to 4.1 × 10⁻⁵ across thirty layers —
-              accumulated float noise, which is what tells you the weight
+              PyTorch. In fp32 they agree to 4.1 × 10⁻⁵ across thirty layers.
+              That is accumulated float noise, and it is what tells you the weight
               layout, the head slicing and the cache are all right. Nothing
               else would.
             </p>
@@ -325,8 +326,8 @@ export default function ColophonPage() {
               What the page does not do is flatter the model. 135M parameters
               gets facts wrong with total confidence, and the demo shows that
               rather than curating around it. The second model in the selector
-              is one I trained here — 359K parameters on 66 KB of prose, train
-              loss 1.19 against validation 1.94, which is memorisation — and it
+              is one I trained here: 359K parameters on 66 KB of prose, train
+              loss 1.19 against validation 1.94, which is memorisation. It
               is there precisely because it is bad: same engine, same kernels,
               and the entire difference in output is the weights. The matmul
               underneath both is a cache-aware triple loop with the optimisation
@@ -342,7 +343,7 @@ export default function ColophonPage() {
               <Code>scripts/check-contrast.ts</Code> reads{" "}
               <Code>src/app/globals.css</Code>, walks the brace structure to pull
               the three token blocks out of it, and computes WCAG contrast for
-              every foreground/background pairing the design actually uses — in
+              every foreground/background pairing the design actually uses, in
               the light theme and the dark theme both. It exits non-zero on
               failure, and it runs in CI ahead of the build. Today it clears 54
               contrast pairs and 8 perceptual-separation pairs.
@@ -367,14 +368,14 @@ export default function ColophonPage() {
               carry the palette and a drift between them means the OS preference
               and the toggle render different sites; and OKLab distance between
               the token pairs that have to stay tellable apart, which contrast
-              against a background cannot catch — two colours can both sit at
+              against a background cannot catch. Two colours can both sit at
               5.5:1 on the page and still be the same colour.
             </p>
             <p>
               On its first run it failed three checks, all of them on colours I
               had personally looked at and approved. Two were tertiary text at
               4.14:1. The third was the token for control borders, sitting at
-              1.88:1 against a 3:1 requirement — which on my screen read as a
+              1.88:1 against a 3:1 requirement, which on my screen read as a
               tasteful hairline and to someone else was simply not there. The fix
               took ten minutes; noticing was the part I could not do.{" "}
               <Link href="/writing/build-gates-that-argue-back">
@@ -390,7 +391,7 @@ export default function ColophonPage() {
           <div className="prose mt-5">
             <p>
               Three families, each with a job. Fraunces sets display text and
-              nothing else — a variable serif with an optical-size axis, chosen
+              nothing else: a variable serif with an optical-size axis, chosen
               because a default UI sans has no voice and this site is mostly
               prose asking to be read rather than scanned. IBM Plex Sans sets the
               body. IBM Plex Mono sets code, hardware captures, dates, and every
@@ -404,8 +405,8 @@ export default function ColophonPage() {
               contrast against both.
             </p>
             <p>
-              Tabular figures are on everywhere numbers are compared —
-              benchmark tables, the date column on the résumé, project timelines.
+              Tabular figures are on everywhere numbers are compared: benchmark
+              tables, the date column on the résumé, project timelines.
               Proportional figures give a column of numbers a ragged left edge,
               and a ragged column of numbers is a column nobody scans. This is one
               CSS rule and it is the difference between a table you read and a
@@ -415,7 +416,7 @@ export default function ColophonPage() {
               All three are self-hosted through <Code>next/font</Code>: the files
               are fetched at build time and served from this origin, so there is
               no request to a Google domain on any page load and no third party in
-              the critical path. The other half of that is layout stability —{" "}
+              the critical path. The other half of that is layout stability.{" "}
               <Code>next/font</Code> knows the metrics at build, so the fallback
               is matched and nothing reflows when the real face arrives.
             </p>
@@ -423,7 +424,7 @@ export default function ColophonPage() {
               The cost, honestly stated: three families is a lot of bytes for a
               text site. Fraunces ships as two static cuts rather than the
               variable font, because the variable axes are lovely and this site
-              uses the face at about four sizes — the static pair is the smaller
+              uses the face at about four sizes. The static pair is the smaller
               download for identical rendered output.
             </p>
           </div>
@@ -436,7 +437,8 @@ export default function ColophonPage() {
               Code blocks are tokenised by Shiki during the rehype pass that
               compiles the MDX, not in the browser. rehype-pretty-code is
               configured with two themes, and instead of baking one palette into
-              the markup it emits both as custom properties on every token span —{" "}
+              the markup it emits both as custom properties on every token
+              span:{" "}
               <Code>--shiki-light</Code> and <Code>--shiki-dark</Code>. Three CSS
               rules in the stylesheet decide which one applies, keyed off the same{" "}
               <Code>data-theme</Code> attribute everything else uses.
@@ -457,7 +459,7 @@ export default function ColophonPage() {
               worth noting is <Code>keepBackground: false</Code>: Shiki themes
               carry their own background colour, and letting it through would
               make code blocks the single place on the site where a colour escapes
-              the token layer — and therefore the one place the contrast checker
+              the token layer, and therefore the one place the contrast checker
               could not see.
             </p>
           </div>
@@ -477,7 +479,7 @@ export default function ColophonPage() {
               <Code>npm run build</Code> is exactly <Code>next build</Code>. The
               contrast and content checks live in <Code>npm run check</Code> and
               in the GitHub Actions workflow, which covers anything that reaches{" "}
-              <Code>main</Code> — and covers nothing about a deploy triggered from
+              <Code>main</Code> and nothing about a deploy triggered from
               a laptop. I wrote a page arguing that a gate is only worth having if
               it can fail, and then left the two most interesting gates off the
               path that actually ships bytes. A <Code>prebuild</Code> script is a
@@ -486,7 +488,7 @@ export default function ColophonPage() {
 
             <Regret n={2} title="The palette exists in two places, and one of them is not the stylesheet">
               <Code>src/app/layout.tsx</Code> sets{" "}
-              <Code>viewport.themeColor</Code> with two literal hex values — the
+              <Code>viewport.themeColor</Code> with two literal hex values: the
               light and dark page backgrounds, copied out of the token block. It
               is the only colour on the site that does not come from a custom
               property, which makes it the only colour the contrast checker
@@ -505,7 +507,7 @@ export default function ColophonPage() {
               A test that guards a duplication I chose is a workaround wearing a
               lab coat. CSS <Code>light-dark()</Code> would collapse them, at the
               price of a user&rsquo;s explicit choice no longer being able to
-              override their system setting — which is the wrong trade, so this
+              override their system setting. That is the wrong trade, so this
               one may just stay.
             </Regret>
 
@@ -541,7 +543,7 @@ export default function ColophonPage() {
 }
 
 /* ---------------------------------------------------------------------------
-   Local primitives. Same visual language as the project pages — mono section
+   Local primitives. Same visual language as the project pages: mono section
    labels over a hairline, prose body underneath.
    ------------------------------------------------------------------------ */
 

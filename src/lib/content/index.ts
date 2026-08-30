@@ -44,7 +44,7 @@ function explode(file: string, error: z.ZodError): never {
     return `    ${path}: ${issue.message}`;
   });
   throw new Error(
-    `\nContent validation failed — ${file}\n${lines.join("\n")}\n\n` +
+    `\nContent validation failed, ${file}\n${lines.join("\n")}\n\n` +
       `  Fix the frontmatter in that file. The schema lives in\n` +
       `  src/lib/content/schema.ts and is strict on purpose: /tailor is only\n` +
       `  allowed to assert facts that exist here.\n`,
@@ -72,7 +72,7 @@ export const getAllProjects = cache((): Project[] => {
     } satisfies Project;
   });
 
-  // Newest first, but anything still in flight floats above finished work —
+  // Newest first, but anything still in flight floats above finished work,
   // recruiters track velocity, so "building" is a feature of the ordering.
   return projects.sort((a, b) => {
     const rank = { building: 0, shipped: 1, planned: 2 } as const;

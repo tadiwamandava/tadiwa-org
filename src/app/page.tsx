@@ -30,9 +30,10 @@ export default function HomePage() {
             </h1>
 
             <p className="mt-7 max-w-2xl text-xl leading-relaxed text-muted">
-              Storage engines, RTOS kernels, RISC-V cores and the verification
-              rigs that prove them correct. I care most about the layer where
-              software stops being an abstraction and starts being a voltage.
+              Storage engines, RTOS kernels, RISC-V cores, and the
+              verification rigs that prove them correct. The layer I care about
+              is where software stops being an abstraction and starts being a
+              voltage.
             </p>
 
             <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-3">
@@ -54,8 +55,8 @@ export default function HomePage() {
       </section>
 
       {/* ---- currently building --------------------------------------------
-          Recruiters track recency. Saying what is in flight — with the honest
-          "in progress" framing — beats a page of only-finished work. */}
+          Recruiters track recency. Saying what is in flight, with the honest
+          "in progress" framing, beats a page of only-finished work. */}
       <section className="border-b border-border bg-surface">
         <Container wide className="py-4">
           <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
@@ -82,7 +83,7 @@ export default function HomePage() {
         {fallback.length === 0 ? (
           <EmptyState
             what="projects"
-            hint="Add an .mdx file to content/projects/ — the schema in src/lib/content/schema.ts describes every field."
+            hint="Add an .mdx file to content/projects/. The schema in src/lib/content/schema.ts describes every field."
           />
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

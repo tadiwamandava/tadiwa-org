@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     "Storage engines, RTOS kernels, RISC-V cores, and the verification environments that prove them correct.",
 };
 
-// Same "in-flight floats first" ordering as lib/content/index.ts's sort —
+// Same "in-flight floats first" ordering as lib/content/index.ts's sort;
 // kept here as display labels only; the filter chip *values* are always
 // derived from the corpus, never from this list.
 const STATUS_ORDER: Project["status"][] = ["building", "shipped", "planned"];
@@ -51,7 +51,7 @@ export default async function ProjectsPage(props: PageProps<"/projects">) {
 
   const hasActiveFilter = Boolean(selected.domain || selected.lang || selected.status);
 
-  // Status grouping earns its keep by surfacing in-flight work first — but
+  // Status grouping earns its keep by surfacing in-flight work first, but
   // once someone has already filtered down to one status, a flat grid is
   // clearer than a single lonely group header.
   const groups = selected.status
@@ -68,7 +68,7 @@ export default async function ProjectsPage(props: PageProps<"/projects">) {
         <h1 className="font-display text-4xl tracking-tight">Projects</h1>
         <p className="mt-4 text-lg leading-relaxed text-muted">
           Each of these has a writeup covering the architecture, the decisions I
-          made and the ones I rejected, and — where there are numbers — the
+          made and the ones I rejected, and where there are numbers, the
           methodology behind them.
         </p>
       </header>

@@ -4,11 +4,11 @@ import { bm25, dedupeByUrl } from "./lexical";
 /**
  * Two-stage search.
  *
- *   Stage 1 — lexical. ~80 KB of JSON, loaded on first open, BM25 in the main
+ *   Stage 1, lexical. ~80 KB of JSON, loaded on first open, BM25 in the main
  *             thread. Answers the first keystroke. This is what almost every
  *             visitor will ever use.
  *
- *   Stage 2 — semantic. An HNSW graph I wrote in Rust (compiled to WASM,
+ *   Stage 2, semantic. An HNSW graph I wrote in Rust (compiled to WASM,
  *             ~18 KB gzip) over int8 document vectors, plus a quantised
  *             MiniLM to embed the query. The model is ~22 MB, so it is
  *             EXPLICITLY OPT-IN and the size is shown before the click. A
@@ -16,7 +16,7 @@ import { bm25, dedupeByUrl } from "./lexical";
  *             is a portfolio that has misunderstood the assignment.
  *
  * Everything here is dynamically imported. None of it may enter the first-paint
- * bundle — `npm run check:bundle` fails the build if it does.
+ * bundle, `npm run check:bundle` fails the build if it does.
  */
 
 const BASE = "/search";
@@ -28,7 +28,7 @@ const BASE = "/search";
  * circumstances: there, free-text search is an opt-in extra bolted onto an
  * index that is already loaded and already being measured, so it needs the
  * embedder without the rest of `loadSemantic`'s state machine. Extracted rather
- * than copied — the two `env` flags below are the kind of detail that drifts
+ * than copied, the two `env` flags below are the kind of detail that drifts
  * silently when it exists twice.
  *
  * ~22 MB. Never call this without telling the visitor first.

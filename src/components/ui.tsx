@@ -52,7 +52,7 @@ export function StatusPill({
   );
 }
 
-/** Section heading with a hairline rule — used across index pages. */
+/** Section heading with a hairline rule, used across index pages. */
 export function SectionHeading({
   children,
   action,

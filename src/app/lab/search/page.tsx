@@ -15,10 +15,10 @@ import { SearchLabMount } from "@/components/lab/search-lab-mount";
    island does every measurement; nothing on this side of the boundary asserts a
    number it did not read off disk at build time.
 
-   That last part is deliberate. "43 KB of WebAssembly over 99 chunks" is the
+   That last part is deliberate. "43 KB of WebAssembly over 97 chunks" is the
    kind of sentence that is true the week it is written and quietly wrong three
    rebuilds later, so the figures below are read out of public/search at build
-   time — from the same files the browser fetches. A stale number here would
+   time, from the same files the browser fetches. A stale number here would
    have to survive a rebuild that changed the file it was measuring, which it
    cannot.
    ========================================================================= */
@@ -26,7 +26,7 @@ import { SearchLabMount } from "@/components/lab/search-lab-mount";
 export const metadata: Metadata = {
   title: "Vector search, client-side",
   description:
-    "An HNSW index written in Rust and compiled to WebAssembly, searching this site in your browser — with its layer structure drawn, its recall measured live against an exhaustive scan, and an honest account of what it does not buy.",
+    "An HNSW index written in Rust and compiled to WebAssembly, searching this site in your browser, with its layer structure drawn, its recall measured live against an exhaustive scan, and an honest account of what it does not buy.",
 };
 
 const SEARCH_DIR = join(process.cwd(), "public", "search");
@@ -66,8 +66,8 @@ export default function SearchLabPage() {
           </h1>
 
           <p className="mt-5 max-w-2xl text-xl leading-relaxed text-muted">
-            An HNSW graph I wrote in Rust and compiled to WebAssembly —{" "}
-            {kb(facts.wasmBytes)} raw, {kb(facts.wasmGzip)} over the wire —
+            An HNSW graph I wrote in Rust and compiled to WebAssembly,{" "}
+            {kb(facts.wasmBytes)} raw and {kb(facts.wasmGzip)} over the wire,
             searching {facts.count} chunks of this site&rsquo;s own writing
             entirely inside your browser. Everything below is measured in this
             tab while you read it, including the part where the graph loses.
@@ -91,7 +91,7 @@ export default function SearchLabPage() {
           <div className="prose mt-5">
             <p>
               Search on this site has two stages. The first is BM25 over an
-              inverted index — 80 KB of JSON, scored in the main thread, and the
+              inverted index: 80 KB of JSON, scored in the main thread, and the
               only stage almost anyone will ever reach. The second is this one: a
               hierarchical navigable small world graph over int8-quantised
               document vectors, built by <Code>Index::build</Code> the moment you
@@ -99,7 +99,7 @@ export default function SearchLabPage() {
               scanning a list.
             </p>
             <p>
-              I wrote the graph rather than installed it — construction, the
+              I wrote the graph rather than installed it. Construction, the
               neighbour-selection heuristic, the search, the quantised vector
               format and the WebAssembly bindings are in{" "}
               <Code>crates/hnsw/src/</Code>, in about 1,200 lines of Rust with
@@ -114,7 +114,7 @@ export default function SearchLabPage() {
               roughly the same amount of arithmetic as the scan it replaces. It
               earns its place because the structure is the point, and because it
               is still sub-millisecond when the corpus is a hundred times larger
-              — which is also measured below rather than claimed.
+              , which is also measured below rather than claimed.
             </p>
             <p>
               An index that cannot be checked is a claim, not evidence. So{" "}
@@ -132,7 +132,7 @@ export default function SearchLabPage() {
           <div className="prose mt-5">
             <p>
               <Code>crates/hnsw/src/hnsw.rs</Code> is the algorithm, with no
-              WebAssembly in it — construction, ALG 4&rsquo;s neighbour heuristic,
+              WebAssembly in it: construction, ALG 4&rsquo;s neighbour heuristic,
               the layer descent, and a brute-force scan kept for grading.{" "}
               <Code>quant.rs</Code> is the on-the-wire vector format.{" "}
               <Code>lib.rs</Code> is nothing but marshalling across the JS
@@ -141,8 +141,8 @@ export default function SearchLabPage() {
               asserting that search returned ten things.
             </p>
             <p>
-              The rest of how this site is put together — including why every
-              colour on this page is a token and what fails the build — is in the{" "}
+              The rest of how this site is put together, including why every
+              colour on this page is a token and what fails the build, is in the{" "}
               <Link href="/colophon">colophon</Link>. Other things you can run
               are in the <Link href="/lab">lab</Link>.
             </p>

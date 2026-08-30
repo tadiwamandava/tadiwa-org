@@ -1,7 +1,7 @@
 "use client";
 
 /* ============================================================================
-   bench.tsx — the shell.
+   bench.tsx, the shell.
 
    Everything the visitor actually uses lives here as plain DOM: one <ul>, one
    <a> per project, real text, real focus. The canvas is a sibling layer that is:
@@ -24,7 +24,7 @@
 
    Both numbers come from the project count via the same cost function, which is
    what keeps them honest. The revision before this one fixed the stage at
-   `clamp(360px, 42vw, 540px)` — a guess that knew neither number, and between
+   `clamp(360px, 42vw, 540px)`, a guess that knew neither number, and between
    640px and ~730px it clipped five of the eleven projects behind an inner
    scrollbar. The revision after that derived the height from the board and
    wrote it back, which cost 180px of layout shift the moment the canvas
@@ -79,7 +79,7 @@ export function Bench({ projects }: { projects: BenchProject[] }) {
      the renderer in its own loop, and never a reason to render. */
   const probeRef = useRef<ProbeTarget>({ x: 0, y: 0, visible: false });
 
-  /* `null` whenever this width cannot hold a legible board — which is stricter
+  /* `null` whenever this width cannot hold a legible board, which is stricter
      than any media query, because it knows the project count. Eleven modules
      need ~700px; three need ~560px. */
   const layout = useMemo(
@@ -161,11 +161,11 @@ export function Bench({ projects }: { projects: BenchProject[] }) {
 
   const current = active === null ? null : projects[active];
 
-  /* Three sets of numbers, all derived from the project count on the server —
+  /* Three sets of numbers, all derived from the project count on the server,
      so they are in the first HTML the browser sees, not applied a second later:
 
        --bench-cols-*  the fallback grid's column count at three widths. CSS
-                       `auto-fill` cannot do this — at 1152px it fits five
+                       `auto-fill` cannot do this, at 1152px it fits five
                        215px tracks, and eleven cards then render 5/5/1, with
                        U11 orphaned beside four empty cells.
 
@@ -276,7 +276,7 @@ export function Bench({ projects }: { projects: BenchProject[] }) {
           </>
         ) : live ? (
           <p className={styles.readoutIdle}>
-            Probe a module — point at one, or press{" "}
+            Probe a module, point at one, or press{" "}
             <span className={styles.readoutKey}>Tab</span> to walk the board.
           </p>
         ) : (

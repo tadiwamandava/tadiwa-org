@@ -9,8 +9,8 @@ import type { SweepRow } from "@/lib/search/stats";
 /**
  * The same code at 100× the corpus.
  *
- * This exists because the honest finding on the real corpus — that 99 vectors
- * is too few for the graph to save any work — leaves a claim dangling: that it
+ * This exists because the honest finding on the real corpus, that 99 vectors
+ * is too few for the graph to save any work, leaves a claim dangling: that it
  * would, at scale. Quoting a published benchmark for that would be exactly the
  * assertion this page refuses to make everywhere else, so the page builds the
  * bigger index instead, in the visitor's browser, from vectors it generates.
@@ -18,7 +18,7 @@ import type { SweepRow } from "@/lib/search/stats";
  * IN A WORKER. `Index::build` over 10,000 vectors is one uninterruptible call
  * that takes seconds; on the main thread it is a frozen tab, and a frozen tab
  * on a page arguing for measurement reads as a page that crashed. Nothing is
- * downloaded for this — the vectors are synthesised locally, which is also why
+ * downloaded for this, the vectors are synthesised locally, which is also why
  * they are synthetic and the copy says so.
  */
 
@@ -127,8 +127,8 @@ export function ScalePanel({ ef, smallCorpus }: { ef: number; smallCorpus: numbe
           on {fmt.count(smallCorpus)} chunks, and quoting somebody else&rsquo;s
           benchmark for it would be the kind of assertion the rest of this page
           refuses to make. So build the bigger index instead:{" "}
-          {fmt.count(CONFIG.count)} vectors — {Math.round(CONFIG.count / smallCorpus)}×
-          this corpus — at the same {CONFIG.dim} dimensions, through the same{" "}
+          {fmt.count(CONFIG.count)} vectors, {Math.round(CONFIG.count / smallCorpus)}×
+          this corpus, at the same {CONFIG.dim} dimensions, through the same{" "}
           <code className="font-mono text-[0.9em]">Index::build</code>, measured
           the same way.
         </p>
@@ -155,7 +155,7 @@ export function ScalePanel({ ef, smallCorpus }: { ef: number; smallCorpus: numbe
       <Panel className="mt-6">
         <p className="text-sm text-muted">
           The scale test did not run: {state.message}. Everything above is
-          unaffected — it runs on the shipped index, which is already built.
+          unaffected, it runs on the shipped index, which is already built.
         </p>
       </Panel>
     );
@@ -228,7 +228,7 @@ export function ScalePanel({ ef, smallCorpus }: { ef: number; smallCorpus: numbe
 
       {state.status === "done" && (
         <Caption>
-          Same crate, same parameters, same measurement — only n changed. This is
+          Same crate, same parameters, same measurement, only n changed. This is
           the regime the data structure was designed for, and it is also the
           regime this website is not in.
         </Caption>

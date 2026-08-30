@@ -2,7 +2,7 @@
 # Logit parity for the Llama-family engine, against HuggingFace.
 #
 # Runs against whichever weight files are in the checkout. The int8 file is
-# 129 MB and the fp32 file 513 MB, so neither is guaranteed to be there — a
+# 129 MB and the fp32 file 513 MB, so neither is guaranteed to be there, a
 # missing file is reported as SKIPPED rather than failing, for the same reason
 # an unimplemented op reports "stub": a gate that goes red for a reason
 # unrelated to correctness gets ignored, and then it is not a gate.
@@ -27,7 +27,7 @@ for w in public/nano/smollm-int8.bin public/nano/smollm-fp32.bin; do
 done
 
 if [ "$ran" = 0 ]; then
-  printf '\n  No SmolLM2 weights present — nothing to check. Regenerate with\n'
+  printf '\n  No SmolLM2 weights present, nothing to check. Regenerate with\n'
   printf '  engines/nano/tools/convert_smollm.py, or see DEPLOY.md.\n\n'
 fi
 exit "$status"

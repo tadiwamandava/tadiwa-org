@@ -3,7 +3,7 @@
 /**
  * "New project" / "New post".
  *
- * Type a title, get a file that is already valid — schema minimums met, corpus
+ * Type a title, get a file that is already valid, schema minimums met, corpus
  * invariants satisfied, `status: building` so the shipped/finished rule holds.
  * The placeholder text is deliberate TODO copy, so the entry appears in the
  * unfinished list on this very page the moment it exists.
@@ -42,7 +42,7 @@ export function NewEntry({ kind }: { kind: EntryKind }) {
         htmlFor={inputId}
         className="block font-mono text-2xs tracking-wide text-muted uppercase"
       >
-        New {kind} — title
+        New {kind}, title
       </label>
       <div className="mt-1 flex gap-2">
         <input

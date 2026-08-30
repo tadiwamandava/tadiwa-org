@@ -2,7 +2,7 @@
  * Critical-JS budget gate for the home page.
  *
  * Next.js 16 removed the `size` / `First Load JS` columns from `next build`
- * output — the Next team found them inaccurate for RSC architectures, where a
+ * output, the Next team found them inaccurate for RSC architectures, where a
  * lot of what used to count as "page JS" now only exists on the server. So
  * there is nothing left to scrape from the build log; this script measures
  * the shipped bytes directly, from the manifests Next itself uses to decide
@@ -10,13 +10,13 @@
  *
  * "Critical" here means: the JS a fresh visitor's browser fetches and runs to
  * paint and hydrate "/". It deliberately EXCLUDES anything reached only
- * through `next/dynamic` — currently the canvas renderer behind the PCB-hero
+ * through `next/dynamic`, currently the canvas renderer behind the PCB-hero
  * component (src/components/game/bench.tsx loads bench-canvas.tsx lazily;
- * whatever rendering library bench-canvas.tsx pulls in — Phaser at one point,
- * a hand-rolled Canvas2D renderer as of this writing — is lazy by design and
+ * whatever rendering library bench-canvas.tsx pulls in, Phaser at one point,
+ * a hand-rolled Canvas2D renderer as of this writing, is lazy by design and
  * must never count against paint). Summing every file under .next/static
  * would silently fold that chunk back in and make the budget unpassable by
- * construction — exactly the bug this script exists not to have. This is
+ * construction, exactly the bug this script exists not to have. This is
  * also why the check below doesn't look for a chunk by name or size: it
  * asserts the *pattern* (whatever next/dynamic defers stays out of the sync
  * set), which holds regardless of what that dynamic import happens to be.
@@ -24,14 +24,14 @@
  * The critical set is derived from two build artifacts rather than hand
  * maintained, so it can't drift from what actually ships:
  *
- *   - .next/build-manifest.json's `rootMainFiles` — the framework bootstrap
+ *   - .next/build-manifest.json's `rootMainFiles`, the framework bootstrap
  *     (React, Next's client runtime, the Turbopack module loader) shipped on
  *     every route. `polyfillFiles` is deliberately excluded: it's emitted as
  *     `<script nomodule>`, so it is never fetched by a browser that
- *     understands ES modules — which is every real visitor, and Lighthouse.
+ *     understands ES modules, which is every real visitor, and Lighthouse.
  *
  *   - .next/server/app/page_client-reference-manifest.js's `clientModules`,
- *     filtered to entries where `async` is not true — the client components
+ *     filtered to entries where `async` is not true, the client components
  *     "/" needs synchronously to hydrate (nav, theme toggle, the Bench
  *     shell). Modules only reachable through `next/dynamic` come through
  *     marked `async: true` and are correctly left out here; they're
@@ -39,7 +39,7 @@
  *     assert they stayed out rather than just assuming it.
  *
  * This was checked once by hand against the real <script> tags in
- * .next/server/app/index.html — the derived set matches exactly.
+ * .next/server/app/index.html, the derived set matches exactly.
  *
  * Run after `npm run build`, via `npm run check:bundle`.
  */
@@ -63,24 +63,24 @@ const HOME_LOADABLE_MANIFEST = join(NEXT_DIR, "server/app/page/react-loadable-ma
 const BYTES_PER_KIB = 1024;
 
 /**
- * Budget, in gzip KiB — the unit that actually crosses the wire, and the
+ * Budget, in gzip KiB, the unit that actually crosses the wire, and the
  * standard one for JS performance budgets (a raw-byte budget hides what a
  * visitor really pays).
  *
  * Measured on 2026-08-21 against this exact codebase: the home page's
- * critical set was 143,589 bytes gzipped (~140.2 KiB) — React 19 + Next.js
+ * critical set was 143,589 bytes gzipped (~140.2 KiB), React 19 + Next.js
  * 16's client runtime, the nav-link and theme-toggle client components, and
- * the Bench shell (src/components/game/bench.tsx — the always-rendered
+ * the Bench shell (src/components/game/bench.tsx, the always-rendered
  * server list and its hover/focus wiring, not the lazily-loaded canvas).
  *
  * The product brief's stated target is 50KB critical JS. That number is not
  * reachable by any Next.js 16 / React 19 app with even one client component:
  * the framework runtime alone is ~140 KiB gzipped before a byte of this
  * site's own code runs. A gate set to the aspirational 50KB would fail on
- * every single run, which is indistinguishable from no gate at all — it gets
+ * every single run, which is indistinguishable from no gate at all; it gets
  * muted or deleted within a week. So this budget is set just above the
  * measured baseline instead: it PASSES today, and starts failing the moment
- * the critical path grows — a new always-on client component, a dependency
+ * the critical path grows, a new always-on client component, a dependency
  * pulled into the sync path, or something that should have been
  * `next/dynamic` losing that wrapper.
  *
@@ -114,8 +114,8 @@ function readJSON<T>(path: string): T {
 }
 
 /**
- * The client-reference-manifest ships as an executable JS file — it assigns
- * onto `globalThis.__RSC_MANIFEST` for the browser to read at runtime — not
+ * The client-reference-manifest ships as an executable JS file, it assigns
+ * onto `globalThis.__RSC_MANIFEST` for the browser to read at runtime, not
  * as JSON. Running it in a throwaway VM context is exact and far less
  * brittle than regexing JSON-shaped data out of it by hand: the values are
  * arbitrary module ids and file paths, and a regex has no principled place
@@ -140,7 +140,7 @@ function frameworkChunks(): string[] {
   return manifest.rootMainFiles;
 }
 
-/** Client chunks "/" needs synchronously — i.e. NOT behind next/dynamic. */
+/** Client chunks "/" needs synchronously, i.e. NOT behind next/dynamic. */
 function syncPageChunks(manifest: RscManifest): Set<string> {
   const out = new Set<string>();
   for (const mod of Object.values(manifest.clientModules)) {
@@ -150,7 +150,7 @@ function syncPageChunks(manifest: RscManifest): Set<string> {
   return out;
 }
 
-/** Chunks Next only reaches through next/dynamic for "/" — should be empty of overlap with the sync set. */
+/** Chunks Next only reaches through next/dynamic for "/", should be empty of overlap with the sync set. */
 function deferredChunks(path: string): Set<string> {
   if (!existsSync(path)) return new Set();
   const manifest = readJSON<Record<string, LoadableManifestEntry>>(path);
@@ -186,11 +186,11 @@ function run(): number {
   let failures = 0;
 
   // ---- deferred chunks must stay deferred ---------------------------------
-  console.log('\n  Deferred chunks (next/dynamic — must stay OUT of the initial payload)');
+  console.log('\n  Deferred chunks (next/dynamic, must stay OUT of the initial payload)');
   if (deferred.size === 0) {
     failures++;
     console.log(
-      '  ✗ no dynamically-imported chunk found for "/" — is bench-canvas.tsx still loaded via next/dynamic? (see src/components/game/bench.tsx)',
+      '  ✗ no dynamically-imported chunk found for "/", is bench-canvas.tsx still loaded via next/dynamic? (see src/components/game/bench.tsx)',
     );
   }
   for (const file of deferred) {
@@ -231,13 +231,13 @@ function run(): number {
   console.log("");
   if (failures > 0) {
     console.error(
-      `  FAILED — ${failures} problem(s). If the critical set grew, check whether a new import ` +
-        `belongs behind next/dynamic instead of running on first paint — see bench.tsx for the pattern.\n`,
+      `  FAILED: ${failures} problem(s). If the critical set grew, check whether a new import ` +
+        `belongs behind next/dynamic instead of running on first paint, see bench.tsx for the pattern.\n`,
     );
     return 1;
   }
   console.log(
-    `  PASSED — critical JS for "/" is ${totalGzipKib.toFixed(1)} KiB gzip (budget ${CRITICAL_JS_BUDGET_KIB} KiB), ` +
+    `  PASSED: critical JS for "/" is ${totalGzipKib.toFixed(1)} KiB gzip (budget ${CRITICAL_JS_BUDGET_KIB} KiB), ` +
       `and the deferred chunk stayed out of it.\n`,
   );
   return 0;

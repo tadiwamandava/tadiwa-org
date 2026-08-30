@@ -4,7 +4,7 @@
  * Header search button.
  *
  * Dispatches a window event instead of importing the palette, so the palette's
- * chunk (and everything it pulls in) stays out of the header's module graph —
+ * chunk (and everything it pulls in) stays out of the header's module graph,
  * which is on the critical path for every page. The palette listens for this
  * and for ⌘K.
  */

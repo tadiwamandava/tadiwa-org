@@ -1,4 +1,4 @@
-// tadiwa-nano — the model: weight format, forward pass, sampling.
+// tadiwa-nano, the model: weight format, forward pass, sampling.
 //
 // A decoder-only pre-LN transformer, the GPT-2 shape at small scale. The ops in
 // nano_ops.h are the arithmetic; this is the wiring that makes them a model.
@@ -17,7 +17,7 @@ namespace nano {
 ///   magic "TDNN" | version | n_vocab | n_ctx | n_embd | n_head | n_layer |
 ///   quant (0 = fp32, 1 = int8 weights) | vocab bytes[n_vocab] | tensors...
 ///
-/// Tensors follow in a fixed order with no names — the order IS the contract,
+/// Tensors follow in a fixed order with no names, the order IS the contract,
 /// checked by a total-size assertion at load. Names would let a mismatched
 /// exporter appear to work while loading the wrong tensor into the right slot.
 struct Config {
@@ -42,7 +42,7 @@ struct Layer {
 class Model {
  public:
   /// Parses a weights blob. Returns false and sets `error()` rather than
-  /// throwing — this runs in WebAssembly, where an exception costs binary size
+  /// throwing, this runs in WebAssembly, where an exception costs binary size
   /// for a failure the caller has to handle anyway.
   bool load(const uint8_t* data, std::size_t len);
 

@@ -15,7 +15,7 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 # The ONLY dependency, on purpose. The graph, the priority queues, the
-# neighbour-selection heuristic and the PRNG are all in this crate — a vector
+# neighbour-selection heuristic and the PRNG are all in this crate, a vector
 # index that `use`s someone else's vector index is not an artefact, it is a
 # wrapper. wasm-bindgen is here solely to marshal typed arrays across the
 # JS/WASM boundary, which is not the interesting part.
@@ -35,7 +35,7 @@ strip = true
 # wasm-pack's bundled wasm-opt rejects the reference-types/multivalue output
 # that current wasm-bindgen emits ("error validating input"). The unoptimised
 # artefact is ~43 KB and gzips to well under half that, which is already far
-# inside the budget this page is measured against — so the optimiser is not
+# inside the budget this page is measured against, so the optimiser is not
 # worth pinning a toolchain over. Revisit if the .wasm ever gets large.
 [package.metadata.wasm-pack.profile.release]
 wasm-opt = false

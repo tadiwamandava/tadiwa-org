@@ -27,7 +27,7 @@ bool Model::load(const uint8_t* data, std::size_t len) {
     return false;
   }
   if (rd32(data) != kMagic) {
-    error_ = "bad magic — this is not a nano weights file";
+    error_ = "bad magic, this is not a nano weights file";
     return false;
   }
   if (rd32(data + 4) != kVersion) {
@@ -87,8 +87,8 @@ bool Model::load(const uint8_t* data, std::size_t len) {
     }
     std::memcpy(weights_.data(), data + off, total * 4);
   } else if (cfg_.quant == 1) {
-    // Dequantise on load. The int8 saving here is on the WIRE — a 4x smaller
-    // download — not in resident memory. Keeping int8 in RAM would need an
+    // Dequantise on load. The int8 saving here is on the WIRE, a 4x smaller
+    // download, not in resident memory. Keeping int8 in RAM would need an
     // int8 matmul kernel, which is the next rung of the ladder rather than a
     // free win, and pretending otherwise would make the memory figure a lie.
     std::size_t p = off;

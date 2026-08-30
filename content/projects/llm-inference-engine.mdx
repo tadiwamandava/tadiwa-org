@@ -13,7 +13,7 @@ hardestThing: >-
   HuggingFace reference within floating-point tolerance on fixed prompts, checked
   automatically in CI. Debugging a divergence at layer 3 of a transformer means
   dumping intermediate tensors in the right order and knowing which of four
-  usual causes — layout, epsilon placement, mask sign, or head reshaping — you
+  usual causes (layout, epsilon placement, mask sign, or head reshaping) you
   are looking at.
 roleRelevance:
   ml-infra: 3
@@ -24,7 +24,7 @@ roleRelevance:
 
 ## The distinction that matters
 
-"I called an LLM API" is worth approximately nothing — the market is saturated
+"I called an LLM API" is worth approximately nothing. The market is saturated
 with wrapper apps. What is scarce is understanding what happens between the
 weights file and the token.
 
@@ -37,13 +37,13 @@ explanation, kept in a running `PERFORMANCE.md`:
    blocks, logits. Plain C++, no clever anything.
 2. **KV cache.** Typically the single largest win for generation. Derive why
    before implementing it.
-3. **Matmul.** Loop reordering for cache locality, then blocking, then SIMD —
+3. **Matmul.** Loop reordering for cache locality, then blocking, then SIMD,
    with an honest "mine vs. OpenBLAS" comparison rather than a victory claim.
 4. **Threading** across attention heads.
 5. **Quantisation.** int8 per-channel, then int4 grouped, reporting the whole
    trade-off surface: model size, tokens/sec, perplexity delta.
 
-That last rung is the one that connects directly to on-device ML work — the same
+That last rung is the one that connects directly to on-device ML work, the same
 discipline as the CMSIS-NN kernels on the embedded side, at a different scale.
 
 ## Where it ends up

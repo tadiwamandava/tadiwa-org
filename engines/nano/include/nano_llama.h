@@ -1,4 +1,4 @@
-// tadiwa-nano — the Llama-family engine.
+// tadiwa-nano, the Llama-family engine.
 //
 // Runs SmolLM2-class models: RMSNorm, RoPE, SwiGLU, grouped-query attention,
 // tied embeddings, no biases. That is the shape essentially every open model
@@ -88,8 +88,8 @@ class LlamaModel {
   std::vector<uint8_t> blob_;
 
   // Token embeddings, quantised per ROW. Per-row rather than per-column
-  // because this table is read two ways — a row lookup on input and a row
-  // dot-product for the tied output projection — and only a row scale serves
+  // because this table is read two ways, a row lookup on input and a row
+  // dot-product for the tied output projection, and only a row scale serves
   // both without a second copy.
   const float* embed_f_ = nullptr;
   const int8_t* embed_q_ = nullptr;

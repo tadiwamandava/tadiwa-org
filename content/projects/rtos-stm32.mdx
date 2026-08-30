@@ -1,6 +1,6 @@
 ---
 title: Bare-Metal RTOS on STM32
-pitch: A preemptive real-time kernel written from the reset vector up — no HAL, no generated code — with context-switch latency measured on a logic analyzer.
+pitch: A preemptive real-time kernel written from the reset vector up, with no HAL and no generated code, and with context-switch latency measured on a logic analyzer.
 status: planned
 started: "2026-10-15"
 domains: ["embedded"]
@@ -25,7 +25,7 @@ roleRelevance:
 
 Delete the vendor scaffolding and write what it was hiding: the linker script,
 the vector table, the reset handler that copies `.data` and zeroes `.bss`, and
-the clock-tree configuration — flash wait states before the frequency jump, or
+the clock-tree configuration: flash wait states before the frequency jump, or
 it faults.
 
 Then drivers straight from the reference manual: GPIO, UART with ring buffers,
@@ -36,7 +36,7 @@ driver works.
 
 Then the kernel: task control blocks, a context switch in PendSV, preemptive
 round-robin on the SysTick tick, blocking delays that consume zero cycles, and a
-mutex with priority inheritance — which means owning the priority-inversion story
+mutex with priority inheritance, which means owning the priority-inversion story
 rather than reciting it.
 
 ## Proof on wires

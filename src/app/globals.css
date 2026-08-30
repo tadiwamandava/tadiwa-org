@@ -1,29 +1,29 @@
 @import "tailwindcss";
 
 /* ============================================================================
-   TOKENS — the whole design system lives here.
+   TOKENS. The whole design system lives here.
 
    PALETTE: slate + one teal.
    A neutral slate ramp carries structure (roughly 60% white page / 30% light
    grey surfaces) and a single teal accent carries action (roughly 10%). There
-   is no third hue. What is not carried by hue is carried by TONE — the only
+   is no third hue. What is not carried by hue is carried by TONE, the only
    channel that survives greyscale, colour-vision deficiency, cheap monitors
    and print.
 
    ONE DELIBERATE DEVIATION FROM THE BRIEF, and the reason for it:
    the specified accent #0D9488 (teal-600) measures 3.74:1 on white. That
-   fails WCAG AA (4.5:1) in BOTH directions — as link text on the page, and as
+   fails WCAG AA (4.5:1) in BOTH directions: as link text on the page, and as
    a white button label on a teal fill. So `--accent` is teal-700 #0F766E
    (5.47:1), which is visually the same colour at the 10% coverage an accent
    gets, and legible. The brief's #0D9488 survives as `--accent-bright`, used
    only where 3:1 is the real requirement: focus rings, chart bars, the status
-   dot — never for text.
+   dot, never for text.
 
    Consequences worth knowing before you edit:
      - `--status-*` are not three hues. `building` is the accent (it is the
        live work, and the pill already pulses); `shipped` is the heaviest
        neutral; `planned` is the lightest that still clears AA. The text label
-       in <StatusPill> names the state — colour only ranks them.
+       in <StatusPill> names the state; colour only ranks them.
      - `--chart-mine` / `--chart-reference` are an emphasis hierarchy, not a
        categorical pair: the subject is saturated, the baseline is near-grey.
 
@@ -39,7 +39,7 @@
        reduced-motion reset stay UNLAYERED so they outrank everything.
      - Element defaults live in @layer base and component classes in
        @layer components, so Tailwind utilities (@layer utilities) can override
-       them. Unlayered CSS beats every layer — putting `h2 { font-family }` at
+       them. Unlayered CSS beats every layer, so putting `h2 { font-family }` at
        the top level silently defeats `class="font-mono"`.
    ========================================================================= */
 
@@ -65,7 +65,7 @@
   --accent-hover: #115e59;
   --accent-contrast: #ffffff;
   --accent-subtle: #f0fdfa;
-  /* Brief's teal-600. Non-text use only — see the header. */
+  /* Brief's teal-600. Non-text use only; see the header. */
   --accent-bright: #0d9488;
 
   /* --- project status: ranked by tone, named by the label -------------- */
@@ -119,7 +119,7 @@
   }
 }
 
-/* Explicit dark choice always wins. Values duplicated on purpose — see header. */
+/* Explicit dark choice always wins. Values duplicated on purpose; see header. */
 :root[data-theme="dark"] {
   --bg: #0f172a;
   --surface: #1e293b;
@@ -174,7 +174,7 @@
   --color-chart-mine: var(--chart-mine);
   --color-chart-reference: var(--chart-reference);
 
-  /* TYPE — Helvetica Neue, with a real fallback chain.
+  /* TYPE. Helvetica Neue, with a real fallback chain.
      Deliberately NOT loaded via next/font: Helvetica Neue is a system face on
      macOS/iOS and has no web-font equivalent worth shipping, so the site now
      downloads ZERO font files. That removes ~90KB from the critical path and
@@ -206,13 +206,18 @@
   --radius: 6px;
   --radius-lg: 10px;
 
-  /* Content measure — ~68ch is the readable ceiling for long prose. */
+  /* Content measure. ~68ch is the readable ceiling for long prose. */
   --container-measure: 68ch;
-  --container-wide: 76rem;
+  /* 64rem, not 76. At 76 the prose measure (42rem) sat in a 76rem container
+     and left a third of the viewport empty beside every heading, which reads
+     as an unfinished layout rather than a deliberate one. 64 keeps three
+     cards on a row while putting the right edge close enough to the text for
+     the asymmetry to look chosen. */
+  --container-wide: 64rem;
 }
 
 /* ============================================================================
-   BASE — element defaults only.
+   BASE. Element defaults only.
 
    This MUST be inside @layer base. Tailwind's utilities live in
    @layer utilities, and unlayered CSS outranks every layer regardless of
@@ -250,7 +255,7 @@
     font-feature-settings: "tnum";
   }
 
-  /* Display serif is the DEFAULT for headings, not a decree — section labels
+  /* Display serif is the DEFAULT for headings, not a decree, section labels
      opt out with `font-mono`, which works because this rule is layered. */
   h1,
   h2,
@@ -303,7 +308,7 @@
 /* ============================================================================
    COMPONENTS
 
-   PROSE — hand-rolled instead of @tailwindcss/typography. The plugin is good,
+   PROSE. Hand-rolled instead of @tailwindcss/typography. The plugin is good,
    but its defaults are recognisable on sight and the whole point of this site
    is not looking like a template.
 
@@ -468,7 +473,7 @@
   }
 
   /* Any wide block scrolls inside itself. The page body must never scroll
-     horizontally — that is the most common mobile failure on portfolio
+     horizontally. That is the most common mobile failure on portfolio
      sites. */
   .prose .scroll-x {
     overflow-x: auto;
@@ -492,7 +497,7 @@
 }
 
 /* ============================================================================
-   MOTION — every animation is opt-out. No exceptions.
+   MOTION. Every animation is opt-out. No exceptions.
 
    Unlayered on purpose: the reduced-motion reset uses !important and must beat
    any utility, and @keyframes are not subject to the cascade anyway.
@@ -529,7 +534,7 @@
 }
 
 /* ============================================================================
-   VIEW TRANSITIONS — progressive enhancement; absent support degrades to a
+   VIEW TRANSITIONS. Progressive enhancement; absent support degrades to a
    normal navigation with zero layout difference.
    ========================================================================= */
 @view-transition {

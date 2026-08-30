@@ -84,7 +84,7 @@ int main(int argc, char** argv) {
 
   // int8 is lossy by construction and this model is 30 layers deep, so the
   // error compounds; the bound is loose on purpose. What must hold either way
-  // is the ARGMAX — if the top token moves, the quantisation has changed the
+  // is the ARGMAX, if the top token moves, the quantisation has changed the
   // answer and not merely the confidence.
   const double tol = quantised ? 2.5 : 5e-3;
   const bool ok = max_abs <= tol && arg_got == arg_ref;
@@ -102,9 +102,9 @@ int main(int argc, char** argv) {
   std::printf("\n  %s\n\n", ok ? "PASSED" : "FAILED");
 
   // The page renders these rather than a hand-written table, so it cannot
-  // claim a parity number the test did not produce. Written on failure too —
-  // a page that silently keeps showing the last passing figures would be
-  // worse than one that shows a red row.
+  // claim a parity number the test did not produce. Written on failure too,
+  // because a page that silently keeps showing the last passing figures would
+  // be worse than one that shows a red row.
   const std::string out = std::string("engines/nano/fixtures/smollm-parity-") +
                           (quantised ? "int8" : "fp32") + ".json";
   if (std::FILE* f = std::fopen(out.c_str(), "w")) {

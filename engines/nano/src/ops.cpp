@@ -1,11 +1,11 @@
-// tadiwa-nano — op implementations.
+// tadiwa-nano, op implementations.
 //
 // Read include/nano_ops.h first: it states the shape and semantic contract for
 // each of these, including the traps. Everything here is checked against golden
 // fixtures by `npm run test:nano`.
 //
 // These are written to be read. Where there is a choice, the comment says what
-// the alternative was and why it lost — the same standard the project writeups
+// the alternative was and why it lost, the same standard the project writeups
 // on this site are held to.
 
 #include "nano_ops.h"
@@ -37,7 +37,7 @@ void layernorm(const float* x, const float* weight, const float* bias,
                float eps, std::size_t n, float* out) {
   // Two passes, not one. The single-pass "sum and sum-of-squares" trick
   // computes variance as E[x^2] - E[x]^2, which catastrophically cancels when
-  // the mean is large relative to the spread — exactly the case in a deep
+  // the mean is large relative to the spread, exactly the case in a deep
   // residual stream, where activations drift far from zero. Two passes cost
   // one extra read of a row that is already in L1.
   float mean = 0.0f;
@@ -49,7 +49,7 @@ void layernorm(const float* x, const float* weight, const float* bias,
     const float d = x[i] - mean;
     var += d * d;
   }
-  var /= static_cast<float>(n);  // biased — matches every transformer impl
+  var /= static_cast<float>(n);  // biased, matches every transformer impl
 
   const float inv = 1.0f / std::sqrt(var + eps);
   for (std::size_t i = 0; i < n; ++i) {
@@ -62,7 +62,7 @@ void layernorm(const float* x, const float* weight, const float* bias,
 void softmax_inplace(float* x, std::size_t n) {
   if (n == 0) return;
 
-  // Subtracting the max is not an optimisation, it is the difference between
+  // Subtracting the max is not an optimisation; it is the difference between
   // working and returning NaN. expf overflows above ~88, and attention logits
   // routinely exceed that. Subtracting a constant leaves the result unchanged
   // because it cancels between numerator and denominator.
@@ -89,7 +89,7 @@ void matmul(const float* A, const float* B, std::size_t M, std::size_t K,
   // With i-j-k the inner loop walks B down a column, striding N floats per
   // step, so every access is a fresh cache line. With i-k-j the inner loop
   // walks a ROW of B and a row of C contiguously, which is both cache-friendly
-  // and auto-vectorisable — the compiler turns it into SIMD without help.
+  // and auto-vectorisable, the compiler turns it into SIMD without help.
   // Same arithmetic, same result, several times faster.
   //
   // This is the first rung of the ladder. Blocking and explicit SIMD come
@@ -114,7 +114,7 @@ void matmul_i8(const float* A, const int8_t* Bq, const float* scales,
   //
   // The scale is applied ONCE per output element at the end rather than per
   // multiply. Folding it into the inner loop would be N*K multiplications
-  // instead of N, and — more importantly — would stop the accumulator being a
+  // instead of N, and, more importantly, would stop the accumulator being a
   // plain sum the compiler can vectorise.
   for (std::size_t i = 0; i < M; ++i) {
     float* c_row = C + i * N;
@@ -150,14 +150,14 @@ void attention_head(const float* q, const float* k, const float* v,
   const float scale = 1.0f / std::sqrt(static_cast<float>(head_dim));
 
   // One row of scores at a time. Materialising the full T x T matrix would be
-  // the obvious thing and is what FlashAttention exists to avoid — at this
+  // the obvious thing and is what FlashAttention exists to avoid, at this
   // scale it barely matters, but the row-at-a-time shape is the one that
   // generalises, and it keeps the working set inside cache.
   std::vector<float> scores(T);
 
   for (std::size_t i = 0; i < T; ++i) {
     // Causal mask: position i sees j <= i. Enforced by not computing j > i at
-    // all, rather than by computing and then masking — the masked values are
+    // all, rather than by computing and then masking, the masked values are
     // never in the array, so a later bug cannot leak them into the softmax.
     for (std::size_t j = 0; j <= i; ++j) {
       float dot = 0.0f;
@@ -205,7 +205,7 @@ void rope_inplace(float* x, std::size_t head_dim, int pos, float theta) {
     const float angle = static_cast<float>(pos) * freq;
     const float c = std::cos(angle), s = std::sin(angle);
     const float a = x[i];          // first half
-    const float b = x[i + half];   // second half — the rotate_half pairing
+    const float b = x[i + half];   // second half, the rotate_half pairing
     x[i] = a * c - b * s;
     x[i + half] = b * c + a * s;
   }

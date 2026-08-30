@@ -37,8 +37,8 @@ import { ScalePanel } from "./scale-panel";
 
    State discipline, because ESLint enforces it and it is right anyway: no
    setState in an effect body. Async results land from promise callbacks, the
-   sweep lands from timeouts, and everything else — the current query, its
-   results, which row is highlighted — is derived during render.
+   sweep lands from timeouts, and everything else, the current query, its
+   results, which row is highlighted, is derived during render.
    ========================================================================= */
 
 const K = 10;
@@ -214,7 +214,7 @@ export function SearchLab() {
           <Panel className="mt-6">
             <p className="text-sm leading-relaxed text-muted">
               The index did not load: {load.message}. Everything on this page
-              depends on it, so there is nothing to show — which is at least an
+              depends on it, so there is nothing to show, which is at least an
               honest failure mode.
             </p>
           </Panel>
@@ -234,7 +234,7 @@ export function SearchLab() {
               <Readout
                 value={`${lab.buildMs.toFixed(1)} ms`}
                 label="graph built, in this tab"
-                title="Time inside Index::build — every insertion, on the main thread."
+                title="Time inside Index::build, every insertion, on the main thread."
               />
               <Readout
                 value={`${lab.fetchMs.toFixed(0)} ms`}
@@ -246,7 +246,7 @@ export function SearchLab() {
               {fmt.bytesKB(lab.payloadBytes)} of int8 vectors and 43.2 KB of
               WebAssembly (18.3 KB over the wire), fetched when you opened this
               page and not before. The graph was constructed here, in your
-              browser, from a fixed seed — which is what makes every number below
+              browser, from a fixed seed, which is what makes every number below
               reproducible rather than a sample.
             </Caption>
           </Panel>
@@ -261,7 +261,7 @@ export function SearchLab() {
               layer 0; a few also reach layer 1, fewer still layer 2, drawn from
               an exponentially decaying distribution. A search enters at the top,
               where the graph is sparse and one hop crosses a lot of ground, and
-              descends — so the expensive, dense layer is only ever searched near
+              descends, so the expensive, dense layer is only ever searched near
               the answer.
             </p>
             <GraphMap
@@ -281,7 +281,7 @@ export function SearchLab() {
               HNSW is an <em>approximate</em> index. It is allowed to miss, and
               the only meaningful way to say how much is to ask it the same
               questions as an exhaustive scan and count the disagreements. That
-              is what the table below is doing, in this tab, right now — one row
+              is what the table below is doing, in this tab, right now, one row
               per <span className="font-mono text-[0.95em]">ef</span>, against{" "}
               {fmt.count(corpusSize)} queries the index has never seen.
             </p>
@@ -301,7 +301,7 @@ export function SearchLab() {
                 running={sweeping}
                 captionSuffix={
                   <>
-                    Each query is the normalised midpoint of two chunk vectors —
+                    Each query is the normalised midpoint of two chunk vectors,
                     a point that is in the corpus&rsquo;s neighbourhood but is not
                     any row of it, so the graph has to navigate rather than land
                     on its own answer. The pairing is seeded, so this table is
@@ -314,7 +314,7 @@ export function SearchLab() {
                     >
                       {sweeping ? "measuring…" : "measure again"}
                     </button>{" "}
-                    — the recall column will not move; the timings will, which is
+, the recall column will not move; the timings will, which is
                     what a millisecond-scale benchmark on a shared CPU looks like.
                   </>
                 }
@@ -359,7 +359,7 @@ export function SearchLab() {
  *
  * Understating a result reads as competence; overstating one reads as
  * fabrication. At this corpus size the graph is not buying speed, and saying so
- * plainly — in the same typeface as everything else, not in a footnote — is the
+ * plainly, in the same typeface as everything else, not in a footnote, is the
  * only version of this page worth shipping.
  */
 function Conclusion({
@@ -388,7 +388,7 @@ function Conclusion({
         The graph walk costs between {cheapest.distances.toFixed(0)} and{" "}
         {dearest.distances.toFixed(0)} of the same dot products, plus the queue
         management around them, plus a one-off construction cost paid on load.
-        Measured against the thing it replaces, it is a wash — and at the top of
+        Measured against the thing it replaces, it is a wash, and at the top of
         the ef ladder it is a loss.
       </p>
       <p>
@@ -405,8 +405,8 @@ function Conclusion({
       </p>
       <p>
         What it definitely buys, at any size: nothing leaves the tab. No query
-        goes to a server, there is no API key, no rate limit and no log of what
-        you searched for — the index is a file, the search is a function, and
+        goes to a server; there is no API key, no rate limit and no log of what
+        you searched for, the index is a file; the search is a function, and
         both of them are here.
       </p>
       <p className="text-sm text-subtle">

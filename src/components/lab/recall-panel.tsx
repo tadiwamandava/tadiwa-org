@@ -185,7 +185,7 @@ export function RecallTable({
         returned, with truth from an exhaustive scan of the same vectors.
         &ldquo;Scan&rdquo; is that scan: 100% by definition, {fmt.count(corpusSize)}{" "}
         distance evaluations by construction. Times are a whole batch divided by
-        the number of queries — <span className="font-mono">performance.now()</span>{" "}
+        the number of queries, <span className="font-mono">performance.now()</span>{" "}
         is clamped to about 5 µs in a browser that is not cross-origin isolated,
         so one query on its own is below the clock&rsquo;s resolution and timing it
         alone would report the clamp. {captionSuffix}
@@ -229,7 +229,7 @@ function EfSlider({
       </label>
       <p className="mt-2 text-xs leading-relaxed text-subtle">
         The size of the candidate list layer 0 keeps while it searches. It is the
-        one accuracy/cost dial at query time — the graph is not rebuilt. The
+        one accuracy/cost dial at query time; the graph is not rebuilt. The
         selected row is highlighted above, and the query below runs at this
         setting.
       </p>
@@ -265,7 +265,7 @@ function Verdict({ view, running }: { view: SweepView; running: boolean }) {
           Recall does not move: every ef on the ladder returns all {k} true
           nearest neighbours, for all {fmt.count(view.queryCount)} queries.
         </strong>{" "}
-        At {fmt.count(corpusSize)} vectors there is nowhere for it to go — the
+        At {fmt.count(corpusSize)} vectors there is nowhere for it to go, the
         graph is dense enough relative to the corpus that layer 0&rsquo;s sweep
         reaches the whole answer. Cost still moves, and it moves the wrong way to
         be impressive: {minDist.toFixed(0)}–{maxDist.toFixed(0)} distance
@@ -290,7 +290,7 @@ function Verdict({ view, running }: { view: SweepView; running: boolean }) {
       </strong>{" "}
       Against a full scan of {fmt.count(corpusSize)} vectors, the cheapest
       setting on the ladder touches {ratio.toFixed(0)}× fewer points
-      {speedup !== null && speedup > 1 ? ` and runs ${speedup.toFixed(0)}× faster` : ""} —
+      {speedup !== null && speedup > 1 ? ` and runs ${speedup.toFixed(0)}× faster` : ""},
       and gives up {fmt.pct(1 - cheapest.recall)} of the true neighbours to do
       it. That trade is what an approximate index is; the only question is
       whether a page will show you the losing half of it.

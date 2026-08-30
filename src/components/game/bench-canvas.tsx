@@ -1,14 +1,14 @@
 "use client";
 
 /* ============================================================================
-   bench-canvas.tsx — lifecycle only.
+   bench-canvas.tsx, lifecycle only.
 
    This is the module `next/dynamic({ ssr: false })` splits on, so it is also
    the wall the renderer is not allowed to climb over: it touches `window`,
    `document` and a 2D context, none of which exist on the server.
 
    It renders one <canvas>. Everything it does happens in effects, and all of it
-   is undone on unmount — a route change must leave behind no loop, no observer,
+   is undone on unmount, a route change must leave behind no loop, no observer,
    no listener and no backing store.
    ========================================================================= */
 
@@ -38,13 +38,13 @@ export default function BenchCanvas({
   probeRef: RefObject<ProbeTarget>;
   active: number | null;
   reducedMotion: boolean;
-  /** Must be referentially stable — it is a dependency of the boot effect. */
+  /** Must be referentially stable; it is a dependency of the boot effect. */
   onPainted: () => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const rendererRef = useRef<BenchRenderer | null>(null);
   /* Mount-time snapshot. The [layout] effect below re-syncs immediately after
-     boot, so a stale value here survives at most one frame — and that beats
+     boot, so a stale value here survives at most one frame, and that beats
      rebuilding the renderer on every resize tick. */
   const bootLayout = useRef(layout);
   const bootMotion = useRef(reducedMotion);

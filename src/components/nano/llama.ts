@@ -1,5 +1,5 @@
 /**
- * Browser driver for the Llama-family engine — SmolLM2-135M-Instruct.
+ * Browser driver for the Llama-family engine, SmolLM2-135M-Instruct.
  *
  * Same C++ forward pass as the CLI, same WASM module as the small model. What
  * this file adds is everything the browser makes hard and a terminal does not:
@@ -15,7 +15,7 @@ import { getModule, type NanoModule } from "./engine";
 
 /** Where the weights live. Same-origin `/nano` by default; a deployment that
  *  cannot serve a 129 MB file from its own origin points this at one that can
- *  (see DEPLOY.md). Inlined at build time — it is a public URL, not a secret. */
+ *  (see DEPLOY.md). Inlined at build time, it is a public URL, not a secret. */
 const BASE = process.env.NEXT_PUBLIC_NANO_WEIGHTS_BASE ?? "/nano";
 
 export const WEIGHTS_URL = `${BASE}/smollm-int8.bin`;
@@ -67,7 +67,7 @@ const SYSTEM = "You are a helpful AI assistant named SmolLM.";
 /**
  * Wraps a question in the turn structure SmolLM2-Instruct was fine-tuned on.
  *
- * The special tokens are literal text here and the tokeniser splits on them —
+ * The special tokens are literal text here and the tokeniser splits on them,
  * which is exactly why the C++ BPE had to learn about added tokens. Without
  * that, `<|im_start|>` tokenises as twelve ordinary bytes, the model never
  * sees a turn boundary, and it continues the transcript instead of answering.
@@ -80,7 +80,7 @@ export function chatPrompt(user: string, system: string = SYSTEM): string {
   );
 }
 
-/** HEAD the weights so the UI can say "129 MB" — or "not on this deployment" —
+/** HEAD the weights so the UI can say "129 MB", or "not on this deployment",
  *  before asking anyone to commit to a download. */
 export async function probeWeights(): Promise<number | null> {
   try {
@@ -96,7 +96,7 @@ export async function probeWeights(): Promise<number | null> {
 /**
  * Streams a URL straight into the WASM heap.
  *
- * The naive version — `await res.arrayBuffer()`, then copy — peaks at twice
+ * The naive version, `await res.arrayBuffer()`, then copy, peaks at twice
  * the file size and reports no progress. This reserves the exact length up
  * front from `content-length` and writes each chunk at its offset, so 129 MB
  * of weights exist once, in the only address space that needs them.
@@ -136,7 +136,7 @@ async function streamIntoHeap(
       try {
         await store.put(url, net.clone());
       } catch {
-        /* quota, most likely — the download still works, it just won't stick */
+        /* quota, most likely, the download still works; it just won't stick */
       }
     }
     res = net;
@@ -199,7 +199,7 @@ export class LlamaEngine {
     });
     onProgress({ what: "parsing", received: downloadBytes, total: downloadBytes, cached: false });
 
-    // Yield once so the "parsing" state paints — commit walks 129 MB of
+    // Yield once so the "parsing" state paints, commit walks 129 MB of
     // headers and is long enough to be visible.
     await new Promise((r) => setTimeout(r, 0));
     if (mod._llama_commit_weights() !== 1) {
@@ -303,7 +303,7 @@ export class LlamaEngine {
       if (n > 0) {
         buf.set(mod.HEAPU8.subarray(this.scratch, this.scratch + n));
         // `stream: true` holds a partial UTF-8 sequence until the rest
-        // arrives instead of emitting U+FFFD — BPE ids split characters.
+        // arrives instead of emitting U+FFFD, BPE ids split characters.
         const text = decoder.decode(buf.subarray(0, n), { stream: true });
         if (text) onToken(text, produced);
       }

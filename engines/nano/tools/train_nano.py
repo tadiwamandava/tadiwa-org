@@ -1,7 +1,7 @@
 """Trains tadiwa-nano and exports weights in the engine's binary format.
 
 Training is PyTorch; inference is the C++ in engines/nano/src. That split is
-deliberate and it is how this is actually done in industry — you train with a
+deliberate and it is how this is actually done in industry, you train with a
 framework and ship something small that does not depend on one.
 
 The corpus is this site's own prose. It is ~66 KB, which is small enough that
@@ -45,7 +45,7 @@ def corpus() -> bytes:
         for p in sorted(ROOT.glob(pattern)):
             parts.append(p.read_text(encoding="utf-8"))
     # UTF-8 BYTES, not characters. The prose is full of em dashes, curly
-    # quotes, arrows and a stray command symbol, all of which are multi-byte —
+    # quotes, arrows and a stray command symbol, all of which are multi-byte,
     # and the weights format stores one byte per vocabulary entry. Byte-level
     # tokenisation makes the vocabulary closed (at most 256) and handles every
     # character that will ever appear, at the cost of the model having to learn
@@ -112,7 +112,7 @@ def quantise(t: torch.Tensor):
 
 
 def export(model: Nano, vocab: list, quant: bool, path: pathlib.Path) -> None:
-    """Writes the blob. Tensor ORDER is the contract — see nano_model.h."""
+    """Writes the blob. Tensor ORDER is the contract, see nano_model.h."""
     buf = bytearray()
     buf += struct.pack("<IIIIIII", MAGIC, VERSION, len(vocab), BLOCK, N_EMBD,
                        N_HEAD, N_LAYER)
@@ -142,7 +142,7 @@ def export(model: Nano, vocab: list, quant: bool, path: pathlib.Path) -> None:
             f32(t)
 
     emb(model.wte.weight)          # [V, E]  quantised
-    f32(model.wpe.weight)          # [C, E]  always fp32 — small and positional
+    f32(model.wpe.weight)          # [C, E]  always fp32, small and positional
     for b in model.blocks:
         f32(b.ln1.weight); f32(b.ln1.bias)
         mat(b.qkv.weight); f32(b.qkv.bias)
@@ -236,7 +236,7 @@ def main() -> None:
     # it was trained from. This dumps a fixed prompt and the reference logits
     # at its last position; engines/nano/test/test_parity.cpp replays the
     # prompt through the C++ (KV cache and all) and diffs them. Without this
-    # the C++ can be subtly wrong — a transposed weight, a mis-sliced head —
+    # the C++ can be subtly wrong, a transposed weight, a mis-sliced head,
     # and still produce text that looks vaguely plausible.
     model.eval()
     prompt = "The engine is the artefact"

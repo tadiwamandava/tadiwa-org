@@ -11,7 +11,7 @@
  *   3. The body is written back byte-for-byte as given.
  *
  * (2) is the interesting one. A YAML emitter is a pile of quoting rules, and
- * the failure mode of a quoting bug is a file that no longer parses — which in
+ * the failure mode of a quoting bug is a file that no longer parses, which in
  * this repo takes the whole site down, since every page reads the corpus at
  * build time. Verifying the output instead of trusting the emitter turns that
  * class of bug from "site is broken" into "save button reports an error".
@@ -27,7 +27,7 @@ import { emitFrontmatter } from "./yaml.ts";
 import type { FieldSpec } from "./fields.ts";
 
 export interface ParsedEntry {
-  /** Raw frontmatter, exactly as YAML gave it — NOT schema-defaulted. */
+  /** Raw frontmatter, exactly as YAML gave it, NOT schema-defaulted. */
   frontmatter: Record<string, unknown>;
   /** MDX body, leading blank lines and trailing whitespace trimmed. */
   body: string;
@@ -35,8 +35,8 @@ export interface ParsedEntry {
    * YAML comment lines found in the frontmatter.
    *
    * Frontmatter is round-tripped through a data structure, so comments do not
-   * survive a save. That is a real loss — two files in this corpus carry TODO
-   * notes as YAML comments — so they are surfaced in the editor rather than
+   * survive a save. That is a real loss, two files in this corpus carry TODO
+   * notes as YAML comments, so they are surfaced in the editor rather than
    * disappearing quietly.
    */
   comments: string[];
@@ -125,7 +125,7 @@ export function deepEqual(a: unknown, b: unknown): boolean {
     return a.every((item, i) => deepEqual(item, b[i]));
   }
   if (typeof a === "object") {
-    // A Date here means YAML re-read a quoted date as a timestamp — exactly
+    // A Date here means YAML re-read a quoted date as a timestamp, exactly
     // the corruption this comparison is here to catch, so never treat one as
     // equal to anything.
     if (a instanceof Date || b instanceof Date) return false;
@@ -160,7 +160,7 @@ function prune(value: unknown): unknown {
  * Drops keys whose value is exactly what the schema would have filled in.
  *
  * Without this, every project file grows `benchmarks: []`, `featured: false`,
- * `sourceAvailable: true` and six more lines that say nothing — and every
+ * `sourceAvailable: true` and six more lines that say nothing, and every
  * decision grows `regret: false`, every benchmark run `isReference: false`.
  * The parsed result is identical either way: Zod re-applies the default on
  * read, which is exactly why the omission is safe.
@@ -191,7 +191,7 @@ export function stripSchemaDefaults(
     out[field.key] = value;
   }
 
-  // Anything the schema does not know about is preserved rather than dropped —
+  // Anything the schema does not know about is preserved rather than dropped,
   // losing a field because the editor is a version behind would be worse.
   for (const [k, v] of Object.entries(frontmatter)) {
     if (!(k in out) && !fields.some((f) => f.key === k) && v !== undefined) out[k] = v;
@@ -212,7 +212,7 @@ export interface SerializeInput {
  *
  * Throws `ContentValidationError` when the content is invalid (the caller
  * turns those into field errors in the form) and a plain `Error` when the
- * emitter produced something that does not read back — which is a bug in this
+ * emitter produced something that does not read back, which is a bug in this
  * code, not in the user's input, and must never reach the disk.
  */
 export function serializeEntry(input: SerializeInput): string {
@@ -241,13 +241,13 @@ export function serializeEntry(input: SerializeInput): string {
     reread = parseEntry(file);
   } catch (err) {
     throw new Error(
-      `Serialiser produced unparseable YAML — refusing to write. ${(err as Error).message}`,
+      `Serialiser produced unparseable YAML, refusing to write. ${(err as Error).message}`,
     );
   }
 
   if (!deepEqual(prune(reread.frontmatter), prune(toWrite))) {
     throw new Error(
-      "Serialiser round-trip mismatch — refusing to write. " +
+      "Serialiser round-trip mismatch, refusing to write. " +
         `Wrote ${JSON.stringify(toWrite).slice(0, 300)} but read back ` +
         `${JSON.stringify(reread.frontmatter).slice(0, 300)}`,
     );
@@ -258,13 +258,13 @@ export function serializeEntry(input: SerializeInput): string {
   const recheck = schema.safeParse(reread.frontmatter);
   if (!recheck.success) {
     throw new Error(
-      "Serialised file would fail check:content — refusing to write: " +
+      "Serialised file would fail check:content, refusing to write: " +
         recheck.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; "),
     );
   }
 
   if (reread.body !== body) {
-    throw new Error("Serialiser altered the MDX body — refusing to write.");
+    throw new Error("Serialiser altered the MDX body, refusing to write.");
   }
 
   return file;

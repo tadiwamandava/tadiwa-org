@@ -3,7 +3,7 @@
 /**
  * The only client component on this route.
  *
- * Cmd-P already works — the print stylesheet does not need a button. This
+ * Cmd-P already works, the print stylesheet does not need a button. This
  * exists because a recruiter reading on a phone has no keyboard shortcut, and
  * "Save as PDF" is not obviously the same action as "Print" to everyone who
  * needs the file.
