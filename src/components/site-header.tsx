@@ -37,9 +37,10 @@ export function SiteHeader() {
           </ul>
         </nav>
 
-        <div className="flex items-center gap-1.5">
-          <SocialLinks className="hidden sm:flex" />
+        {/* Search on top, the icon row under it, both right-aligned. */}
+        <div className="flex flex-col items-end gap-2">
           <SearchTrigger />
+          <SocialLinks className="hidden sm:flex" />
         </div>
       </div>
     </header>
