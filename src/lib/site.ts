@@ -17,7 +17,7 @@ export const SITE = {
   url: "https://tadiwa.org",
 
   // --- CONFIRM before deploy ------------------------------------------------
-  github: "https://github.com/CONFIRM-github-handle",
+  github: "https://github.com/tadiwamandava",
   linkedin: "https://www.linkedin.com/in/CONFIRM-linkedin-slug",
   /** Publishing an address invites scrapers. Consider an alias, not your
    *  personal Gmail. Left blank on purpose; decide, then fill. */
