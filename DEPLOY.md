@@ -11,8 +11,8 @@ inferred from the config files.
 - Node.js **≥ 20.9** locally, to match what Next.js 16 itself requires
   (`node_modules/next/package.json` declares `"engines": {"node": ">=20.9.0"}`
 , an older Node fails the build outright, not just a warning).
-- A Vercel account with the repo's GitHub remote connected (or the Vercel CLI,
-  if deploying without Git integration).
+- A Coolify instance and a server it can deploy to. Docker is the only runtime
+  requirement; the image builds everything else it needs.
 - Nothing else. No Rust toolchain, no `wasm-pack`, no Python. Those are only
   needed to *regenerate* the search index (`npm run build:wasm` /
   `build:search`), the artefacts they produce are already committed (see §6).
@@ -50,20 +50,71 @@ rather than silent: **a deployed build ships lexical search only** (§6), and
 second one is worth fixing before showing the site to anybody; it is the
 demo the lab page leads with.
 
-## 3. Vercel project settings
+## 3. Coolify
 
-Next.js on Vercel is zero-config for this app. Import the repo and leave the
-defaults alone:
+Coolify runs the container on a machine you own, which changes two things this
+document used to be apologetic about. The filesystem is writable and
+persistent, so `/admin` can genuinely work; and there is no per-request billing
+model to worry about when a visitor downloads 129 MB of model weights.
 
-| Setting | Value | Notes |
+### Project settings
+
+| Setting | Value | Why |
 |---|---|---|
-| Framework Preset | **Next.js** | Auto-detected from `package.json`. |
-| Build Command | *(default)* `next build` | Matches the `build` script exactly. Do not override. |
-| Output Directory | *(default, managed)* | Vercel's Next.js adapter manages this itself; there is nothing to set. |
-| Install Command | *(default)* `npm ci` | `package-lock.json` is committed, so Vercel uses `npm ci` automatically. |
-| Node.js Version | **22.x** (or any version Vercel offers that's ≥ 20.9) | `package.json` has no `engines.node` field pinning this, so it falls back to whatever Vercel's platform default is at deploy time. Pin it explicitly in Project Settings → General so a future Vercel default change can't silently drop below the Next 16 floor. CI (`.github/workflows/ci.yml`) uses Node 22, match it. |
+| Build Pack | **Dockerfile** | The repo has one. Nixpacks would guess, and guess wrong about the model-fetching stages. |
+| Dockerfile Location | `/Dockerfile` | Default. |
+| Port | **3000** | `EXPOSE 3000`, and the server reads `PORT`. Coolify's proxy terminates TLS in front. |
+| Health Check Path | `/api/health` | Already declared as a `HEALTHCHECK` in the image; setting it here makes Coolify use it for rollout decisions too. |
+| Build Arg | `SMOLLM_URL` | Optional. A URL to `smollm-int8.bin`; see §5b. Without it the build still succeeds. |
 
-Nothing in this repo needs a `vercel.json`. See §7 for why one wasn't added.
+TLS and the domain are Coolify's job: point the DNS at the server (§5), set the
+FQDN on the resource, and it provisions Let's Encrypt. Nothing in this repo
+needs to know about it beyond `SITE.url` (§8).
+
+### The build
+
+Four stages, and the reason for the split is the models rather than Next:
+
+- `deps` runs `npm ci` against the committed lockfile.
+- `models` downloads MiniLM (22 MB) and Whisper (42 MB) from Hugging Face and
+  copies them into `public/models/`, so the browser fetches them same-origin.
+  Separate stage so a content edit does not re-download 64 MB.
+- `builder` runs `next build` with `output: "standalone"`.
+- `runner` is `node:22-slim` with a non-root user and no build tooling.
+
+`output: "standalone"` traces the server's actual imports. It does **not**
+include `public/` or `.next/static`; the Dockerfile copies both explicitly.
+Forgetting either gives a site that boots and serves no CSS, which reads as a
+styling bug rather than a packaging one, so `/api/health` checks for it.
+
+### The content volume, and the decision you have to make
+
+`content/` is not a build artefact here. `/projects`, `/resume` and every
+`/admin` route are dynamic and read the MDX per request, so it has to exist at
+runtime. It is also what the admin writes to, and that is where it gets
+interesting.
+
+**Without a volume** the corpus comes from the image and always matches git.
+Anything saved through `/admin` lives until the next deploy and then goes.
+That makes the deployed admin a preview surface, not a source of truth.
+
+**With a volume** mounted at `/app/content`, saves persist. The catch is that a
+mounted volume *shadows* the image's copy, so a fresh volume would give a
+container with no projects, no writing and an empty résumé, which looks like a
+broken build rather than an empty disk. The image therefore keeps a pristine
+copy at `/app/content-image` and `docker-entrypoint.sh` seeds the volume the
+first time it finds it empty, and never again, because overwriting it later
+would silently discard whatever had been edited.
+
+The real cost of the volume is not technical. Once it diverges, the deployed
+corpus and the repository are two different things, and nothing reconciles
+them: you would be editing content that git does not know about, on a site
+whose entire argument is that its content lives in git. The honest fix is a
+`ContentStore` that commits through the GitHub API, and `src/lib/admin/store.ts`
+is the seam that goes behind.
+
+Start without the volume. Add it only if you decide remote editing is worth
+that divergence.
 
 ## 4. Environment variables
 
@@ -76,18 +127,17 @@ covers the options and what the page does when it is unset and the file is
 absent. Public by construction: it is a URL the browser fetches, not a secret.
 
 The only other `process.env` reads anywhere in `src/` or `scripts/` are both
-`process.env.NODE_ENV`, Vercel sets this automatically (`production` for a
-deploy, never `development`), so neither needs a value you set:
+`process.env.NODE_ENV`. The Dockerfile sets it to `production`, and it is never
+`development` in a built image, so neither needs a value you set:
 
 - `src/lib/content/index.ts`, hides draft posts outside development.
 - `src/lib/admin/guard.ts`, gates the entire `/admin` content editor. With no
   admin secrets set, `/admin` 404s and every one of its Server Actions throws
   before touching disk, on every deployment, with no configuration needed to
   make that true. Setting the two secrets in §4b turns on a password login
-  instead. **Read §4b before you do that**, because on Vercel the editor will
-  authenticate correctly and then fail to save.
+  instead. See §4b.
 
-### 4b. Admin login, and why it does not work on Vercel
+### 4b. Admin login
 
 `ADMIN_PASSWORD_HASH` and `ADMIN_SESSION_SECRET` turn `/admin` into a
 password-protected editor. Generate both with:
@@ -109,18 +159,14 @@ Three modes, decided entirely by configuration:
 | no | production | **404** — this is the default |
 | yes | either | password login, 8-hour session |
 
-**The catch, and it is a real one.** The editor writes MDX files into
-`content/`. On Vercel the filesystem is read-only outside `/tmp`, and a
-serverless instance is discarded after the request, so a save would fail, and
-if it did not the file would vanish. Authentication is not what is missing
-there; a persistence layer is. A deployed editor needs writes to go somewhere
-that survives, which means a commit through the GitHub API, a database, or
-object storage, and `ContentStore` in `src/lib/admin/store.ts` is the seam that
-change goes behind.
+**On Coolify this works**, which was not true of the serverless host this
+document used to describe. The container's filesystem is writable and the
+process is long-lived, so a save reaches disk and stays there for as long as
+the container lives. Whether it survives a *redeploy* is the volume decision in
+§3, and that decision is about git divergence rather than about auth.
 
-So the login is worth setting **only** where the filesystem is genuinely
-writable and durable: a VPS, a container with a mounted volume, a local machine
-reachable over a tunnel. On Vercel, leave both unset and keep editing through
+Set both secrets and the deployed admin is genuinely usable. Leave them unset
+and `/admin` 404s in production exactly as before, with editing done through
 `npm run dev`, which is also the workflow that produces a commit.
 
 Session details, since this guards a route that writes files: the cookie is
@@ -139,8 +185,9 @@ is untouched, because nothing else ever needed a key.
 Set it only when you want that comparison live, and understand what it costs:
 
 - **The provider's spend cap is the only bound that actually holds.** The route
-  rate-limits per IP (5/minute) and caps `max_tokens`, but Vercel functions do
-  not share memory, so a burst spread across cold starts gets more than that.
+  rate-limits per IP (5/minute) and caps `max_tokens`. On a single container
+  that counter is actually shared, which is better than it was on serverless,
+  but it still resets on every redeploy.
   Set a hard monthly limit in the OpenRouter dashboard. Treat the in-process
   limiter as a speed bump, not a budget.
 - The endpoint cannot be used as a general-purpose proxy. The client sends only
@@ -162,21 +209,20 @@ when it lands.
 
 ## 5. DNS for tadiwa.org
 
-Vercel will show the exact records to add on the domain's Settings →
-Domains page once `tadiwa.org` is added to the project, **use whatever it
-shows you over what's written here**, since the specific anycast IP and CNAME
-target Vercel issues can change. As of this writing, the two common paths are:
+Coolify serves from a machine with a fixed IP, so this is an `A` record rather
+than a delegation:
 
-- **Delegate the domain to Vercel's nameservers** (simplest, Vercel manages
-  every record, including automatic HTTPS renewal). Point the registrar's NS
-  records at the ones Vercel's dashboard lists.
-- **Keep the existing registrar/DNS provider** and add records manually:
-  an `A` record for the apex (`tadiwa.org`) pointing at Vercel's anycast IP,
-  plus a `CNAME` for `www` pointing at the target Vercel's dashboard gives
-  you (commonly `cname.vercel-dns.com`, but confirm; Vercel has used
-  per-project CNAME targets before). Decide whether `www.tadiwa.org` redirects
-  to the apex or the reverse, and set that as the project's primary domain in
-  Vercel so the other is a redirect, not a duplicate origin.
+- `A` for the apex (`tadiwa.org`) pointing at the server's public IP.
+- `A` or `CNAME` for `www`, then decide which one is canonical. Set the
+  canonical FQDN on the Coolify resource and add the other as a redirect, so
+  there is one origin rather than two identical ones competing in search
+  results.
+- Let the record propagate **before** setting the FQDN in Coolify. Let's
+  Encrypt validates over HTTP, and a challenge issued against a domain that
+  does not resolve yet fails and then rate-limits.
+
+Coolify provisions and renews the certificate itself once the FQDN is set and
+DNS resolves; there is nothing to configure in this repo for it.
 
 Either way, **`SITE.url` (§8 below) must exactly match the domain that ends
 up serving traffic**, same scheme, same host, no trailing slash.
@@ -213,19 +259,26 @@ It also means the flagship demo is the weak one, so this is worth fixing.
 
 ### Serving the weights
 
-Set `NEXT_PUBLIC_NANO_WEIGHTS_BASE` to a directory URL holding
-`smollm-int8.bin` and `smollm-tokenizer.bin`. It defaults to `/nano`
-(same-origin). The value is inlined at build time and is a public URL, not a
-secret. Three ways to get one:
+On Coolify the simplest answer is to bake the file into the image: pass
+`SMOLLM_URL` as a build arg pointing at a copy of `smollm-int8.bin` (a GitHub
+release asset, an S3 object, anything the builder can reach once). The browser
+then fetches it same-origin from `/nano/` with no extra configuration, and
+`NEXT_PUBLIC_NANO_WEIGHTS_BASE` stays unset.
+
+If you would rather not carry 129 MB in the image, set
+`NEXT_PUBLIC_NANO_WEIGHTS_BASE` to a directory URL holding `smollm-int8.bin`
+and `smollm-tokenizer.bin` instead. It defaults to `/nano` (same-origin). The
+value is inlined at build time and is a public URL, not a secret. Options:
 
 1. **Cloudflare R2**, recommended. No egress fees, which matters when the
    asset is 129 MB and one curious visitor costs 129 MB of it. Attach a custom
    domain (`weights.tadiwa.org`) and set the variable to that. R2 needs a CORS
    rule allowing `GET` from the site's origin, or the browser fetch fails with
    an opaque network error rather than a status code.
-2. **Vercel Blob**, least setup if the site is already on Vercel. `vercel blob
-   put public/nano/smollm-int8.bin` returns a public URL; check the free
-   tier's bandwidth allowance against the 129 MB figure before relying on it.
+2. **The Coolify server itself.** The image can bake the file in at build via
+   the `SMOLLM_URL` build arg (§3), so the only thing that needs a URL is the
+   build, not the browser. Bandwidth is then your server's, with no per-request
+   billing to reason about.
 3. **A GitHub Release asset**, zero new accounts. Releases allow files up to
    2 GB, and the download URL sends `Access-Control-Allow-Origin: *`. Slowest
    of the three and it 302-redirects, but it works and costs nothing.
@@ -271,7 +324,7 @@ site's search is lexical-only.** Full detail on the two-stage design is in
 **The decision: leave it that way, deliberately, for now.** Three options
 were weighed:
 
-1. **Run `build:search` + `build:model` as part of the Vercel build.**
+1. **Run `build:search` + `build:model` as part of the image build.**
    Rejected, though note the blocker described in an earlier draft of this
    file has since been fixed. `scripts/build-embeddings.ts` used to load the
    pipeline with `dtype: "fp32"`, which downloads `onnx/model.onnx` and never
@@ -290,8 +343,8 @@ were weighed:
    for what it buys. It needs `git lfs track` on `public/models/**`,
    un-ignoring that path (a `.gitignore` policy call that belongs with
    whoever owns `scripts/copy-model.sh`'s "gitignored, regenerated at build
-   time" contract, not this pass), enabling Git LFS support in the Vercel
-   project, and a GitHub LFS bandwidth quota (1 GB/month on the free tier) that
+   time" contract, not this pass), enabling Git LFS on the build, and a GitHub
+   LFS bandwidth quota (1 GB/month on the free tier) that
    a handful of redeploys during active work could burn through. At which
    point *every* deploy fails to pull the model until the quota resets,
    which is a worse failure mode than the one being solved.
@@ -330,33 +383,18 @@ to carry binary assets regularly). Either way, re-run `npm run build` once
 locally afterward and confirm the palette shows `semantic · HNSW` instead of
 `lexical · BM25` after enabling it.
 
-## 7. Why there's no `vercel.json`
+## 7. Why there is no compose file
 
-Checked whether one was warranted for cache headers on `public/search/*` and
-(if committed later) `public/models/*`, these files are stable *within* a
-deployment but aren't content-hashed by filename, so an aggressive
-`immutable` cache header would be a real correctness bug: a returning visitor
-could keep an old `chunks.json` after a content update and get stale search
-results with no error, which is exactly the kind of silent breakage
-`check:search` exists to catch elsewhere in this codebase.
+Coolify builds from the `Dockerfile` and manages the container, network and
+proxy itself. A `docker-compose.yml` in the repo would either duplicate that or
+quietly disagree with it, and the settings worth pinning (port, health check,
+build arg, volume) are the ones in §3 that live in the Coolify resource where
+they are visible.
 
-Checked what Next actually serves today, from a production build
-(`next start`, `curl -sD -`):
-
-```
-GET /search/chunks.json
-Cache-Control: public, max-age=0
-ETag: W/"8a54-..."
-```
-
-`max-age=0` forces revalidation on every load; the `ETag` makes that
-revalidation a cheap `304`, not a full re-download. That's already the
-correct behavior for a non-hashed file whose content can change between
-deployments, there's nothing to add, and adding a longer `max-age` would
-make things worse, not better. Next.js on Vercel is otherwise zero-config for
-this app (no redirects, rewrites, cron functions, or custom regions are
-needed), so `vercel.json` stays unwritten. Revisit only if a future artefact
-under `public/` genuinely becomes content-hashed by filename.
+The one file that does exist is `.dockerignore`, and it is load-bearing rather
+than tidy: without it the build context is about 1.5 GB, because the repo
+carries a 513 MB fp32 checkpoint, a 540 MB merged LoRA adapter and a PyTorch
+venv, none of which the running server touches.
 
 ## 8. `SITE.url`, what it must be and why
 

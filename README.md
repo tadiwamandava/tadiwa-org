@@ -270,6 +270,28 @@ per-IP and best-effort by construction, serverless instances do not share
 memory, so the bound that actually holds is a spend cap set at the provider.
 See `DEPLOY.md`.
 
+## Deploying
+
+The repo ships a `Dockerfile` for Coolify, or any Docker host. Four stages:
+`npm ci` against the lockfile, a models stage that pulls MiniLM (22 MB) and
+Whisper (42 MB) from Hugging Face so they can be served same-origin, a Next
+build with `output: "standalone"`, and a `node:22-slim` runner with a non-root
+user and no build tooling.
+
+Two things about that are easy to get wrong and both are checked by
+`/api/health`, which the image declares as its `HEALTHCHECK`:
+
+- **`standalone` does not include `public/` or `.next/static`.** Forgetting
+  either gives a site that boots and serves no CSS, which reads as a styling
+  bug rather than a packaging one.
+- **`content/` is not a build artefact.** `/projects`, `/resume` and every
+  `/admin` route are dynamic and read the MDX per request, so it has to exist
+  at runtime.
+
+Self-hosting also makes `/admin` real: the filesystem is writable and the
+process is long-lived, so the password login below is worth turning on. See
+`DEPLOY.md` for the volume decision that comes with it.
+
 ## Build gates
 
 | Command | What it enforces |
@@ -281,6 +303,7 @@ See `DEPLOY.md`.
 | `npm run check:links` | Every internal href resolves, including template-literal prefixes, so a typo like `/project/${slug}` is caught rather than silently killing every project link. |
 | `npm run check:search` | The shipped lexical scorer against the shipped index, on real queries. Guards against the build-time and runtime tokenizers drifting apart. Needs no model download, the index it checks is already committed. |
 | `npm run check:prompt` | The grounded-answer prompt against a golden rendering. The format is assembled in TypeScript for the browser and in Python for the fine-tuning data; training on one format and serving another degrades output with no error anywhere. |
+| `npm run check:auth` | The admin login's properties: salted hashing, constant-time compare, and a session whose expiry sits inside the signed payload so the cookie holder cannot extend it. Guards a route that writes files. |
 | `npm run check:bundle` | Critical JS on first paint, read from the build manifests. Next 16 removed `First Load JS` from build output, so this cannot be scraped from the log. |
 | `npm run test:nano` | Each inference kernel against golden fixtures. Reports "stub" for unstarted work, so an unfinished engine reads as unfinished rather than broken. |
 | `npm run test:nano:parity` | End-to-end logit agreement with PyTorch, fp32 and int8. Catches the class of bug the op tests cannot, a transposed weight, a mis-sliced head, an off-by-one in the KV cache. Needs no Python; the reference logits are committed. |

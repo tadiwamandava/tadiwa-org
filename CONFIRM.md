@@ -97,6 +97,6 @@ overclaim.
 - [x] `SITE.url` is `https://tadiwa.org` in `src/lib/site.ts`, already
       correct, drives OG tags, the sitemap, and `robots.txt`. Re-check this
       only if the domain ever changes.
-- [ ] Point `tadiwa.org` at an actual Vercel deployment. The code has been
+- [ ] Point `tadiwa.org` at an actual Coolify deployment. The code has been
       ready for this since the URL above was set; what's missing is the
       hosting + DNS action, not a code change. `DEPLOY.md` is the runbook.

@@ -63,14 +63,15 @@ Everything below is blocked on you, not on more building.
    planned work ("Built X" is false for something unstarted), so it currently
    shows two projects. One sentence about what is genuinely underway fixes that.
 2. **Host the SmolLM2 weights, then push and deploy.** `DEPLOY.md` covers
-   Vercel settings, DNS, `SITE.url`, and the two decisions with real
+   Coolify settings, DNS, `SITE.url`, and the two decisions with real
    consequences, both of which are the same shape: a large model file that is
    not in the repo, and a page that degrades honestly without it.
    - Semantic search is lexical-only unless the 22 MB embedding model is
      shipped (§6).
    - **`/lab/inference` shows only the 359K model** unless the 129 MB
      `smollm-int8.bin` is served (§5b). It is gitignored because it is over
-     GitHub's 100 MiB per-file limit. Put it on R2 / Vercel Blob / a GitHub
+     GitHub's 100 MiB per-file limit. Bake it into the image with the
+     `SMOLLM_URL` build arg, or serve it from R2 / a GitHub
      Release and set `NEXT_PUBLIC_NANO_WEIGHTS_BASE`. This is the one that
      matters most: it is the demo the lab page leads with, and without it the
      flagship feature is the deliberately-bad model.

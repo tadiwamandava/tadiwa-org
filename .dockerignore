@@ -1,0 +1,34 @@
+# Build context for the Coolify/Docker image.
+#
+# Everything here is either regenerated in the build, enormous, or a secret.
+# Without it the context is ~1.5 GB, because the repo carries a 513 MB fp32
+# checkpoint, a 540 MB merged LoRA and a PyTorch venv, none of which the
+# running server touches.
+
+.git
+node_modules
+.next
+npm-debug.log*
+
+# Secrets, always.
+.env
+.env.*
+
+# Model weights and training artefacts. The int8 SmolLM2 file the browser
+# downloads is fetched during the image build; see the Dockerfile.
+public/nano/smollm-fp32.bin
+public/nano/smollm-int8.bin
+public/models/
+engines/nano/adapters/
+engines/nano/data/
+engines/nano/.build/
+engines/nano/tools/.venv/
+
+# Rust toolchain output. The compiled hnsw wasm is committed under public/.
+crates/*/target/
+crates/*/pkg/
+
+# Local tooling that has no business in a runtime image.
+.lighthouseci/
+.vercel
+*.tsbuildinfo
