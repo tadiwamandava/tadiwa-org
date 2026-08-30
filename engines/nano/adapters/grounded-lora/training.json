@@ -1,0 +1,20 @@
+{
+  "base": "HuggingFaceTB/SmolLM2-135M-Instruct",
+  "examples": 122,
+  "epochs": 10,
+  "effectiveBatch": 8,
+  "lr": 0.0002,
+  "rank": 16,
+  "alpha": 32,
+  "targets": [
+    "down_proj",
+    "gate_proj",
+    "k_proj",
+    "o_proj",
+    "q_proj",
+    "up_proj",
+    "v_proj"
+  ],
+  "trainableParams": 4884480,
+  "seconds": 272
+}

@@ -69,6 +69,16 @@ implemented twice — once to build the index, once to score a query — and a
 drift between the two would fail silently: no error, just a search box that
 stops finding things that are demonstrably in the corpus.
 
+Those eleven queries were not enough. The tokenizer kept trailing punctuation,
+so `quantisation` and `quantisation.` were separate terms with separate posting
+lists and a query for one silently missed every document indexed under the
+other — **13.2% of the vocabulary**, 197 of 1495 terms, and 94 pairs that were
+pure duplicates. Every ranking assertion passed before *and* after the fix,
+because none of them happened to use a word that ended a sentence. Ranking
+cannot see this, so the gate now also checks the index's **shape**: a term that
+is another term plus trailing punctuation is always a bug. Verified against the
+pre-fix index — it reports 191 and exits 1.
+
 ## Inference
 
 `/lab/inference` runs a transformer forward pass written by hand in C++ and
@@ -117,6 +127,56 @@ of this site's prose, train loss 1.19 against validation 1.94, which is
 memorisation. It is kept because the comparison is the content: same engine,
 same kernels, and the entire difference in output quality is the weights.
 
+## Making it stop making things up
+
+Asked cold what a KV cache is, SmolLM2-135M answered that it *"stores the
+current and voltage values from previous cycles"*. It does not know, so it
+interpolates. Nothing fixes that at 135M parameters by training — there is
+nowhere to keep the fact — so it is not asked to recall one. The BM25 index
+that already answers ⌘K retrieves the passages, they go into the prompt, and
+the job drops from *know things* to *read four paragraphs and answer from
+them*. The passages are listed under the answer with links. Chat mode is kept
+as the control.
+
+Retrieval could not fix the second half: handed sources that did not contain
+the answer, the base model answered anyway. So that part **is** a fine-tune —
+a LoRA on 4.9M parameters (3.5% of the model), 122 examples built from this
+corpus, loss masked to the answer span. Measured on 29 held-out cases, held out
+**by page** so the eval pages contributed nothing to training:
+
+| | stock | + grounded LoRA |
+|---|---|---|
+| refuses when it should | 0% (0/14) | **100%** (14/14) |
+| refuses when it shouldn't | 0% | **6.7%** (1/15) |
+| grounding (5-gram overlap with sources) | 5.7% | **94.0%** |
+
+The middle column is what keeps the first honest — a model trained hard enough
+on refusals refuses everything and scores 100% on the left while being useless.
+Both are always reported.
+
+The training answers are **quoted from the corpus, not written by a larger
+model**. Copying from context is the target behaviour; supervision written by
+something smarter teaches this model to sound smarter, which produces more
+confident invention rather than less. It also keeps "no API I called" true of
+the training data.
+
+Two things this got wrong first, both caught by measuring rather than
+reasoning:
+
+- An earlier run showed 26.7% false refusal and the obvious reading was
+  over-training. Retraining at 6 and 10 epochs against identical data and eval
+  showed the **longer** run was better; the first number came from a narrower
+  eval set. Fifteen answerable cases means one case is 6.7% — thin enough that
+  the honest conclusion is that the two configurations are hard to tell apart.
+- "What is the K20 Content Curation Platform?" retrieved that project's
+  Writeup, two Decisions and a Hindsight — four passages about it, none saying
+  what it *is* — so the model correctly declined. Every chunk of a project
+  shares its title, so title terms cannot discriminate, and BM25 ranks the long
+  writeup over the short pitch. The pitch is now pinned rather than ranked. The
+  first version of that fix checked the over-fetched list, found the pitch at
+  rank five, did nothing, and the truncation dropped it again — which a browser
+  test caught and a unit test would not have.
+
 **The 129 MB weights file is not committed** — it is over GitHub's per-file
 ceiling. See `DEPLOY.md` for how to serve it and what the page does when it is
 absent.
@@ -131,6 +191,7 @@ absent.
 | `npm run check:content` | Every MDX file against the corpus schema; flags leftover `TODO`/`CONFIRM` placeholders; catches corpus-level bugs a per-file schema cannot see (duplicate `pinOrder`, `finished` before `started`). |
 | `npm run check:links` | Every internal href resolves — including template-literal prefixes, so a typo like `/project/${slug}` is caught rather than silently killing every project link. |
 | `npm run check:search` | The shipped lexical scorer against the shipped index, on real queries. Guards against the build-time and runtime tokenizers drifting apart. Needs no model download — the index it checks is already committed. |
+| `npm run check:prompt` | The grounded-answer prompt against a golden rendering. The format is assembled in TypeScript for the browser and in Python for the fine-tuning data; training on one format and serving another degrades output with no error anywhere. |
 | `npm run check:bundle` | Critical JS on first paint, read from the build manifests. Next 16 removed `First Load JS` from build output, so this cannot be scraped from the log. |
 | `npm run test:nano` | Each inference kernel against golden fixtures. Reports "stub" for unstarted work, so an unfinished engine reads as unfinished rather than broken. |
 | `npm run test:nano:parity` | End-to-end logit agreement with PyTorch, fp32 and int8. Catches the class of bug the op tests cannot — a transposed weight, a mis-sliced head, an off-by-one in the KV cache. Needs no Python; the reference logits are committed. |

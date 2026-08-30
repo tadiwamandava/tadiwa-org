@@ -6,6 +6,7 @@ import {
   getNanoReport,
   getParity,
   getSmolParity,
+  getGroundedEvals,
   getModelMeta,
   getSmolInfo,
   getEngineBytes,
@@ -25,6 +26,7 @@ export default function InferenceLabPage() {
   const ops = getNanoReport();
   const parity = getParity();
   const smolParity = getSmolParity();
+  const evals = getGroundedEvals();
   const meta = getModelMeta();
   const smol = getSmolInfo();
   const engineBytes = getEngineBytes();
@@ -72,11 +74,15 @@ export default function InferenceLabPage() {
       <p className="mt-8 max-w-2xl border-l-2 border-border-strong pl-4 leading-relaxed text-muted">
         <strong className="font-medium text-text">The weights are not mine.</strong>{" "}
         {smol?.meta.model ?? "SmolLM2-135M-Instruct"} was trained by Hugging
-        Face; I quantised it and wrote the code that runs it. That distinction
-        is the whole point of this page, so it goes above the demo rather than
-        in a footnote: <em>the engine is the artefact, the model is a payload</em>.
-        The second model in the selector is the opposite trade — 359K parameters
-        I did train, on this site&rsquo;s own prose, and it is much worse.
+        Face.{" "}
+        {smol?.meta.finetuned
+          ? "I fine-tuned it to answer from retrieved sources or decline, quantised it, and wrote the code that runs it."
+          : "I quantised it and wrote the code that runs it."}{" "}
+        That distinction is the whole point of this page, so it goes above the
+        demo rather than in a footnote:{" "}
+        <em>the engine is the artefact, the model is a payload</em>. The second
+        model in the selector is the opposite trade — 359K parameters I did
+        train, on this site&rsquo;s own prose, and it is much worse.
       </p>
 
       <section className="mt-12">
@@ -187,6 +193,115 @@ export default function InferenceLabPage() {
               <ParityTable rows={parity} />
             </>
           )}
+        </section>
+      )}
+
+      {/* ---- grounding --------------------------------------------------- */}
+      {evals.length > 0 && (
+        <section className="mt-14">
+          <h2 className="border-b border-border pb-2 font-mono text-xs tracking-[0.14em] text-muted uppercase">
+            Making it stop making things up
+          </h2>
+          <div className="mt-4 max-w-2xl space-y-4 leading-relaxed text-muted">
+            <p>
+              Asked cold what a KV cache is, this model said it{" "}
+              <em>&ldquo;stores the current and voltage values from previous
+              cycles&rdquo;</em>. It does not know, so it interpolates from
+              things that sound adjacent. No amount of fine-tuning fixes that at
+              135M parameters — there is nowhere to keep the fact.
+            </p>
+            <p>
+              So it is not asked to recall one. The BM25 index that already
+              answers ⌘K retrieves the passages, they go into the prompt, and
+              the job drops from <em>know things</em> to{" "}
+              <em>read four paragraphs and answer from them</em>. Try the same
+              question in Chat and in Grounded above; Chat is the control, and
+              it is left in for that reason.
+            </p>
+            <p>
+              Retrieval could not fix the second half. Handed four sources that
+              did not contain the answer, the base model answered anyway —{" "}
+              <strong className="font-medium text-text">
+                zero refusals out of fourteen
+              </strong>{" "}
+              on held-out questions, inventing a &ldquo;64-bit CPU with a 64-bit
+              instruction set&rdquo; for a project whose sources say nothing of
+              the kind. Declining <em>is</em> a short, learnable behaviour — a
+              habit rather than a fact to store — so that part is a LoRA: 4.9M
+              trainable parameters, 3.5% of the model, on 122 examples built
+              from this corpus.
+            </p>
+          </div>
+
+          <table className="mt-6 w-full border-collapse">
+            <caption className="sr-only">
+              Grounded behaviour on held-out questions.
+            </caption>
+            <thead>
+              <tr className="border-b border-border text-left">
+                {["Model", "Refuses when it should", "Refuses when it shouldn't", "Grounding"].map((h) => (
+                  <th key={h} scope="col" className="py-2 font-mono text-2xs tracking-wide text-subtle uppercase">
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {evals.map((e) => (
+                <tr key={e.label} className="border-b border-border">
+                  <td className="py-3 font-mono text-sm">
+                    {e.label === "base" ? "SmolLM2 stock" : "+ grounded LoRA"}
+                  </td>
+                  <td className="py-3 font-mono text-sm tabular-nums text-muted">
+                    {e.refusalOnUnanswerable === null
+                      ? "—"
+                      : `${(e.refusalOnUnanswerable * 100).toFixed(0)}%`}
+                  </td>
+                  <td className="py-3 font-mono text-sm tabular-nums text-muted">
+                    {e.falseRefusalOnAnswerable === null
+                      ? "—"
+                      : `${(e.falseRefusalOnAnswerable * 100).toFixed(0)}%`}
+                  </td>
+                  <td className="py-3 font-mono text-sm tabular-nums text-muted">
+                    {(e.groundingOfAnswers * 100).toFixed(0)}%
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-subtle">
+            The middle column is what keeps the first one honest. A model
+            trained hard enough on refusals refuses everything, scores 100% on
+            the left, and is useless — so both are always reported, and the
+            training set is held under 40% refusals rather than over half.
+            &ldquo;Grounding&rdquo; is the share of generated five-word
+            sequences appearing verbatim in the sources: an approximation, not
+            a proof. It scores a faithful paraphrase low, and it scores an
+            answer drawn from the right project&rsquo;s <em>wrong section</em>
+            as a success — which happened, and which the number cannot see.
+            Held out by page, so the eval pages contributed nothing to
+            training.
+          </p>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-subtle">
+            The training answers are quoted from the corpus rather than written
+            by a larger model. Copying from context <em>is</em> the target
+            behaviour; supervision written by something smarter would teach this
+            model to sound smarter, which is how you get more confident
+            invention rather than less. It also keeps the claim on this page
+            true of the training data too — there is no API call anywhere in
+            this repository, including in what taught the model.
+          </p>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-subtle">
+            An earlier run measured 26.7% false refusal and the obvious reading
+            was over-training. Retraining at both epoch counts against the same
+            data and the same eval showed the opposite: the longer run was
+            better, and the first number had come from a narrower eval set, not
+            from the epochs. Fifteen answerable cases means a single case is
+            6.7% — small enough that the honest conclusion is that these two
+            configurations are hard to tell apart, and that the earlier
+            explanation was a story fitted to noise.
+          </p>
         </section>
       )}
 

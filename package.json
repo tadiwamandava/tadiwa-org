@@ -29,7 +29,11 @@
     "test:nano:bpe": "bash engines/nano/build-bpe.sh",
     "test:nano:llama": "bash engines/nano/build-llama.sh",
     "chat": "bash engines/nano/chat.sh",
-    "check:prompt": "node scripts/check-prompt.ts"
+    "check:prompt": "node scripts/check-prompt.ts",
+    "nano:data": "engines/nano/tools/.venv/bin/python engines/nano/tools/make_sft_data.py",
+    "nano:train": "engines/nano/tools/.venv/bin/python engines/nano/tools/train_lora.py",
+    "nano:merge": "engines/nano/tools/.venv/bin/python engines/nano/tools/merge_lora.py",
+    "nano:eval": "engines/nano/tools/.venv/bin/python engines/nano/tools/eval_grounded.py"
   },
   "dependencies": {
     "@huggingface/transformers": "^4.2.0",

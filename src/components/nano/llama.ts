@@ -22,9 +22,13 @@ export const WEIGHTS_URL = `${BASE}/smollm-int8.bin`;
 export const TOKENIZER_URL = `${BASE}/smollm-tokenizer.bin`;
 
 /** Survives a reload, so the 129 MB is paid once per browser rather than once
- *  per visit. Versioned in the name: a re-quantised model is a different file
- *  under the same URL, and a stale hit would be an unexplainable crash. */
-const CACHE = "nano-weights-v3";
+ *  per visit. Versioned in the name, and the version is not decoration: the
+ *  URL does not change when the weights are re-quantised or fine-tuned, so a
+ *  cache hit on the previous file would silently serve a model the page is
+ *  describing incorrectly. Bump this on every weights change.
+ *
+ *  v4: the grounded LoRA merged in. */
+const CACHE = "nano-weights-v4";
 
 export interface LlamaInfo {
   nVocab: number;
