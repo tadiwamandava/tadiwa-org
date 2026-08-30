@@ -82,8 +82,8 @@ export default function ColophonPage() {
               Shiki through rehype-pretty-code, at build time, in both themes.
             </StackRow>
             <StackRow term="Type">
-              Fraunces for display; IBM Plex Sans and Plex Mono for text and
-              numerals. Self-hosted by <Code>next/font</Code>.
+              Saira for headings, self-hosted by <Code>next/font</Code>. Body
+              and mono are the system stack, so one file is downloaded.
             </StackRow>
             <StackRow term="Gates">
               Types, lint, WCAG contrast, corpus schema, search quality,
@@ -390,19 +390,32 @@ export default function ColophonPage() {
         <Section label="Type">
           <div className="prose mt-5">
             <p>
-              Three families, each with a job. Fraunces sets display text and
-              nothing else: a variable serif with an optical-size axis, chosen
-              because a default UI sans has no voice and this site is mostly
-              prose asking to be read rather than scanned. IBM Plex Sans sets the
-              body. IBM Plex Mono sets code, hardware captures, dates, and every
-              number that gets compared to another number.
+              One web font, and it only sets headings. Saira is a squarish
+              grotesque carrying every display line on the site; the body and
+              the mono column are the operating system&rsquo;s own faces,
+              Helvetica Neue on Apple platforms and Arial or Liberation Sans
+              elsewhere, which are close enough in metrics that the layout does
+              not move between them.
             </p>
             <p>
-              Plex Sans and Plex Mono were drawn as one family, which is the
-              whole reason for the pairing: a mono column inside a sans paragraph
-              usually announces itself as a foreign object, and these two share
-              enough skeleton that it does not. Fraunces is the deliberate
-              contrast against both.
+              Saira is here because the layout of this site follows a reference
+              that sets its headings in Industry. Industry is a commercial
+              licence from Fort Foundry and its files are not mine to copy off
+              somebody else&rsquo;s server, so this is the nearest open
+              equivalent: the same semi-condensed squarish proportions and flat
+              terminals, under the SIL Open Font License. If the licence is ever
+              bought, one line in <Code>layout.tsx</Code> changes and nothing
+              else does.
+            </p>
+            <p>
+              It ships as the <em>variable</em> cut rather than static weights,
+              which was not the first attempt. Asking for 600 and 700 emitted
+              two files and covered neither, because some display elements
+              resolve to 400 and those rendered in the fallback while the
+              heading beside them rendered in Saira. One variable file covers
+              the whole axis. Measured on the production build: a single
+              request, <strong className="font-medium text-text">32.5 KB</strong>,
+              latin only.
             </p>
             <p>
               Tabular figures are on everywhere numbers are compared: benchmark
@@ -413,19 +426,20 @@ export default function ColophonPage() {
               table you skip.
             </p>
             <p>
-              All three are self-hosted through <Code>next/font</Code>: the files
-              are fetched at build time and served from this origin, so there is
-              no request to a Google domain on any page load and no third party in
-              the critical path. The other half of that is layout stability.{" "}
-              <Code>next/font</Code> knows the metrics at build, so the fallback
-              is matched and nothing reflows when the real face arrives.
+              The font is self-hosted through <Code>next/font</Code>, fetched at
+              build and served from this origin, so no page load touches a Google
+              domain. That also buys the layout stability:{" "}
+              <Code>next/font</Code> computes the fallback&rsquo;s metrics at
+              build, so the swap when the real face arrives does not reflow
+              anything.
             </p>
             <p>
-              The cost, honestly stated: three families is a lot of bytes for a
-              text site. Fraunces ships as two static cuts rather than the
-              variable font, because the variable axes are lovely and this site
-              uses the face at about four sizes. The static pair is the smaller
-              download for identical rendered output.
+              The cost, honestly stated: this page used to say the site
+              downloaded zero font files, and that was true and worth about
+              32 KB on the critical path. A display face was worth spending it
+              on. Body and mono are still free, which is where the bytes would
+              actually have hurt, because those are the two faces a reader spends
+              the most time inside.
             </p>
           </div>
         </Section>

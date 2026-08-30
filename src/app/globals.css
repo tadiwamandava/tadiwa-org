@@ -184,7 +184,13 @@
   --font-sans:
     "Helvetica Neue", Helvetica, Arial, "Segoe UI", Roboto, system-ui,
     sans-serif;
-  --font-display: var(--font-sans);
+  /* Display only. Saira carries headings; body and mono stay on the system
+     stack, so the two faces a reader spends the most time in cost nothing.
+     The fallback is the same stack the body uses, and next/font matches its
+     metrics at build, so a slow font never moves the layout. */
+  --font-display:
+    var(--font-saira), "Helvetica Neue", Helvetica, Arial, system-ui,
+    sans-serif;
   --font-mono:
     ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
     "Liberation Mono", monospace;

@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Saira } from "next/font/google";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ThemeScript } from "@/components/theme-script";
@@ -6,12 +7,29 @@ import { PaletteMount } from "@/components/search/palette-mount";
 import { SITE } from "@/lib/site";
 import "./globals.css";
 
-/* No web fonts.
-   Helvetica Neue is a system face on macOS/iOS with no worthwhile web-font
-   equivalent, so the type stack is declared in globals.css and nothing is
-   downloaded. Zero font requests, zero swap-induced layout shift, and ~90KB
-   off the critical path. Non-Apple platforms fall through to Arial /
-   Liberation Sans, which are metrically close enough that layout holds. */
+/* One web font, for display only.
+   Saira is a squarish grotesque, and it is here because the reference layout
+   this page follows sets its headings in Industry (Fort Foundry). Industry is
+   a commercial licence and its files cannot be copied off another site, so
+   this is the closest open equivalent: same semi-condensed squarish
+   proportions and flat terminals, under the SIL Open Font License.
+   If the licence is ever bought, this is the one line that changes.
+
+   Body and mono stay on the system stack. That is not a compromise, it is what
+   the reference does too, and it keeps the two faces a reader spends the most
+   time in at zero bytes.
+
+   The VARIABLE cut, not static weights. Asking for 600 and 700 shipped two
+   files and covered neither the 400 that some display elements resolve to, so
+   those rendered in the fallback while their neighbours rendered in Saira.
+   One variable file covers the whole axis and is smaller than the static cuts
+   it replaces. Latin only, and next/font computes fallback metrics at build
+   so nothing reflows when it swaps in. */
+const display = Saira({
+  subsets: ["latin"],
+  variable: "--font-saira",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -53,7 +71,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
          this attribute the `scroll-behavior: smooth` in globals.css makes every
          route change slow-scroll to the top instead of jumping. */
       data-scroll-behavior="smooth"
-      className="h-full antialiased"
+      className={`h-full antialiased ${display.variable}`}
       suppressHydrationWarning
     >
       <body className="flex min-h-full flex-col bg-bg text-text">

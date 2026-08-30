@@ -10,7 +10,7 @@ export const contentType = "image/png";
    Colours come from lib/palette.ts, which reads the real stylesheet, so this
    card can never drift from the site's palette.
 
-   TODO: load Fraunces as an ArrayBuffer via the `fonts` option to match the
+   TODO: load Saira as an ArrayBuffer via the `fonts` option to match the
    site's display face. Rendering in the bundled default until then; a correct
    card in the wrong typeface beats no card. */
 
