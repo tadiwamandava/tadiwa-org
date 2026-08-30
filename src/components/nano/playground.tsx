@@ -1,11 +1,13 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { NanoEngine, type Precision } from "./engine";
 import { LlamaEngine, chatPrompt, type GenStats, type LoadProgress } from "./llama";
 import { retrieve, groundedPrompt, usedCount, REFUSAL, type Grounding } from "./ground";
 import { Recorder, Speaker, loadTranscriber, MAX_SECONDS } from "./voice";
 import { askHosted, type HostedState } from "./hosted";
+import { Assistant } from "./assistant";
+import type { SphereMode } from "./sphere";
 
 /**
  * The demo, for both models the engine can run.
@@ -75,7 +77,6 @@ export function NanoPlayground({
   const nanoRef = useRef<NanoEngine | null>(null);
   const stopRef = useRef(false);
   const recorderRef = useRef<Recorder | null>(null);
-  const speakerRef = useRef<Speaker | null>(null);
   const tickRef = useRef<number | null>(null);
 
   const [model, setModel] = useState<ModelId>(smolAvailable ? "smol" : "nano");
@@ -106,6 +107,18 @@ export function NanoPlayground({
   /** The hosted comparison. Never runs unless asked for — it costs money and
    *  leaves the machine, which is the opposite of everything else here. */
   const [hosted, setHosted] = useState<HostedState>({ status: "idle" });
+  /** The live mic spectrum, lifted into state so the visualiser re-binds when
+   *  a recording starts and unbinds when it ends. */
+  const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
+  /** One Speaker for the component's life. State rather than a ref because the
+   *  visualiser needs it during render, and refs may not be read there. The
+   *  lazy initialiser is what keeps it to a single construction. */
+  const [speaker] = useState<Speaker | null>(() =>
+    typeof window !== "undefined" && Speaker.supported() ? new Speaker(false) : null,
+  );
+  /** Driven by the synthesiser's own end event. Polling `speaker.busy` during
+   *  render would read a value that changes without re-rendering. */
+  const [isSpeaking, setIsSpeaking] = useState(false);
   /** The passages the model was actually shown, listed under the answer so a
    *  visitor can check the answer against its evidence rather than trust it. */
   const [grounding, setGrounding] = useState<Grounding | null>(null);
@@ -125,6 +138,8 @@ export function NanoPlayground({
   const prompt = byMode(groundedText, chatText, completeText, nanoText);
   const setPrompt = byMode(setGroundedText, setChatText, setCompleteText, setNanoText);
   const suggestions = byMode(GROUNDED_PROMPTS, CHAT_PROMPTS, COMPLETE_PROMPTS, NANO_PROMPTS);
+
+  useEffect(() => speaker?.addDoneListener(() => setIsSpeaking(false)), [speaker]);
 
   const loadSmol = useCallback(async () => {
     setBusy(true);
@@ -157,6 +172,7 @@ export function NanoPlayground({
       tickRef.current = null;
     }
     setListening(null);
+    setAnalyser(null);
     try {
       const { audio, seconds } = await rec.stop();
       if (seconds < 0.4) {
@@ -183,6 +199,7 @@ export function NanoPlayground({
     try {
       setVoiceNote(null);
       await rec.start();
+      setAnalyser(rec.analyser);
       setListening(0);
       tickRef.current = window.setInterval(() => {
         setListening((n) => {
@@ -220,10 +237,13 @@ export function NanoPlayground({
     setHosted({ status: "idle" });
     stopRef.current = false;
 
-    const speaker = (speakerRef.current ??= new Speaker(speak));
-    speaker.setEnabled(speak);
-    speaker.cancel();
-    const say = (text: string) => speaker.push(text);
+    speaker?.setEnabled(speak);
+    speaker?.cancel();
+    const say = (text: string) => {
+      if (!speak || !speaker) return;
+      setIsSpeaking(true);
+      speaker.push(text);
+    };
     try {
       if (model === "nano") {
         const engine = (nanoRef.current ??= new NanoEngine());
@@ -236,7 +256,7 @@ export function NanoPlayground({
           },
           () => stopRef.current,
         );
-        speaker.flush();
+        speaker?.flush();
         setStats({
           promptTokens: 0, tokens, prefillMs: 0, genMs: ms, stopped: "limit",
           resident: engine.info?.weightBytes ?? 0, kv: 0,
@@ -260,7 +280,7 @@ export function NanoPlayground({
         if (g.empty) {
           setOutput(REFUSAL);
           say(REFUSAL);
-          speaker.flush();
+          speaker?.flush();
           setStats(null);
           return;
         }
@@ -290,7 +310,7 @@ export function NanoPlayground({
         },
         () => stopRef.current,
       );
-      speaker.flush();
+      speaker?.flush();
       setStats({ ...s, resident: engine.info?.residentBytes ?? 0, kv: engine.info?.kvBytes ?? 0 });
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -299,7 +319,7 @@ export function NanoPlayground({
       setStatus(null);
       setBusy(false);
     }
-  }, [model, mode, precision, prompt, speak]);
+  }, [model, mode, precision, prompt, speak, speaker]);
 
   /**
    * Asks the hosted model the same question, on demand.
@@ -331,6 +351,17 @@ export function NanoPlayground({
 
   const needsDownload = model === "smol" && !smolReady;
 
+  /** Derived, not stored. A second source of truth for "what is happening"
+   *  is a second thing that can disagree with the first. */
+  const sphereMode: SphereMode =
+    listening !== null
+      ? "listening"
+      : busy || voiceNote === "transcribing…"
+        ? "thinking"
+        : speak && isSpeaking
+          ? "speaking"
+          : "idle";
+
   // Feature detection, not user-agent sniffing. getUserMedia is absent on
   // insecure origins and in some embedded webviews; speechSynthesis is absent
   // in a few. Each control simply does not render where it cannot work.
@@ -340,6 +371,21 @@ export function NanoPlayground({
 
   return (
     <div className="rounded-lg border border-border bg-surface p-5">
+      {/* ---- the assistant ----------------------------------------------- */}
+      <Assistant
+        mode={sphereMode}
+        analyser={analyser}
+        speaker={speaker}
+        speaking={speak}
+        onToggleSpeak={() =>
+          setSpeak((on) => {
+            if (on) speaker?.cancel();
+            speaker?.setEnabled(!on);
+            return !on;
+          })
+        }
+      />
+
       {/* ---- model ------------------------------------------------------- */}
       <div role="group" aria-labelledby="model-label">
         <span id="model-label" className="mb-2 block font-mono text-2xs tracking-wide text-subtle uppercase">
@@ -525,7 +571,7 @@ export function NanoPlayground({
             type="button"
             onClick={() => {
               setSpeak((on) => {
-                if (on) speakerRef.current?.cancel();
+                if (on) speaker?.cancel();
                 return !on;
               });
             }}
@@ -544,7 +590,7 @@ export function NanoPlayground({
             type="button"
             onClick={() => {
               stopRef.current = true;
-              speakerRef.current?.cancel();
+              speaker?.cancel();
             }}
             className="rounded border border-border-strong px-3 py-2 text-sm text-muted transition-colors hover:text-text"
           >

@@ -190,6 +190,15 @@ fetched same-origin; `speechSynthesis` reads the answer back. The browser's own
 uploads the audio to Google. A site arguing that no server does the interesting
 part cannot put its microphone on someone else's server.
 
+The voice that reads answers back is chosen by locale preference — `en-ZA`,
+then other African English locales, then `en-GB`, then any English — and the
+panel names the voice actually in use. **The voice list belongs to the operating
+system; a web page can choose from it but cannot add to it.** On the machine
+this was built on, 199 voices are installed and exactly one is African English
+(Tessa, en-ZA). Many devices will have none, and the UI says so plainly rather
+than implying a choice that was not available. There is a picker, because the
+right answer is the visitor's device's, not this code's.
+
 The transcript lands in the textarea rather than auto-submitting. A wrong
 transcription that silently becomes a question produces an answer to something
 nobody asked, and the visitor has no way to tell that is what happened.
@@ -214,6 +223,33 @@ The trap underneath it: the same q8 files load fine in **onnxruntime-node**, so
 the Node smoke test in `scripts/fetch-voice-model.ts` passes and proves nothing
 about the browser. Only a real browser can check this, which is what
 `scripts/cdp.mjs` is for.
+
+### The visualiser
+
+The assistant has a face: a gold wireframe sphere, hand-written Canvas2D with
+its own perspective projection. three.js would have been ~600 KB to draw lines,
+and the interesting part — projection, depth cueing, additive blending — is
+thirty lines of maths.
+
+What drives it is deliberately two different signals, because the two
+directions of a conversation expose different things:
+
+- **Listening** is a real FFT of the microphone. Each shard is bound to a
+  frequency bin, so the shape genuinely is the spectrum of your voice.
+- **Speaking** pulses on word-boundary events. Synthesised audio never enters
+  the WebAudio graph — the platform plays it directly — so there is no spectrum
+  to analyse, and animating one anyway would be a visualisation lying about its
+  source.
+
+60 fps with a worst frame of 20.7 ms, measured in headless Chrome with no GPU.
+`prefers-reduced-motion` draws one static frame and stops the loop: the shape is
+information, the movement is not. The canvas is `aria-hidden` and every state it
+depicts is also written in text beneath it.
+
+The first attempt read as a sea urchin — 340 long spikes, an explosion rather
+than a sphere. The reference silhouette is a dense *shell*: short structures
+packed on a surface, with the volume carried by concentric arcs rather than
+radial reach.
 
 ## The hosted comparison
 
