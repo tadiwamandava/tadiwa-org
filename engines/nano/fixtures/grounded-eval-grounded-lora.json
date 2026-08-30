@@ -1,0 +1,12 @@
+{
+  "label": "grounded-lora",
+  "cases": 29,
+  "refusalOnUnanswerable": 1.0,
+  "falseRefusalOnAnswerable": 0.06666666666666667,
+  "groundingOfAnswers": 0.9403293135435993,
+  "counts": {
+    "answerable": 15,
+    "unanswerable-near": 5,
+    "unanswerable-far": 9
+  }
+}

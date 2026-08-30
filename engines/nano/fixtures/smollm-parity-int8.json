@@ -2,12 +2,12 @@
   "weights": "int8",
   "tokens": 5,
   "vocab": 49152,
-  "maxAbsDiff": 8.086443e-01,
-  "rmsDiff": 1.788034e-01,
+  "maxAbsDiff": 1.335971e+00,
+  "rmsDiff": 2.062682e-01,
   "tolerance": 2.500000e+00,
   "argmaxMatch": true,
   "argmax": 7042,
-  "msPerToken": 22.988,
+  "msPerToken": 23.083,
   "residentBytes": 182625080,
   "pass": true
 }

@@ -68,7 +68,12 @@ export interface ModelMeta {
 
 /** Written by tools/convert_smollm.py alongside the weights. */
 export interface SmolMeta {
+  /** Upstream identity — always the Hugging Face model, so the credit on the
+   *  page survives converting a local fine-tuned checkpoint. */
   model: string;
+  /** What was actually converted: the same string, or a local adapter path. */
+  checkpoint?: string;
+  finetuned?: boolean;
   params: number;
   n_embd: number; n_layer: number; n_head: number; n_kv_head: number;
   n_inter: number; vocab: number; n_ctx: number;
@@ -108,6 +113,29 @@ export function getParity(): ParityReport[] {
   return (["fp32", "int8"] as const)
     .map((t) => readJson<ParityReport>("engines", "nano", "fixtures", `parity-${t}.json`))
     .filter((r): r is ParityReport => r !== null);
+}
+
+/** Written by `npm run nano:eval`. One row per model checkpoint measured. */
+export interface GroundedEval {
+  label: string;
+  cases: number;
+  refusalOnUnanswerable: number | null;
+  falseRefusalOnAnswerable: number | null;
+  groundingOfAnswers: number;
+  counts: Record<string, number>;
+}
+
+/**
+ * Grounded-behaviour measurements, base first so the page reads as a
+ * before/after rather than a claim. Missing files are simply absent — the
+ * section disappears rather than inventing a number for a run nobody did.
+ */
+export function getGroundedEvals(): GroundedEval[] {
+  return ["base", "grounded-lora"]
+    .map((label) =>
+      readJson<GroundedEval>("engines", "nano", "fixtures", `grounded-eval-${label}.json`),
+    )
+    .filter((r): r is GroundedEval => r !== null);
 }
 
 export function getSmolParity(): SmolParity[] {

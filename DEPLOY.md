@@ -165,7 +165,7 @@ secret. Three ways to get one:
    2 GB, and the download URL sends `Access-Control-Allow-Origin: *`. Slowest
    of the three and it 302-redirects, but it works and costs nothing.
 
-The browser caches the file under `caches.open("nano-weights-v3")` after the
+The browser caches the file under `caches.open("nano-weights-v4")` after the
 first successful load, so a returning visitor pays nothing. **Bump that cache
 name in `src/components/nano/llama.ts` whenever the weights change** — a stale
 hit on a re-quantised file is an unexplainable crash rather than a clean miss.

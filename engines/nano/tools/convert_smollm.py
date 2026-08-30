@@ -27,7 +27,17 @@ import numpy as np
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, AutoConfig
 
-MODEL = "HuggingFaceTB/SmolLM2-135M-Instruct"
+BASE_MODEL = "HuggingFaceTB/SmolLM2-135M-Instruct"
+
+#: Which checkpoint to convert. Defaults to stock SmolLM2; pass a directory to
+#: convert a fine-tuned one (see merge_lora.py).
+#:
+#: The parity fixture is regenerated from whichever model this is, and that is
+#: deliberate. Parity answers "does my engine compute what PyTorch computes for
+#: THE WEIGHTS I SHIP" — checking the engine against a reference for a
+#: different checkpoint than the one in public/nano would be a measurement of
+#: nothing.
+MODEL = sys.argv[1] if len(sys.argv) > 1 else BASE_MODEL
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 OUT = ROOT / "public" / "nano"
 FIXTURES = ROOT / "engines" / "nano" / "fixtures"
@@ -186,7 +196,14 @@ def main() -> int:
         n_params += v.numel()
 
     (OUT / "smollm-meta.json").write_text(json.dumps({
-        "model": MODEL, "params": int(n_params),
+        # `model` stays the upstream identity even when a local checkpoint is
+        # converted: the page credits Hugging Face for the weights, and a
+        # directory path in that field would quietly erase the attribution.
+        # `checkpoint` records what was actually converted.
+        "model": BASE_MODEL,
+        "checkpoint": MODEL,
+        "finetuned": MODEL != BASE_MODEL,
+        "params": int(n_params),
         "n_embd": E, "n_layer": L, "n_head": H, "n_kv_head": KVH,
         "n_inter": I, "vocab": V, "n_ctx": N_CTX,
         "rope_theta": theta, "rms_eps": eps,

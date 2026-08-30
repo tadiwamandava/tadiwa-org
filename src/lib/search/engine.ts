@@ -188,6 +188,12 @@ class SearchEngine {
     return hits;
   }
 
+  /** Every chunk belonging to one page, in corpus order. Used by grounding to
+   *  pull a passage that ranking missed but the question needs. */
+  passagesForUrl(url: string): Chunk[] {
+    return this.chunks.filter((c) => c.url === url);
+  }
+
   /** Only meaningful once `semanticReady`. Falls back rather than throwing. */
   async searchSemantic(query: string, limit = 8, ef = 64): Promise<Hit[]> {
     if (!this.wasmIndex || !this.embed) return this.searchLexical(query, limit);

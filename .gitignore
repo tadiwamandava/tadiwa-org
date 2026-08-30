@@ -57,3 +57,7 @@ next-env.d.ts
 # serves them — see DEPLOY.md §5b.
 /public/nano/smollm-fp32.bin
 /public/nano/smollm-int8.bin
+
+# The merged fine-tuned checkpoint (~540 MB fp32). Reproducible from the
+# committed adapter: merge_lora.py, then convert_smollm.py.
+/engines/nano/adapters/grounded-merged/

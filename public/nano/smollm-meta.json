@@ -1,5 +1,7 @@
 {
   "model": "HuggingFaceTB/SmolLM2-135M-Instruct",
+  "checkpoint": "engines/nano/adapters/grounded-merged",
+  "finetuned": true,
   "params": 134515008,
   "n_embd": 576,
   "n_layer": 30,

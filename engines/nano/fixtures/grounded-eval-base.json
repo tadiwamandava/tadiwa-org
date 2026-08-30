@@ -1,0 +1,12 @@
+{
+  "label": "base",
+  "cases": 29,
+  "refusalOnUnanswerable": 0.0,
+  "falseRefusalOnAnswerable": 0.0,
+  "groundingOfAnswers": 0.05664996066050339,
+  "counts": {
+    "answerable": 15,
+    "unanswerable-near": 5,
+    "unanswerable-far": 9
+  }
+}

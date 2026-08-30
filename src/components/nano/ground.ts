@@ -45,10 +45,50 @@ export async function retrieve(question: string): Promise<Grounding> {
 
   const k = TEMPLATE.budget.maxSources;
   const stage: Grounding["stage"] = engine.semanticReady ? "semantic" : "lexical";
-  const passages =
+  const ranked =
     stage === "semantic"
-      ? await engine.searchPassagesSemantic(question, k)
-      : engine.searchPassages(question, k);
+      ? await engine.searchPassagesSemantic(question, k + 2)
+      : engine.searchPassages(question, k + 2);
 
-  return { passages, stage, empty: passages.length === 0 };
+  return { passages: withPitch(ranked, engine, k), stage, empty: ranked.length === 0 };
+}
+
+/**
+ * Guarantees the top page's one-sentence definition is in the context.
+ *
+ * "What is the K20 Content Curation Platform?" retrieved that project's
+ * Writeup, two Decisions and its Hindsight — four passages about it, none of
+ * which say what it *is* — and the model correctly declined, because on its
+ * inputs there was no answer. Every chunk of a project shares its title, so
+ * title terms cannot discriminate between them, and BM25 then ranks the long
+ * writeup above the short pitch on raw term frequency.
+ *
+ * No scoring tweak fixes that; the pitch simply has to be there. So it is
+ * pinned rather than ranked: if the best-scoring result belongs to a page that
+ * has a Pitch or Summary, that passage takes the first slot. It is one rule,
+ * it is why those sections exist in the schema, and it costs one of four.
+ *
+ * The presence check runs on the KEPT slice, not the over-fetched list. The
+ * first version checked all six candidates, found the pitch at rank five,
+ * concluded there was nothing to do — and then the truncation to four threw it
+ * away again. The bug survived a browser test and was only caught by asking
+ * why the browser still refused.
+ */
+function withPitch(hits: Hit[], engine: ReturnType<typeof getEngine>, k: number): Hit[] {
+  const best = hits[0];
+  if (!best) return hits;
+
+  const kept = hits.slice(0, k);
+  const defining = (h: Hit) => h.chunk.url === best.chunk.url && isDefining(h.chunk.section);
+  if (kept.some(defining)) return kept;
+
+  const pitch =
+    hits.find(defining)?.chunk ??
+    engine.passagesForUrl(best.chunk.url).find((c) => isDefining(c.section));
+  if (!pitch) return kept;
+  return [{ chunk: pitch, score: best.score }, ...kept].slice(0, k);
+}
+
+function isDefining(section: string): boolean {
+  return section === "Pitch" || section === "Summary";
 }
