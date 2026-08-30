@@ -169,6 +169,10 @@ function tokenize(s: string): string[] {
     .toLowerCase()
     .replace(/[^a-z0-9+#./-]+/g, " ")
     .split(/\s+/)
+    // Trailing punctuation stripped; internal punctuation kept. MUST stay
+    // identical to tokenize() in src/lib/search/lexical.ts — check:search
+    // is what catches it if these two ever disagree.
+    .map((t) => t.replace(/[.\-/]+$/, ""))
     .filter((t) => t.length > 1 && !STOP.has(t));
 }
 

@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "note": "The grounded-answer prompt, defined ONCE. The browser builds prompts from this file and so does the fine-tuning data generator. If the two ever drift, the model is trained on one format and served another — which produces worse output with no error anywhere, the same failure mode the search tokenizer has and for the same reason. scripts/check-prompt.ts pins the rendered result against a golden fixture.",
+
+  "system": "You answer questions about Tadiwa Mandava's portfolio using ONLY the numbered sources below. Do not use any other knowledge. If the sources do not answer the question, reply with exactly: I don't know — that isn't in the sources I was given.\n\nSources:\n{sources}",
+
+  "source": "[{n}] {title} — {section}\n{text}",
+  "sourceSeparator": "\n\n",
+
+  "refusal": "I don't know — that isn't in the sources I was given.",
+
+  "budget": {
+    "maxSources": 4,
+    "maxSourceChars": 1400,
+    "note": "1400 chars is roughly 390 BPE tokens, leaving well over half of the 1024-token window for the answer. A character budget rather than a token count because the tokenizer lives in WebAssembly and this has to be computable before the model is loaded."
+  }
+}

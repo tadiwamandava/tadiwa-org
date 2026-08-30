@@ -49,6 +49,19 @@ jobs:
       - name: Search quality
         run: npm run check:search
 
+      # Every internal href resolves. Runs in the local `npm run check` aggregate
+      # and was missing here, so "everything CI runs" and "everything check
+      # runs" meant two different things.
+      - name: Internal links
+        run: npm run check:links
+
+      # Pins the grounded-answer prompt against a golden rendering. The format
+      # is assembled in TypeScript for the browser and in Python for the
+      # fine-tuning data; a model trained on one format and served another
+      # degrades with no error anywhere.
+      - name: Grounded prompt format
+        run: npm run check:prompt
+
       # The admin is the only thing in this repo that WRITES content, so it is
       # the only thing that can destroy it. This round-trips every file in
       # content/ through the admin's own serialiser and asserts the reparse is

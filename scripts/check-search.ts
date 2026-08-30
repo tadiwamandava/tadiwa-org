@@ -78,12 +78,35 @@ function run(): number {
     console.log(`  ✓ ${"stop-word-only query returns nothing".padEnd(34)} ok`);
   }
 
+  // INVARIANT, not an expectation. The eleven queries above all passed while
+  // 13% of the vocabulary was punctuation-terminated — "quantisation" and
+  // "quantisation." were separate terms with separate posting lists, so a
+  // query for one silently missed every document indexed under the other.
+  // No ranking assertion caught it because none of them happened to use a
+  // word that ended a sentence. This checks the index's SHAPE instead: a term
+  // that is another term plus trailing punctuation is always a bug.
+  const terms = Object.keys(index.postings);
+  const bare = new Set(terms);
+  const split = terms.filter((t) => {
+    const stripped = t.replace(/[.\-/]+$/, "");
+    return stripped !== t && (bare.has(stripped) || stripped.length > 1);
+  });
+  if (split.length > 0) {
+    failures++;
+    console.log(
+      `  ✗ ${"no punctuation-split terms".padEnd(34)} ${split.length} found: ` +
+        split.slice(0, 6).join(", "),
+    );
+  } else {
+    console.log(`  ✓ ${"no punctuation-split terms".padEnd(34)} ok (${terms.length} terms)`);
+  }
+
   console.log("");
   if (failures > 0) {
     console.error(`  FAILED — ${failures} search expectation(s) not met.\n`);
     return 1;
   }
-  console.log(`  PASSED — ${EXPECTATIONS.length + 1} search expectations met.\n`);
+  console.log(`  PASSED — ${EXPECTATIONS.length + 2} search expectations met.\n`);
   return 0;
 }
 
