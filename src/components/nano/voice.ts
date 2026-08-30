@@ -123,6 +123,11 @@ export class Recorder {
   private recorder: MediaRecorder | null = null;
   private chunks: Blob[] = [];
   private startedAt = 0;
+  private live: AudioContext | null = null;
+  /** Live spectrum of the microphone while recording, for the visualiser.
+   *  Separate from the recorded blob: this is analysed in real time and
+   *  thrown away, the blob is what Whisper eventually sees. */
+  analyser: AnalyserNode | null = null;
 
   get recording(): boolean {
     return this.recorder?.state === "recording";
@@ -140,6 +145,29 @@ export class Recorder {
     };
     this.recorder.start();
     this.startedAt = performance.now();
+
+    // Tap the same stream for the visualiser. fftSize 512 gives 256 bins at
+    // ~90 Hz resolution, which is enough to separate a vowel from a fricative
+    // and cheap enough to run every frame.
+    try {
+      this.live = new AudioContext();
+      const src = this.live.createMediaStreamSource(this.media);
+      this.analyser = this.live.createAnalyser();
+      this.analyser.fftSize = 512;
+      this.analyser.smoothingTimeConstant = 0.7;
+      src.connect(this.analyser);
+      // Deliberately NOT connected to destination — routing the mic to the
+      // speakers is a feedback loop, and the analyser pulls frames on its own.
+    } catch {
+      this.analyser = null;   // visualiser falls back to its idle animation
+    }
+  }
+
+  private async closeLive() {
+    this.analyser = null;
+    const ctx = this.live;
+    this.live = null;
+    if (ctx) await ctx.close().catch(() => {});
   }
 
   /** Stops capture, releases the microphone, and decodes what was captured. */
@@ -157,6 +185,7 @@ export class Recorder {
     this.media?.getTracks().forEach((t) => t.stop());
     this.media = null;
     this.recorder = null;
+    await this.closeLive();
 
     const seconds = (performance.now() - this.startedAt) / 1000;
     return { audio: await toMono16k(await blob.arrayBuffer()), seconds };
@@ -173,6 +202,7 @@ export class Recorder {
     this.media = null;
     this.recorder = null;
     this.chunks = [];
+    void this.closeLive();
   }
 }
 
@@ -207,10 +237,55 @@ async function toMono16k(encoded: ArrayBuffer): Promise<Float32Array> {
  * prosody on every utterance, so feeding it four-token chunks produces a
  * robot reading a word list.
  */
+/**
+ * Locale preference, best first.
+ *
+ * The available voices belong to the operating system, not to this page — a
+ * site cannot install one. So the honest thing is to prefer an African English
+ * voice where the device has one and to say which voice is actually being used
+ * rather than implying a choice that was not available.
+ *
+ * On the machine this was written on, 199 voices are installed and exactly one
+ * is African English: Tessa (en-ZA). Many devices will have none, which is why
+ * the chain falls through to en-GB rather than to nothing.
+ */
+const VOICE_PREFERENCE = ["en-ZA", "en-NG", "en-KE", "en-GH", "en-TZ", "en-GB", "en"];
+
+export interface VoiceChoice {
+  name: string;
+  lang: string;
+  /** True when this is an African English locale rather than a fallback. */
+  preferred: boolean;
+}
+
 export class Speaker {
   private buffer = "";
   private enabled = true;
   private voice: SpeechSynthesisVoice | null = null;
+  private forced: string | null = null;
+  /** Listener sets rather than single slots.
+   *
+   *  Two components want word events — the visualiser to pulse, the panel to
+   *  track speaking state — and a single assignable property means whichever
+   *  mounts second silently wins. Subscription also keeps callers from
+   *  mutating a shared object they were merely handed. */
+  private wordListeners = new Set<() => void>();
+  private doneListeners = new Set<() => void>();
+  private speaking = 0;
+
+  /** Fires on each spoken word. TTS audio never reaches the WebAudio graph,
+   *  so this is the only real signal about what the synthesiser is doing.
+   *  Returns an unsubscribe. */
+  addWordListener(fn: () => void): () => void {
+    this.wordListeners.add(fn);
+    return () => this.wordListeners.delete(fn);
+  }
+
+  /** Fires when the queue drains. Returns an unsubscribe. */
+  addDoneListener(fn: () => void): () => void {
+    this.doneListeners.add(fn);
+    return () => this.doneListeners.delete(fn);
+  }
 
   static supported(): boolean {
     return typeof window !== "undefined" && "speechSynthesis" in window;
@@ -221,19 +296,58 @@ export class Speaker {
     if (Speaker.supported()) this.pickVoice();
   }
 
-  /** Prefers a local, English voice. `getVoices()` is empty until the engine
-   *  populates it, so this is also called from the `voiceschanged` event. */
+  /** Walks VOICE_PREFERENCE, preferring a locally-installed voice at each step.
+   *  `getVoices()` is empty until the engine populates it, hence the event. */
   private pickVoice = () => {
     const voices = window.speechSynthesis.getVoices();
     if (voices.length === 0) {
       window.speechSynthesis.addEventListener("voiceschanged", this.pickVoice, { once: true });
       return;
     }
-    this.voice =
-      voices.find((v) => v.lang.startsWith("en") && v.localService) ??
-      voices.find((v) => v.lang.startsWith("en")) ??
-      voices[0];
+    if (this.forced) {
+      this.voice = voices.find((v) => v.name === this.forced) ?? this.voice;
+      return;
+    }
+    for (const tag of VOICE_PREFERENCE) {
+      const match =
+        voices.find((v) => v.lang.replace("_", "-").startsWith(tag) && v.localService) ??
+        voices.find((v) => v.lang.replace("_", "-").startsWith(tag));
+      if (match) {
+        this.voice = match;
+        return;
+      }
+    }
+    this.voice = voices[0] ?? null;
   };
+
+  /** Every English voice the device has, best-preferred first, for a picker. */
+  static voices(): VoiceChoice[] {
+    if (!Speaker.supported()) return [];
+    return window.speechSynthesis
+      .getVoices()
+      .filter((v) => v.lang.toLowerCase().startsWith("en"))
+      .map((v) => ({
+        name: v.name,
+        lang: v.lang,
+        preferred: /^en[-_](ZA|NG|KE|GH|TZ)/i.test(v.lang),
+      }))
+      .sort((a, b) => Number(b.preferred) - Number(a.preferred) || a.name.localeCompare(b.name));
+  }
+
+  /** The voice actually in use, so the UI can name it instead of guessing. */
+  current(): VoiceChoice | null {
+    if (!this.voice) return null;
+    return {
+      name: this.voice.name,
+      lang: this.voice.lang,
+      preferred: /^en[-_](ZA|NG|KE|GH|TZ)/i.test(this.voice.lang),
+    };
+  }
+
+  use(name: string | null) {
+    this.forced = name;
+    this.pickVoice();
+  }
 
   setEnabled(on: boolean) {
     this.enabled = on;
@@ -263,12 +377,33 @@ export class Speaker {
     if (!t) return;
     const u = new SpeechSynthesisUtterance(t);
     if (this.voice) u.voice = this.voice;
-    u.rate = 1.05;
+    // Measured rather than brisk. The recognisable quality of the delivery the
+    // visitor is picturing is its unhurriedness far more than its phonetics,
+    // and pace is the one parameter a web page actually controls.
+    u.rate = 0.92;
+    u.pitch = 0.9;
+    u.onboundary = (e) => {
+      if (e.name === "word" || e.charIndex !== undefined) {
+        this.wordListeners.forEach((fn) => fn());
+      }
+    };
+    this.speaking++;
+    const settle = () => {
+      this.speaking = Math.max(0, this.speaking - 1);
+      if (this.speaking === 0) this.doneListeners.forEach((fn) => fn());
+    };
+    u.onend = settle;
+    u.onerror = settle;
     window.speechSynthesis.speak(u);
+  }
+
+  get busy(): boolean {
+    return this.speaking > 0;
   }
 
   cancel() {
     this.buffer = "";
+    this.speaking = 0;
     if (Speaker.supported()) window.speechSynthesis.cancel();
   }
 }
