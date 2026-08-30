@@ -14,10 +14,11 @@ npm run dev       # http://localhost:3000
 
 ## Done
 
-- **Design system**, white / slate / teal, Helvetica Neue, **zero web fonts**
-  (nothing is downloaded; ~90KB off the critical path and no swap-induced layout
-  shift). Light-first with a chosen dark counterpart. 62 contrast + separation
-  assertions gated in CI.
+- **Design system**, white / slate / teal. Saira sets headings (one variable
+  file, 32.5 KB, measured on the production build); body and mono stay on the
+  system stack, so the two faces a reader spends the most time in cost nothing
+  and nothing reflows on swap. Light-first with a chosen dark counterpart.
+  62 contrast + separation assertions gated in CI.
 - **The Bench**, the projects as a printed circuit board. Progressive
   enhancement, verified both ways: no JS renders a clean card grid, JS layers a
   hand-written Canvas2D board with chip packages, pin legs, silkscreen, mounting
