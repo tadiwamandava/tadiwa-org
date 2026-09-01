@@ -47,9 +47,10 @@ export default function InferenceLabPage() {
       </h1>
       <p className="mt-5 max-w-2xl text-lg leading-relaxed text-muted">
         A transformer forward pass written by hand in C++ and compiled to
-        WebAssembly: no ML framework, no BLAS, no server, no API key. Ask the
-        box below a question and the answer is computed on your machine, by
-        about 1,500 lines of code that I can explain line by line.
+        WebAssembly: no ML framework, no BLAS, no server. Ask the box below a
+        question and the answer is computed on your machine, by about 1,500
+        lines of code that I can explain line by line. The third option in the
+        selector is the exception, and it is labelled as one.
       </p>
 
       <dl className="mt-8 grid grid-cols-2 gap-5 sm:grid-cols-4">
@@ -82,7 +83,12 @@ export default function InferenceLabPage() {
         demo rather than in a footnote:{" "}
         <em>the engine is the artefact, the model is a payload</em>. The second
         model in the selector is the opposite trade: 359K parameters I did
-        train, on this site&rsquo;s own prose, and it is much worse.
+        train, on this site&rsquo;s own prose, and it is much worse. The third
+        is neither: Kimi K3 is 2.8 trillion parameters in somebody
+        else&rsquo;s datacentre, reached over an API, and it is there as the
+        control. Same question, same retrieved passages, same system prompt, so
+        the difference between its answer and the 135M model&rsquo;s is the
+        model rather than the plumbing.
       </p>
 
       <section className="mt-12">

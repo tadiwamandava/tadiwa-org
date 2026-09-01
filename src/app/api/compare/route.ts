@@ -74,6 +74,22 @@ function fill(pattern: string, vars: Record<string, string>): string {
   return pattern.replace(/\{(\w+)\}/g, (whole, k: string) => vars[k] ?? whole);
 }
 
+/**
+ * Is this switched on, and as what model.
+ *
+ * The page that renders the selector is static, so it cannot read the key at
+ * request time; baking the answer in at build would pin it to whatever was set
+ * during `next build`, and the key is a RUNTIME variable. So the route that
+ * already holds the secret answers for itself, and the only thing crossing the
+ * boundary is a boolean and a model name. Never the key.
+ */
+export function GET() {
+  return Response.json(
+    { available: !!KEY, model: KEY ? MODEL : null },
+    { headers: { "cache-control": "no-store" } },
+  );
+}
+
 export async function POST(req: NextRequest) {
   if (!KEY) {
     return Response.json(

@@ -37,7 +37,7 @@ export interface PlaygroundProps {
   smolAvailable: boolean;
 }
 
-type ModelId = "smol" | "nano";
+type ModelId = "smol" | "nano" | "kimi";
 type Mode = "grounded" | "chat" | "complete";
 
 const GROUNDED_PROMPTS = [
@@ -125,11 +125,53 @@ export function NanoPlayground({
   const [stats, setStats] = useState<
     (GenStats & { resident: number; kv: number }) | null
   >(null);
+  /** Separate from `stats` because none of tok/s, prefill or resident bytes
+   *  mean anything for a model running somewhere else. Latency and the
+   *  server's source count are the only honest numbers here. */
+  /**
+   * Whether the hosted comparison is switched on, asked of the route rather
+   * than passed down.
+   *
+   * This page is statically rendered, so a prop would carry whatever was true
+   * when `next build` ran, and OPENROUTER_API_KEY is set at RUNTIME. The route
+   * holds the key, so the route answers. "checking" is a real state and is
+   * shown as one: pretending it is off until proven otherwise would put a
+   * wrong label on the button for as long as the request takes.
+   */
+  const [kimi, setKimi] = useState<
+    { status: "checking" } | { status: "on"; name: string } | { status: "off" }
+  >({ status: "checking" });
+
+  useEffect(() => {
+    let live = true;
+    fetch("/api/compare")
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((d: { available?: boolean; model?: string | null }) => {
+        if (!live) return;
+        setKimi(
+          d.available
+            ? { status: "on", name: (d.model ?? "kimi-k3").split("/").pop()! }
+            : { status: "off" },
+        );
+      })
+      // A failed probe means the endpoint is not answering, which is
+      // indistinguishable from it being off as far as this button goes.
+      .catch(() => live && setKimi({ status: "off" }));
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  const [kimiMeta, setKimiMeta] = useState<
+    { ms: number; sources: number | null; model: string | null; refused: boolean } | null
+  >(null);
 
   const byMode = <T,>(grounded: T, chat: T, complete: T, nano: T): T =>
     model === "nano"
       ? nano
-      : mode === "grounded"
+      // Kimi shares the grounded box on purpose: the comparison is only worth
+      // anything if both models get the same question typed once.
+      : model === "kimi" || mode === "grounded"
         ? grounded
         : mode === "chat"
           ? chat
@@ -235,6 +277,7 @@ export function NanoPlayground({
     setEchoed(model === "smol" && mode === "complete" ? prompt : null);
     setGrounding(null);
     setHosted({ status: "idle" });
+    setKimiMeta(null);
     stopRef.current = false;
 
     speaker?.setEnabled(speak);
@@ -245,6 +288,21 @@ export function NanoPlayground({
       speaker.push(text);
     };
     try {
+      // The hosted model. No engine, no weights, no download gate: the only
+      // thing that happens locally is the fetch. The server does its own
+      // retrieval, so there is no grounding to display from here and the
+      // source count comes back in a header rather than being recomputed.
+      if (model === "kimi") {
+        setStatus("asking the datacentre\u2026");
+        const r = await askHosted(prompt, (chunk) => {
+          setOutput((prev) => prev + chunk);
+          say(chunk);
+        });
+        speaker?.flush();
+        setKimiMeta({ ms: r.ms, sources: r.sources, model: r.model, refused: r.refused });
+        return;
+      }
+
       if (model === "nano") {
         const engine = (nanoRef.current ??= new NanoEngine());
         if (engine.precision !== precision) await engine.load(precision);
@@ -331,12 +389,12 @@ export function NanoPlayground({
   const compare = useCallback(async () => {
     setHosted({ status: "streaming", text: "" });
     try {
-      const { text, model: used, ms } = await askHosted(prompt, (chunk) =>
+      const result = await askHosted(prompt, (chunk) =>
         setHosted((prev) =>
           prev.status === "streaming" ? { ...prev, text: prev.text + chunk } : prev,
         ),
       );
-      setHosted({ status: "done", text, model: used, ms });
+      setHosted({ status: "done", ...result });
     } catch (err) {
       const unavailable =
         typeof err === "object" && err !== null && "unavailable" in err && err.unavailable;
@@ -391,7 +449,7 @@ export function NanoPlayground({
         <span id="model-label" className="mb-2 block font-mono text-2xs tracking-wide text-subtle uppercase">
           Model
         </span>
-        <div className="grid gap-2 sm:grid-cols-2">
+        <div className="grid gap-2 sm:grid-cols-3">
           <ModelButton
             selected={model === "smol"}
             disabled={busy || !smolAvailable}
@@ -418,12 +476,41 @@ export function NanoPlayground({
             detail="359K params · 399 KB"
             note="trained here, on this site's prose"
           />
+          <ModelButton
+            selected={model === "kimi"}
+            disabled={busy || kimi.status !== "on"}
+            onSelect={() => setModel("kimi")}
+            title={kimi.status === "on" ? kimi.name : "kimi-k3"}
+            detail="2.8T params · not in this tab"
+            note={
+              kimi.status === "checking"
+                ? "checking availability\u2026"
+                : kimi.status === "on"
+                  ? "hosted · the one thing here that leaves your machine"
+                  : "no API key on this deployment"
+            }
+          />
         </div>
       </div>
 
       {/* ---- mode / precision -------------------------------------------- */}
       <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3">
-        {model === "smol" ? (
+        {model === "kimi" ? (
+          // Not a Segmented with one option: there is no choice to offer. The
+          // route grounds every request and ignores anything else, so a
+          // control implying otherwise would be lying about what runs.
+          <div role="group" aria-labelledby="kimi-fixed">
+            <span
+              id="kimi-fixed"
+              className="mr-3 font-mono text-2xs tracking-wide text-subtle uppercase"
+            >
+              Prompting
+            </span>
+            <span className="rounded border border-accent bg-accent px-2.5 py-1 font-mono text-2xs uppercase text-accent-contrast">
+              Grounded
+            </span>
+          </div>
+        ) : model === "smol" ? (
           <Segmented
             label="Prompting"
             options={[
@@ -452,6 +539,8 @@ export function NanoPlayground({
             ? precision === "int8"
               ? "399 KB download"
               : "1.4 MB download"
+            : model === "kimi"
+              ? "Grounded always, and the retrieval runs on the server. The browser sends the question and nothing else, so this cannot be used to relay arbitrary text to a paid API."
             : mode === "grounded"
               ? "The BM25 index behind ⌘K retrieves the passages first; the model answers only from those, and they are listed underneath."
               : mode === "chat"
@@ -679,7 +768,7 @@ export function NanoPlayground({
       )}
 
       {/* ---- the hosted comparison -------------------------------------- */}
-      {mode === "grounded" && output && !busy && (
+      {model === "smol" && mode === "grounded" && output && !busy && (
         <div className="mt-3 rounded border border-border bg-bg p-3">
           {hosted.status === "idle" ? (
             <>
@@ -721,6 +810,36 @@ export function NanoPlayground({
         </div>
       )}
 
+      {/* The hosted model gets its own readout. tok/s, prefill and resident
+          bytes are all measurements of THIS machine doing the work, and it
+          did not: printing them would be inventing numbers. */}
+      {model === "kimi" && kimiMeta && (
+        <dl className="mt-4 grid grid-cols-2 gap-4 border-t border-border pt-4 sm:grid-cols-4">
+          {(
+            [
+              ["round trip", `${(kimiMeta.ms / 1000).toFixed(1)} s`],
+              ["sources", kimiMeta.sources === null ? "n/a" : String(kimiMeta.sources)],
+              ["resident here", "0 B"],
+              ["ran on", "someone else\u2019s GPUs"],
+            ] as const
+          ).map(([k, v]) => (
+            <div key={k}>
+              <dd className="font-mono text-lg tabular-nums text-text">{v}</dd>
+              <dt className="mt-0.5 font-mono text-2xs text-subtle">{k}</dt>
+            </div>
+          ))}
+        </dl>
+      )}
+
+      {model === "kimi" && kimiMeta?.refused && (
+        <p className="mt-3 rounded border border-dashed border-border-strong bg-bg p-3 text-xs leading-relaxed text-muted">
+          Nothing in the corpus matched, so the server refused before calling
+          the API. That refusal cost nothing and is the same one the local
+          model gives, which is the point: the guard is in the retrieval stage,
+          not in whichever model sits behind it.
+        </p>
+      )}
+
       {stats && (
         <dl className="mt-4 grid grid-cols-2 gap-4 border-t border-border pt-4 sm:grid-cols-4">
           {(
@@ -746,7 +865,21 @@ export function NanoPlayground({
 
       {/* ---- the honest footnote ----------------------------------------- */}
       <p className="mt-4 text-xs leading-relaxed text-subtle">
-        {model === "smol" ? (
+        {model === "kimi" ? (
+          <>
+            <strong className="font-medium text-muted">
+              This one is not running here, and that is the point.
+            </strong>{" "}
+            Kimi K3 is roughly a terabyte of weights even at four bits, and a
+            mixture-of-experts model needs every expert resident whichever ones
+            a token actually uses, so it is four orders of magnitude past what a
+            tab can hold. It gets the same question, the same retrieved
+            passages and the same system prompt as the 135M model above, so what
+            differs between the two answers is the model rather than the
+            plumbing. Everything else on this page runs on your machine; this
+            is the exception, and it is opt-in for that reason.
+          </>
+        ) : model === "smol" ? (
           <>
             <strong className="font-medium text-muted">The weights are not mine</strong>,
             SmolLM2 was trained by Hugging Face, and this page would be lying if

@@ -10,10 +10,23 @@
  * relay arbitrary text to a paid API, see src/app/api/compare/route.ts.
  */
 
+export type HostedResult = {
+  text: string;
+  model: string | null;
+  ms: number;
+  /** How many passages the SERVER retrieved. Deliberately not the browser's
+   *  own count: the two retrievals can disagree, and the answer came from the
+   *  server's, so reporting the client's would be quietly wrong. */
+  sources: number | null;
+  /** Retrieval matched nothing, so the route returned the template refusal
+   *  without spending a request upstream. Not an error. */
+  refused: boolean;
+};
+
 export type HostedState =
   | { status: "idle" }
   | { status: "streaming"; text: string }
-  | { status: "done"; text: string; model: string | null; ms: number }
+  | ({ status: "done" } & HostedResult)
   | { status: "unavailable"; detail: string }
   | { status: "error"; message: string };
 
@@ -21,7 +34,7 @@ export async function askHosted(
   question: string,
   onChunk: (text: string) => void,
   signal?: AbortSignal,
-): Promise<{ text: string; model: string | null; ms: number }> {
+): Promise<HostedResult> {
   const t0 = performance.now();
   const res = await fetch("/api/compare", {
     method: "POST",
@@ -39,6 +52,12 @@ export async function askHosted(
   }
 
   const model = res.headers.get("x-nano-model");
+  const raw = res.headers.get("x-nano-sources");
+  const sources = raw === null ? null : Number(raw);
+  // A 200 carrying this header means retrieval came back empty and the route
+  // returned the refusal itself. Nothing was sent upstream and nothing was
+  // billed, so it is a result rather than a failure.
+  const refused = res.headers.get("x-nano-refused") === "retrieval";
   let text = "";
   if (res.body) {
     const reader = res.body.getReader();
@@ -54,5 +73,5 @@ export async function askHosted(
     text = await res.text();
     onChunk(text);
   }
-  return { text, model, ms: performance.now() - t0 };
+  return { text, model, ms: performance.now() - t0, sources, refused };
 }
