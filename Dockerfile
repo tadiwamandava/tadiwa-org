@@ -47,13 +47,28 @@ COPY --from=models /app/public/search ./public/search
 # The 129 MB int8 SmolLM2 file, if a URL was supplied. Without it the build
 # still succeeds and /lab/inference disables that model with a visible reason,
 # which is the same graceful path a Vercel deploy took. See DEPLOY.md §5b.
+#
+# `ca-certificates` is NOT optional and NOT a recommendation to strip. This
+# base image ships an empty /etc/ssl/certs, and Node only works over HTTPS
+# because it compiles in its own root store; libcurl has no such fallback and
+# dies with `curl: (77) error setting certificate file`. That is what a
+# --no-install-recommends here cost, once, in production.
+#
+# One `&&` chain, deliberately. With `;` a failed curl fell through to `ls`,
+# so the build reported the wrong command and the wrong exit code.
 ARG SMOLLM_URL=""
 RUN if [ -n "$SMOLLM_URL" ]; then \
       echo "  fetching SmolLM2 weights"; \
-      apt-get update && apt-get install -y --no-install-recommends curl \
-      && rm -rf /var/lib/apt/lists/*; \
-      curl -fsSL "$SMOLLM_URL" -o public/nano/smollm-int8.bin; \
-      ls -l public/nano/smollm-int8.bin; \
+      apt-get update \
+      && apt-get install -y --no-install-recommends ca-certificates curl \
+      && rm -rf /var/lib/apt/lists/* \
+      && curl -fsSL --retry 3 --retry-delay 2 "$SMOLLM_URL" -o public/nano/smollm-int8.bin \
+      && bytes=$(wc -c < public/nano/smollm-int8.bin) \
+      && echo "  fetched $bytes bytes" \
+      && { [ "$bytes" -gt 100000000 ] || { \
+             echo "FATAL: smollm-int8.bin is $bytes bytes, expected ~135 MB." >&2; \
+             echo "  A truncated download, or an HTML error page from a bad URL." >&2; \
+             exit 1; }; }; \
     else \
       echo "  no SMOLLM_URL: /lab/inference will offer the 359K model only"; \
     fi
