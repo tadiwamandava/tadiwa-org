@@ -80,6 +80,21 @@ RUN npm run build
 FROM node:22-slim AS runner
 WORKDIR /app
 
+# curl exists for ONE reason: the orchestrator's health probe.
+#
+# The HEALTHCHECK at the bottom of this stage uses node's built-in fetch and
+# needs no packages at all. But Coolify does not run it. Setting a "Health
+# Check Path" in its UI makes Coolify REPLACE the image's healthcheck with a
+# command it generates, and that command shells out to curl, then wget. Neither
+# is in node:*-slim, so the probe fails, a working container is marked
+# unhealthy, and a good deploy gets rolled back. That happened, on a container
+# whose own logs said "Ready in 0ms".
+#
+# No ca-certificates: this only ever probes http://127.0.0.1:3000.
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends curl \
+ && rm -rf /var/lib/apt/lists/*
+
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
