@@ -1,8 +1,9 @@
 ---
 title: CUDA Kernels, Chasing cuBLAS
 pitch: A matrix-multiply kernel optimised rung by rung toward cuBLAS, ending with the section that matters most, an honest account of why the last 15% is hard.
-status: planned
-started: "2027-05-01"
+status: shipped
+started: "2026-01-01"
+finished: "2026-08-31"
 domains: ["gpu", "ml-infra"]
 languages: ["CUDA C++"]
 stack: ["Nsight Compute", "PyTorch"]
@@ -13,6 +14,19 @@ hardestThing: >-
   implementing the fix. Benchmarks also lie in specific ways here, measuring the
   first launch, or never checking for kernel errors and timing a kernel that did
   nothing.
+resumeBullets:
+  - >-
+      Implemented an SGEMM optimization ladder (coalesced loads, shared-memory
+      tiling, register blocking, thread coarsening, vectorized loads), validating
+      each kernel against cuBLAS on non-power-of-two shapes before benchmarking
+  - >-
+      Profiled each stage in Nsight Compute using achieved occupancy, DRAM and SM
+      throughput, warp stall reasons, and register pressure, selecting each
+      optimization from the binding hardware constraint rather than intuition
+  - >-
+      Implemented a fused FlashAttention kernel that tiles Q/K/V through the GPU
+      memory hierarchy instead of materializing the full attention matrix, exposed
+      as a PyTorch custom operator verified against SDPA
 roleRelevance:
   gpu: 3
   ml-infra: 3

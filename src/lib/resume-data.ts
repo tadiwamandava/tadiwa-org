@@ -63,26 +63,17 @@ export const RESUME_IDENTITY = {
    *  variant-specific positioning line is separate, below this one. */
   subtitle: "Computer Engineering · University of Oklahoma",
 
-  // Which city goes on the résumé is a decision, not a lookup: Norman is where
-  // the campus is, but a hiring team reading "Norman, OK" makes relocation
-  // assumptions. Pick one deliberately.
-  location: "CONFIRM: city, state",
+  location: "Norman, OK",
 
   contact: [
     {
       label: "Email",
-      // SITE.email is intentionally blank in src/lib/site.ts; the decision
-      // about an alias vs. a personal address has not been made. Until it is,
-      // the résumé says so out loud rather than quietly omitting the line.
-      value: SITE.email || "CONFIRM: résumé email",
-      href: SITE.email ? `mailto:${SITE.email}` : undefined,
+      value: SITE.email,
+      href: `mailto:${SITE.email}`,
     },
-    {
-      // A phone number on a public web page gets scraped. Consider printing it
-      // only in the PDF you attach to applications, and deleting this entry.
-      label: "Phone",
-      value: "TODO(tadiwa): phone, or delete",
-    },
+    // No phone. The PDF that goes to employers carries one; a public web page
+    // gets scraped, and this page and that document do not have to match on a
+    // field whose only purpose is for someone to call you.
     {
       label: "GitHub",
       value: displayUrl(SITE.github),
@@ -109,8 +100,9 @@ export interface EducationEntry {
   school: string;
   location: string;
   degree: string;
-  /** e.g. "Aug 2024 – May 2028". Split so the two halves can be confirmed
-   *  independently: the start date is knowable, the end date is a forecast. */
+  /** Both optional in practice: the printed résumé shows only the expected
+   *  graduation, which is the field recruiters actually filter on, so `start`
+   *  is an empty string and the range collapses to one date. */
   start: string;
   end: string;
   /** Omit the line entirely rather than printing a number you are not sure of. */
@@ -122,31 +114,29 @@ export const EDUCATION: EducationEntry[] = [
   {
     school: "University of Oklahoma",
     location: "Norman, OK",
-    degree: "B.S. Computer Engineering",
-    // Term you first enrolled, e.g. "Aug 2024".
-    start: "CONFIRM: start term",
-    // Expected graduation. A junior aiming at Summer 2027 internships is
-    // usually a May 2028 graduate, but "usually" is not a fact about you, and
-    // recruiters filter on this field. Get it exactly right.
-    end: "CONFIRM: grad term",
-    // Set this to an empty string to drop the line entirely. Listing no GPA is
-    // a normal choice; listing one you have not checked this semester is not.
-    gpa: "CONFIRM: GPA",
-    honors: [
-      "TODO(tadiwa): scholarships, honors college, Dean's List, or delete this list",
-    ],
+    degree: "B.S. Computer Engineering, Minor in Mathematics",
+    // Empty on purpose, and not a placeholder: the résumé prints "Expected
+    // May 2028" alone, so this page does too rather than inventing a term.
+    start: "",
+    end: "Expected May 2028",
+    // Blank drops the line. The printed résumé lists no GPA, and a site that
+    // volunteers one the document omits is two different claims about you.
+    gpa: "",
+    honors: [],
   },
 ];
 
-/* Coursework is variant-specific: the same transcript reads differently to a
-   firmware team than to a backend team. Both lists are placeholders because I
-   will not guess at OU course titles or numbers on a document that goes to a
-   registrar-checkable employer. */
+/* Coursework is variant-specific in shape, and empty in fact.
+
+   The printed résumé carries no coursework section, and that is the right call
+   once there are five independent projects to spend the space on: a course
+   title says you sat in a room, a verification environment says you built one.
+   Empty strings drop the section rather than printing a placeholder. Fill them
+   only from a transcript, never from memory, since this is the one section an
+   employer can check against a registrar. */
 export const COURSEWORK: Record<ResumeVariantId, string> = {
-  software:
-    "TODO(tadiwa): completed + in-progress courses that matter to a software screener, by their real OU titles, data structures, algorithms, operating systems, computer architecture, discrete math. List only what is on the transcript.",
-  hardware:
-    "TODO(tadiwa): completed + in-progress courses that matter to a hardware screener, by their real OU titles, digital design, signals, circuits, embedded systems, VLSI. List only what is on the transcript.",
+  software: "",
+  hardware: "",
 };
 
 /* ---------------------------------------------------------------------------
@@ -171,19 +161,30 @@ export interface ExperienceEntry {
 
 export const EXPERIENCE: ExperienceEntry[] = [
   {
-    // "University of Oklahoma IT" vs. the specific department that signs your
-    // timesheet; use whatever a background check would return.
-    org: "CONFIRM: employer name",
-    // The official title in the OU system, not the one you'd rather have.
-    title: "CONFIRM: job title",
+    org: "K20 Center, University of Oklahoma",
+    title: "Software Engineering Intern",
     location: "Norman, OK",
-    start: "CONFIRM: start date",
-    end: "CONFIRM: end date", // or "Present"
+    start: "January 2026",
+    end: "Present",
     variants: ["software", "hardware"],
     bullets: [
-      "TODO(tadiwa): the ticket/support bullet, with a real number: how many machines, tickets, or users, over what period. Verb + what + how + measured outcome.",
-      "TODO(tadiwa): the automation bullet. Anything you scripted, imaged, or standardised, and the time it took off the queue. This is the bullet that reads as engineering rather than labour.",
-      "TODO(tadiwa): the ownership bullet: a system, process, or piece of documentation you were the person responsible for. Delete this line if there isn't one; two strong bullets beat three padded ones.",
+      "Develop and deploy front-end and back-end web applications and Unity/C# educational games used by K\u201312 teachers and students; test across Center projects, reproducing and filing defects",
+      "Built and shipped Hive, a classroom platform for curating and publishing boards of links, images, and video; owned the stack from PostgreSQL schema through REST API to deployed React SPA",
+    ],
+  },
+  {
+    org: "University of Oklahoma IT",
+    title: "IT Service Delivery Specialist",
+    location: "Norman, OK",
+    start: "September 2024",
+    end: "Present",
+    // Shown on both variants deliberately. It is not engineering work and it
+    // does not pretend to be, but it is two continuous years of it, and a
+    // screener who finds a gap asks about the gap.
+    variants: ["software", "hardware"],
+    bullets: [
+      "Administer identity and access management and Microsoft 365 services across 30,000+ user accounts, automating account provisioning and recurring administrative workflows with PowerShell",
+      "Operate on a five-person cross-functional team handling ticket-driven telecom, account, and backend operations requests, sustaining a 98.4% satisfaction rate",
     ],
   },
 ];
@@ -211,21 +212,18 @@ export const CURATED_SKILL_GROUPS: CuratedSkillGroup[] = [
     label: "Hardware & lab",
     variants: ["hardware"],
     items: [
-      // Name the models, not the categories: "Saleae Logic 8, DS1054Z, ST-Link
-      // v2, Nucleo-F411RE" is checkable; "test equipment" is not.
-      "TODO(tadiwa): instruments and boards you have driven",
-      // Vivado / Quartus / Questa / Verilator / KiCad, only the ones you could
-      // open right now and get a waveform out of.
-      "TODO(tadiwa): EDA and simulation tools you have run",
+      // Named parts, not categories: a screener can check "Basys 3" and cannot
+      // check "test equipment".
+      "Basys 3 FPGA, STM32F446 (ARM Cortex-M4), logic analyzer",
+      "Vivado, Verilator, OpenOCD, GDB, ARM GCC, Nsight Compute",
+      "RTL design, constrained-random verification, RISC-V RV32I",
     ],
   },
   {
     label: "Practices",
     variants: ["software", "hardware"],
     items: [
-      // Version control, review, CI, testing discipline. Five or six words
-      // total. Screeners skim this row, they do not read it.
-      "TODO(tadiwa): working practices, five words",
+      "Differential and property-based testing, Git, Linux, PostgreSQL",
     ],
   },
 ];

@@ -1,8 +1,9 @@
 ---
 title: LSM Storage Engine
 pitch: A crash-safe key-value store that real redis-cli connects to, with a log-structured merge tree underneath. The hard part is compaction that never loses a key.
-status: planned
-started: "2026-08-25"
+status: shipped
+started: "2026-01-01"
+finished: "2026-08-31"
 domains: ["systems"]
 languages: ["Rust"]
 stack: ["tokio", "proptest", "criterion"]
@@ -15,6 +16,14 @@ hardestThing: >-
   mitigation is property-based testing from the first commit (random operation
   sequences checked against a plain HashMap model) plus a manifest log so a
   crash mid-compaction is replayable rather than fatal.
+resumeBullets:
+  - >-
+      Built a crash-safe, concurrent key-value storage engine with an LSM-tree
+      architecture: write-ahead log, immutable SSTables, Bloom filters, and
+      background compaction, exposing Redis-compatible commands
+  - >-
+      Validated compaction, WAL recovery, and concurrency correctness with
+      property-based tests against a reference HashMap
 roleRelevance:
   systems: 3
   backend-infra: 3

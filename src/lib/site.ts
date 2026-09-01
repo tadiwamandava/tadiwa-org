@@ -16,16 +16,15 @@ export const SITE = {
 
   url: "https://tadiwa.org",
 
-  // --- CONFIRM before deploy ------------------------------------------------
   github: "https://github.com/tadiwamandava",
-  linkedin: "https://www.linkedin.com/in/CONFIRM-linkedin-slug",
-  /** Publishing an address invites scrapers. Consider an alias, not your
-   *  personal Gmail. Left blank on purpose; decide, then fill. */
-  email: "",
-  // --------------------------------------------------------------------------
+  linkedin: "https://www.linkedin.com/in/tadiwanashe-mandava",
+  /** The .edu address, which is the one already printed on the r\u00e9sum\u00e9 that
+   *  goes out to employers. Publishing it here exposes nothing that document
+   *  does not, and it keeps one address to check rather than two. */
+  email: "tadiwamandava@ou.edu",
 
   /** Drives the header's "currently building" strip. */
-  nowBuilding: "an LSM storage engine in Rust, and a bare-metal RTOS on STM32",
+  nowBuilding: "the retrieval and inference stack behind this site's lab",
 } as const;
 
 export const NAV = [

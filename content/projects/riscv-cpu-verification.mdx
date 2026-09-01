@@ -1,8 +1,9 @@
 ---
 title: RISC-V Core + Verification Environment
 pitch: A pipelined RV32I processor on an FPGA, plus the constrained-random verification rig that proves it correct. Two artifacts, because verification is where the intern slots actually are.
-status: planned
-started: "2027-02-01"
+status: shipped
+started: "2026-01-01"
+finished: "2026-08-31"
 domains: ["silicon"]
 languages: ["SystemVerilog", "Python"]
 stack: ["Verilator", "Vivado", "Basys 3", "GTKWave"]
@@ -15,6 +16,21 @@ hardestThing: >-
   against both the core and a reference instruction-set simulator, and diff the
   architectural state after every retired instruction. The rig finds in minutes
   what waveform-staring finds in days.
+resumeBullets:
+  - >-
+      Designed a synthesizable RV32I core in SystemVerilog, extending a
+      single-cycle implementation into a 5-stage pipeline with forwarding paths,
+      load-use hazard detection and stall insertion, and predict-not-taken branch
+      handling with pipeline flush
+  - >-
+      Built a constrained-random verification environment generating RISC-V
+      programs and differentially comparing architectural state (register file,
+      PC, memory) against an instruction-set simulator, with coverage tracking and
+      a regression test per bug caught
+  - >-
+      Deployed the core to a Basys 3 FPGA with a memory-mapped UART peripheral,
+      closing timing in Vivado and documenting the critical path from
+      post-implementation reports
 roleRelevance:
   design-verification: 3
   rtl-fpga: 3

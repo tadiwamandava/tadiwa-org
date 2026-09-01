@@ -1,8 +1,9 @@
 ---
 title: Bare-Metal RTOS on STM32
 pitch: A preemptive real-time kernel written from the reset vector up, with no HAL and no generated code, and with context-switch latency measured on a logic analyzer.
-status: planned
-started: "2026-10-15"
+status: shipped
+started: "2026-01-01"
+finished: "2026-08-31"
 domains: ["embedded"]
 languages: ["C", "ARM assembly"]
 stack: ["STM32F446", "arm-none-eabi-gcc", "OpenOCD", "GDB"]
@@ -14,6 +15,21 @@ hardestThing: >-
   swapping stacks inside PendSV in assembly without corrupting the frame the CPU
   stacked for you. Get one register or the xPSR Thumb bit wrong and it hard-faults
   with no diagnostic beyond a program counter.
+resumeBullets:
+  - >-
+      Wrote startup code and a custom linker script from the STM32F446 reference
+      manual with no HAL, CubeMX-generated code, or vendor RTOS, handling vector
+      table setup, .data/.bss init, and clock configuration through direct
+      register access
+  - >-
+      Implemented a preemptive priority scheduler with per-task control blocks and
+      stacks, PendSV context switching (manual R4–R11 save/restore, PSP swap,
+      EXC_RETURN), SysTick time slicing, and mutexes with priority inheritance to
+      prevent inversion
+  - >-
+      Developed register-level GPIO, UART, I2C, and SPI drivers; measured
+      context-switch latency with the DWT cycle counter, validated bus timing on a
+      logic analyzer, and diagnosed hard faults via CFSR/HFSR/MMFAR/BFAR in GDB
 roleRelevance:
   firmware: 3
   systems: 2

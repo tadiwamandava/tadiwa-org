@@ -1,8 +1,9 @@
 ---
 title: LLM Inference Engine
 pitch: GPT-2 inference written from scratch in C++ with no ML framework, optimised as a measured ladder from a naive forward pass to int4 quantisation.
-status: planned
-started: "2026-11-10"
+status: shipped
+started: "2026-01-01"
+finished: "2026-08-31"
 domains: ["ml-infra", "systems"]
 languages: ["C++", "Python"]
 stack: ["AVX2", "OpenMP", "Emscripten"]
@@ -15,6 +16,15 @@ hardestThing: >-
   dumping intermediate tensors in the right order and knowing which of four
   usual causes (layout, epsilon placement, mask sign, or head reshaping) you
   are looking at.
+resumeBullets:
+  - >-
+      Implemented GPT-2 inference from scratch in C++, including tokenization,
+      transformer blocks, multi-head attention, KV caching, sampling, and tensor
+      ops, without an ML inference framework
+  - >-
+      Optimized CPU inference with cache-aware matmul, SIMD, and multithreading;
+      implemented INT8/INT4 quantization, validated against a Hugging Face
+      reference
 roleRelevance:
   ml-infra: 3
   gpu: 2

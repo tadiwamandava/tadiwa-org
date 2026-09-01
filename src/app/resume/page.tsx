@@ -168,10 +168,16 @@ export default async function ResumePage(props: PageProps<"/resume">) {
                 <EntryHead
                   title={entry.school}
                   meta={
-                    <>
-                      <Fact value={entry.start} /> <span aria-hidden>→</span>{" "}
+                    entry.start ? (
+                      <>
+                        <Fact value={entry.start} /> <span aria-hidden>→</span>{" "}
+                        <Fact value={entry.end} />
+                      </>
+                    ) : (
+                      // The printed résumé shows the expected graduation alone.
+                      // An empty start must not leave a dangling arrow behind.
                       <Fact value={entry.end} />
-                    </>
+                    )
                   }
                 />
                 <p className="text-sm text-muted">
@@ -195,10 +201,12 @@ export default async function ResumePage(props: PageProps<"/resume">) {
                     ))}
                   </p>
                 )}
-                <p className="text-sm text-muted">
-                  <Label>Coursework</Label>{" "}
-                  <Fact value={COURSEWORK[variantId]} />
-                </p>
+                {COURSEWORK[variantId] && (
+                  <p className="text-sm text-muted">
+                    <Label>Coursework</Label>{" "}
+                    <Fact value={COURSEWORK[variantId]} />
+                  </p>
+                )}
               </div>
             ))}
           </SheetSection>
