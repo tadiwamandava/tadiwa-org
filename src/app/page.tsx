@@ -58,7 +58,7 @@ export default function HomePage() {
         <PageSection
           id="work"
           title="Selected work"
-          lead="Architecture, the alternatives I rejected, and the methodology behind every number."
+          lead="Each one has a writeup: how it works, what I tried that didn't, and where the numbers came from."
           action={{ href: "/projects", label: "All projects" }}
         >
           {projects.length === 0 ? (
@@ -78,7 +78,7 @@ export default function HomePage() {
         <PageSection
           id="lab"
           title="Things you can run"
-          lead="Claims are cheap. Both of these run in your browser, from source I wrote."
+          lead="Both of these run in your browser, on code I wrote."
           action={{ href: "/lab", label: "The lab" }}
         >
           <div className="grid gap-4 sm:grid-cols-2">

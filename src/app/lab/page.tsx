@@ -67,8 +67,8 @@ export default function LabPage() {
       <header>
         <h1 className="font-display text-4xl tracking-tight">Lab</h1>
         <p className="mt-4 text-lg leading-relaxed text-muted">
-          Claims are cheap. Everything here runs in your browser, from source I
-          wrote.
+          These run in your browser, on code I wrote. Nothing is happening on
+          a server off-screen.
         </p>
       </header>
 

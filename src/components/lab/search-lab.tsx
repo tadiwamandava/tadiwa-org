@@ -377,38 +377,24 @@ function Conclusion({
           At {fmt.count(corpusSize)} chunks this graph is not saving anyone any
           time.
         </strong>{" "}
-        An exhaustive scan is {fmt.count(corpusSize)} dot products of{" "}
-        {384} dimensions each, and it finishes in{" "}
+        A brute-force scan is {fmt.count(corpusSize)} dot products and finishes
+        in{" "}
         {bruteMicros === null ? "well under a millisecond" : fmt.micros(bruteMicros)}.
         The graph walk costs between {cheapest.distances.toFixed(0)} and{" "}
-        {dearest.distances.toFixed(0)} of the same dot products, plus the queue
-        management around them, plus a one-off construction cost paid on load.
-        Measured against the thing it replaces, it is a wash, and at the top of
-        the ef ladder it is a loss.
+        {dearest.distances.toFixed(0)} of the same dot products plus the queue
+        around them, so against the thing it replaces it is a wash.
       </p>
       <p>
-        So it earns its place on two other grounds, both measured above. The
-        first is that the structure is
-        the artefact: the layer pyramid, the degree bound, the neighbour
-        heuristic and the recall curve are the same objects at a hundred million
-        vectors as they are at {fmt.count(corpusSize)}, and a demonstration that
-        only works at a scale you cannot ship to a browser demonstrates nothing.
-        The second is that it keeps working: the 100× test above builds the same
-        graph over ten thousand vectors and answers in the same fraction of a
-        millisecond, while the scan it is competing against gets ten thousand
-        times more expensive.
+        It earns its place because the structure is the artefact. The layer
+        pyramid, the degree bound and the neighbour heuristic are the same
+        objects at a hundred million vectors as they are here, and a demo that
+        only works at a scale you cannot ship to a browser demonstrates
+        nothing.
       </p>
       <p>
-        What it definitely buys, at any size: nothing leaves the tab. No query
-        goes to a server; there is no API key, no rate limit and no log of what
-        you searched for, the index is a file; the search is a function, and
-        both of them are here.
-      </p>
-      <p className="text-sm text-subtle">
-        The crate&rsquo;s own header comment says the same thing in fewer words,
-        and has since before this page existed. If a portfolio&rsquo;s code and
-        its marketing disagree, one of them is lying; the cheapest way to keep
-        them honest is to make the page compute its own claims.
+        What it does buy at any size: nothing leaves the tab. No server, no API
+        key, no log of what you searched for. The index is a file and the
+        search is a function, and both are here.
       </p>
     </div>
   );

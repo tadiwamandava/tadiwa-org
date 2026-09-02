@@ -46,9 +46,9 @@ export default function InferenceLabPage() {
         A language model running in this tab.
       </h1>
       <p className="mt-5 max-w-2xl text-lg leading-relaxed text-muted">
-        A transformer forward pass written by hand in C++ and compiled to
-        WebAssembly: no ML framework, no BLAS, no server. Ask the box below a
-        question and the answer is computed on your machine.
+        A transformer forward pass I wrote by hand in C++ and compiled to
+        WebAssembly. No ML framework, no BLAS, no server. Ask the box below
+        something and the answer is computed on your machine.
       </p>
 
       <dl className="mt-8 grid grid-cols-2 gap-5 sm:grid-cols-4">
@@ -101,52 +101,6 @@ export default function InferenceLabPage() {
       </section>
 
       {/* ---- what the engine implements ---------------------------------- */}
-      {smol && (
-        <section className="mt-14">
-          <h2 className="border-b border-border pb-2 font-mono text-xs tracking-[0.14em] text-muted uppercase">
-            What running a modern model actually takes
-          </h2>
-          <p className="mt-4 max-w-2xl leading-relaxed text-muted">
-            GPT-2 is the model everyone reimplements, and it is nine years
-            old. Everything released since Llama uses a different set of
-            primitives, and each of these is a place an implementation can be
-            wrong while every unit test still passes.
-          </p>
-          <ul className="mt-5 space-y-3">
-            {[
-              [
-                "RMSNorm",
-                "LayerNorm with the mean subtraction removed. Fewer operations, one fewer parameter tensor, and no centring step to get subtly wrong.",
-              ],
-              [
-                "RoPE",
-                `Position is a rotation applied to query and key pairs rather than a vector added to the embedding. θ = ${smol.meta.rope_theta.toLocaleString()} here, and the converter refuses to guess it, because a wrong θ is exact at position 0 and drifts further every token after, which looks like a working engine for exactly as long as you test it with one token.`,
-              ],
-              [
-                "Grouped-query attention",
-                `${smol.meta.n_head} query heads share ${smol.meta.n_kv_head} key/value heads, so the KV cache is a third the size it would otherwise be. Each query head has to read the right group, and reading the wrong one produces fluent text that is subtly off.`,
-              ],
-              [
-                "SwiGLU",
-                `Two projections into ${smol.meta.n_inter} dimensions, one gated by SiLU against the other, then back down. Swapping gate and up is invisible in a shape check.`,
-              ],
-              [
-                "Tied embeddings",
-                "The token table is also the output projection, read as rows on the way in and as a matrix on the way out, which is why it is quantised per row and every other matrix per column.",
-              ],
-              [
-                "int8, resident",
-                "The codes are multiplied where they lie. Dequantising on load would be simpler and would cost 513 MB instead of 129 MB, which is the difference between a demo and a tab that dies.",
-              ],
-            ].map(([term, note]) => (
-              <li key={term} className="grid gap-1 sm:grid-cols-[11rem_1fr] sm:gap-4">
-                <span className="font-mono text-sm text-text">{term}</span>
-                <span className="text-sm leading-relaxed text-muted">{note}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
 
       {/* ---- parity ------------------------------------------------------ */}
       {(smolParity.length > 0 || parity.length > 0) && (
@@ -287,23 +241,10 @@ export default function InferenceLabPage() {
             training.
           </p>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-subtle">
-            The training answers are quoted from the corpus rather than written
-            by a larger model. Copying from context <em>is</em> the target
-            behaviour; supervision written by something smarter would teach this
-            model to sound smarter, which is how you get more confident
-            invention rather than less. It also keeps the claim on this page
-            true of the training data too: there is no API call anywhere in
-            this repository, including in what taught the model.
-          </p>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-subtle">
-            An earlier run measured 26.7% false refusal and the obvious reading
-            was over-training. Retraining at both epoch counts against the same
-            data and the same eval showed the opposite: the longer run was
-            better, and the first number had come from a narrower eval set, not
-            from the epochs. Fifteen answerable cases means a single case is
-            6.7%, small enough that the honest conclusion is that these two
-            configurations are hard to tell apart, and that the earlier
-            explanation was a story fitted to noise.
+            The training answers are quoted straight from the corpus, not
+            written by a bigger model. Copying from context is the behaviour I
+            wanted, and supervision from something smarter would just teach it
+            to sound smarter while inventing more.
           </p>
         </section>
       )}
