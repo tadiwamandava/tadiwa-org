@@ -3,7 +3,11 @@ import { getAllProjects, getAllPosts } from "@/lib/content";
 import { SITE } from "@/lib/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const staticRoutes = ["", "/projects", "/lab", "/writing", "/resume"];
+  // /writing only exists as a route while there is something in it. Listing an
+  // empty index in the sitemap invites a crawler to a page with nothing on it.
+  const posts = getAllPosts();
+  const staticRoutes = ["", "/projects", "/lab", "/resume"]
+    .concat(posts.length > 0 ? ["/writing"] : []);
 
   return [
     ...staticRoutes.map((path) => ({
@@ -18,7 +22,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly" as const,
       priority: 0.8,
     })),
-    ...getAllPosts().map((p) => ({
+    ...posts.map((p) => ({
       url: `${SITE.url}/writing/${p.slug}`,
       lastModified: new Date(p.updated ?? p.published),
       changeFrequency: "monthly" as const,

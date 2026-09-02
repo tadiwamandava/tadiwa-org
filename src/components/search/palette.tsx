@@ -26,7 +26,6 @@ import type { Hit, SearchMode } from "@/lib/search/types";
 const ROUTES = [
   { label: "Projects", url: "/projects", hint: "All work" },
   { label: "Lab", url: "/lab", hint: "Things you can run" },
-  { label: "Writing", url: "/writing", hint: "Posts" },
   { label: "Résumé", url: "/resume", hint: "Two variants" },
 ];
 

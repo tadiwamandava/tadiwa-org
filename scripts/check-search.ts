@@ -37,7 +37,6 @@ const EXPECTATIONS: Array<[string, string]> = [
   ["keyboard firmware usb", "/projects/mechanical-keyboard"],
   ["typescript migration client", "/projects/k20-curation"],
   ["raft consensus", "/projects/raft-replicated-kv"],
-  ["contrast checker accessibility", "/writing/build-gates-that-argue-back"],
 ];
 
 function run(): number {
