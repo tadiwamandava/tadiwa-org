@@ -449,9 +449,11 @@ function EntryHead({
   return (
     <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
       <h3 className="font-display text-lg leading-snug">{title}</h3>
-      <span className={`${styles.meta} shrink-0 font-mono text-2xs text-subtle`}>
-        {meta}
-      </span>
+      {meta ? (
+        <span className={`${styles.meta} shrink-0 font-mono text-2xs text-subtle`}>
+          {meta}
+        </span>
+      ) : null}
     </div>
   );
 }
@@ -472,10 +474,6 @@ function Bullets({ items }: { items: string[] }) {
 
 function ProjectEntry({ entry }: { entry: SelectedProject }) {
   const { project } = entry;
-  const range = project.finished
-    ? `${project.started.slice(0, 7)} → ${project.finished.slice(0, 7)}`
-    : `${project.started.slice(0, 7)} → ongoing`;
-
   return (
     <div className={styles.entry}>
       <EntryHead
@@ -489,7 +487,7 @@ function ProjectEntry({ entry }: { entry: SelectedProject }) {
             {project.title}
           </Link>
         }
-        meta={range}
+        meta={null}
       />
 
       <p className={`${styles.meta} mt-0.5 font-mono text-2xs text-subtle`}>

@@ -13,11 +13,8 @@ import { StatusPill, MetricStat } from "./ui";
 export function ProjectCard({ project }: { project: Project }) {
   return (
     <article className="group relative flex flex-col rounded-lg border border-border bg-surface p-5 transition-colors hover:border-border-strong">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center gap-3">
         <StatusPill status={project.status} />
-        <span className="font-mono text-2xs text-subtle tabular-nums">
-          {(project.finished ?? project.started).slice(0, 7)}
-        </span>
       </div>
 
       <h3 className="mt-3 font-display text-xl leading-snug">

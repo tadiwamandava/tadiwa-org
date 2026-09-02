@@ -44,10 +44,6 @@ export default async function ProjectPage(props: PageProps<"/projects/[slug]">) 
 
           <div className="mt-6 flex items-center gap-4">
             <StatusPill status={project.status} />
-            <span className="font-mono text-2xs text-subtle tabular-nums">
-              {project.started}
-              {project.finished ? ` → ${project.finished}` : " → ongoing"}
-            </span>
           </div>
 
           <h1 className="mt-4 font-display text-4xl leading-tight tracking-tight">

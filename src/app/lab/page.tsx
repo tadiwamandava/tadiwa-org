@@ -24,14 +24,12 @@ type Demo =
       blurb: string;
       status: "live";
       href: string;
-      since: string;
     }
   | {
       slug: string;
       title: string;
       blurb: string;
       status: "building" | "planned";
-      eta: string;
       /** Set once there is something to open. An in-progress build log counts,
        *  a promise does not. */
       href?: string;
@@ -45,7 +43,6 @@ const DEMOS: Demo[] = [
       "An HNSW graph I wrote in Rust, searching this site in your tab. Recall is measured live against a brute-force scan, including the part where the graph loses.",
     status: "live",
     href: "/lab/search",
-    since: "August 2026",
   },
   {
     slug: "inference",
@@ -54,7 +51,6 @@ const DEMOS: Demo[] = [
       "SmolLM2-135M answering at about 25 tokens a second, on a forward pass I wrote in C++. No framework, no BLAS, no server.",
     status: "live",
     href: "/lab/inference",
-    since: "August 2026",
   },
   {
     slug: "riscv",
@@ -62,7 +58,6 @@ const DEMOS: Demo[] = [
     blurb:
       "The RV32I core from my hardware track, single-stepped in the browser. Watch forwarding and load-use stalls resolve cycle by cycle.",
     status: "planned",
-    eta: "June 2027",
   },
 ];
 
@@ -96,8 +91,10 @@ export default function LabPage() {
                 }`}
               >
                 {demo.status === "live"
-                  ? `Live · since ${demo.since}`
-                  : `${demo.status === "building" ? "In progress" : "Planned"} · ${demo.eta}`}
+                  ? "Live"
+                  : demo.status === "building"
+                    ? "In progress"
+                    : "Planned"}
               </span>
             </div>
             <p className="mt-2.5 max-w-2xl leading-relaxed text-muted">
