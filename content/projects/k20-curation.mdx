@@ -11,9 +11,8 @@ featured: true
 pinOrder: 5
 sourceAvailable: false
 sourceNote: >-
-  Client-owned codebase, so there is no public repository. Everything below is
-  architecture and decision-making I can walk through in detail; happy to screen-share
-  the running application in an interview.
+  Client-owned codebase, so there is no public repository. The running
+  application is public, linked below.
 
 hardestThing: >-
   The codebase was plain JSX with no type coverage, already deployed and in use, and
@@ -78,10 +77,13 @@ roleRelevance:
   product: 3
   systems: 1
 
-# No public artifacts: the codebase is client-owned and there is no deployed
-# URL I can share. `sourceNote` above says so explicitly rather than leaving a
-# reader to wonder why a shipped project has no repository link.
-artifacts: []
+# The code is client-owned so there is no repo link, but the app itself is
+# public. `sourceNote` above says which is which, so a reader is not left
+# wondering why a shipped project has a demo and no repository.
+artifacts:
+  - kind: demo
+    label: hive.k20center.ou.edu
+    href: https://hive.k20center.ou.edu
 ---
 
 ## What it is
@@ -128,6 +130,7 @@ content did:
   client was actually paying for.
 
 <Callout kind="note">
-This codebase is client-owned, so there is no public repository. The architecture,
-the migration strategy, and every decision above are mine to discuss in detail.
+The code is client-owned, so there is no public repository, but the app is live
+at hive.k20center.ou.edu. The architecture, the migration strategy, and every
+decision above are mine to discuss in detail.
 </Callout>

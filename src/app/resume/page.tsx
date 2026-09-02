@@ -63,7 +63,7 @@ export async function generateMetadata(
   const variant = RESUME_VARIANTS[parseVariant((await props.searchParams).variant)];
   return {
     title: `Résumé: ${variant.label.toLowerCase()}`,
-    description: `${SITE.name}: ${variant.headline}. Generated from the project corpus that powers the rest of this site.`,
+    description: `${SITE.name} resume, ${variant.label.toLowerCase()}.`,
   };
 }
 
@@ -123,7 +123,6 @@ export default async function ResumePage(props: PageProps<"/resume">) {
             <h1 className="font-display text-3xl leading-none tracking-tight">
               {RESUME_IDENTITY.name}
             </h1>
-            <p className="mt-2 text-base text-muted">{variant.headline}</p>
             <p className={`${styles.meta} mt-0.5 text-sm text-subtle`}>
               {RESUME_IDENTITY.subtitle}
             </p>

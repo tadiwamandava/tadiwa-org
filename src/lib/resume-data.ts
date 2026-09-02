@@ -231,8 +231,6 @@ export interface ResumeVariant {
   id: ResumeVariantId;
   /** Toggle label. */
   label: string;
-  /** The positioning line under the name on the document itself. */
-  headline: string;
   /**
    * Role families this variant is aimed at, strongest first.
    *
@@ -249,7 +247,6 @@ export const RESUME_VARIANTS: Record<ResumeVariantId, ResumeVariant> = {
   software: {
     id: "software",
     label: "Software-forward",
-    headline: "Systems and infrastructure software",
     families: [
       "systems",
       "backend-infra",
@@ -262,7 +259,6 @@ export const RESUME_VARIANTS: Record<ResumeVariantId, ResumeVariant> = {
   hardware: {
     id: "hardware",
     label: "Hardware-forward",
-    headline: "Firmware, RTL, and silicon bring-up",
     families: [
       "firmware",
       "rtl-fpga",
