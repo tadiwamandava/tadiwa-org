@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Container, StatusPill } from "@/components/ui";
+import { Container } from "@/components/ui";
 import { Mdx } from "@/components/mdx";
 import { BenchmarkChart } from "@/components/benchmark-chart";
 import { getAllProjects, getProject, getPostsForProject } from "@/lib/content";
@@ -41,10 +41,6 @@ export default async function ProjectPage(props: PageProps<"/projects/[slug]">) 
           >
             ← Projects
           </Link>
-
-          <div className="mt-6 flex items-center gap-4">
-            <StatusPill status={project.status} />
-          </div>
 
           <h1 className="mt-4 font-display text-4xl leading-tight tracking-tight">
             {project.title}

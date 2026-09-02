@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Saira } from "next/font/google";
 import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
 import { PaletteMount } from "@/components/search/palette-mount";
 import { SITE } from "@/lib/site";
 import "./globals.css";
@@ -82,7 +81,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <main id="main" tabIndex={-1} className="flex-1">
           {children}
         </main>
-        <SiteFooter />
         <PaletteMount />
       </body>
     </html>

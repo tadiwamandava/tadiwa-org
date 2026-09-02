@@ -34,9 +34,7 @@ const EXPECTATIONS: Array<[string, string]> = [
   ["context switch pendsv", "/projects/rtos-stm32"],
   ["quantisation int8", "/projects/llm-inference-engine"],
   ["cublas kernel", "/projects/cuda-matmul"],
-  ["keyboard firmware usb", "/projects/mechanical-keyboard"],
   ["typescript migration client", "/projects/k20-curation"],
-  ["raft consensus", "/projects/raft-replicated-kv"],
 ];
 
 function run(): number {

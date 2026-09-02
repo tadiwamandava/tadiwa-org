@@ -10,7 +10,6 @@ import type { Project } from "@/lib/content/schema";
 export type ProjectFilterState = {
   domain?: string;
   lang?: string;
-  status?: string;
 };
 
 type Option = { value: string; count: number };
@@ -48,7 +47,6 @@ function hrefFor(
   const params = new URLSearchParams();
   if (next.domain) params.set("domain", next.domain);
   if (next.lang) params.set("lang", next.lang);
-  if (next.status) params.set("status", next.status);
   const qs = params.toString();
   return qs ? `/projects?${qs}` : "/projects";
 }
@@ -138,9 +136,8 @@ export function ProjectFilter({
 }) {
   const domainOptions = sortedOptions(countBy(projects.map((p) => p.domains)));
   const langOptions = sortedOptions(countBy(projects.map((p) => p.languages)));
-  const statusOptions = sortedOptions(countBy(projects.map((p) => [p.status])));
 
-  const hasActiveFilter = Boolean(selected.domain || selected.lang || selected.status);
+  const hasActiveFilter = Boolean(selected.domain || selected.lang);
 
   return (
     <div className="mt-10 flex flex-wrap items-start justify-between gap-x-8 gap-y-4 border-y border-border py-5">
@@ -159,14 +156,6 @@ export function ProjectFilter({
           options={langOptions}
           selectedValue={selected.lang}
           paramKey="lang"
-          selected={selected}
-        />
-        <FilterGroup
-          id="status"
-          label="Status"
-          options={statusOptions}
-          selectedValue={selected.status}
-          paramKey="status"
           selected={selected}
         />
       </div>

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Project } from "@/lib/content/schema";
-import { StatusPill, MetricStat } from "./ui";
+import { MetricStat } from "./ui";
 
 /**
  * The 30-second unit.
@@ -13,10 +13,6 @@ import { StatusPill, MetricStat } from "./ui";
 export function ProjectCard({ project }: { project: Project }) {
   return (
     <article className="group relative flex flex-col rounded-lg border border-border bg-surface p-5 transition-colors hover:border-border-strong">
-      <div className="flex items-center gap-3">
-        <StatusPill status={project.status} />
-      </div>
-
       <h3 className="mt-3 font-display text-xl leading-snug">
         {/* Whole-card click target via ::after, but the anchor text stays the
             title so the link makes sense read out of context. */}

@@ -52,7 +52,6 @@ import {
   type ChipLayout,
 } from "./board-layout";
 import {
-  STATUS_LABEL,
   designator,
   type BenchProject,
   type ProbeTarget,
@@ -246,9 +245,6 @@ export function Bench({ projects }: { projects: BenchProject[] }) {
                   <span className={styles.designator}>{designator(index)}</span>
                   <span className={styles.title}>{project.title}</span>
                   <span className={styles.pitch}>{project.pitch}</span>
-                  <span className={styles.status}>
-                    {STATUS_LABEL[project.status]}
-                  </span>
                 </Link>
               </li>
             );
@@ -265,12 +261,11 @@ export function Bench({ projects }: { projects: BenchProject[] }) {
             <p className={styles.readoutHead}>
               <span className={styles.readoutDes}>{designator(active)}</span>
               <span className={styles.readoutTitle}>{current.title}</span>
-              <span className={styles.readoutStatus}>
-                {STATUS_LABEL[current.status]}
-                {current.metric
-                  ? ` · ${current.metric.value} ${current.metric.label}`
-                  : ""}
-              </span>
+              {current.metric ? (
+                <span className={styles.readoutStatus}>
+                  {current.metric.value} {current.metric.label}
+                </span>
+              ) : null}
             </p>
             <p className={styles.readoutPitch}>{current.pitch}</p>
           </>

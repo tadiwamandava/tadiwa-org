@@ -4,7 +4,6 @@ import { ProjectCard } from "@/components/project-card";
 import { PcbHero } from "@/components/pcb-hero";
 import { SocialLinks } from "@/components/social-links";
 import { getFeaturedProjects, getAllProjects, getAllPosts } from "@/lib/content";
-import { SITE } from "@/lib/site";
 
 /**
  * The home page is the index of everything.
@@ -41,33 +40,12 @@ export default function HomePage() {
 
   return (
     <Container wide className="pb-24">
-      {/* ---- hero ---------------------------------------------------------
-          No greeting and no "passionate developer". A screener has about
-          thirty seconds and spends them deciding whether this person does
-          hard things, so the specific claim goes first and everything below
-          is evidence for it. */}
       <section className="py-16 sm:py-24">
-        <p className="font-mono text-xs tracking-[0.14em] text-accent uppercase">
-          {SITE.role}
-        </p>
-
-        <h1 className="mt-5 max-w-4xl font-display text-display leading-[1.02] tracking-tight">
-          I build across the hardware/software boundary.
+        <h1 className="max-w-4xl font-display text-display leading-[1.02] tracking-tight">
+          I&rsquo;m a junior at OU.
         </h1>
 
-        <p className="mt-7 max-w-3xl text-xl leading-relaxed text-muted">
-          Storage engines, RTOS kernels, RISC-V cores, and the verification
-          rigs that prove them correct.
-        </p>
-
         <SocialLinks className="mt-9 sm:hidden" />
-
-        <p className="mt-8 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-          <span className="font-mono text-2xs tracking-[0.14em] text-subtle uppercase">
-            Now
-          </span>
-          <span className="text-muted">Building {SITE.nowBuilding}.</span>
-        </p>
       </section>
 
       {/* ---- the bench ----------------------------------------------------
