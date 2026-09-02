@@ -48,12 +48,14 @@ export function PcbHero() {
             a small mono label, which made the one interactive thing on the
             home page read as a caption for the section above it. */}
         <div className="mb-6 flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2">
-          <h2
+          {/* The page's only h1. The home page opens on the board rather
+              than on a sentence about the person who made it. */}
+          <h1
             id="bench-heading"
             className="font-display text-3xl tracking-tight sm:text-4xl"
           >
             The bench
-          </h2>
+          </h1>
           <p className="font-mono text-2xs tracking-wide text-subtle uppercase">
             Every project, as one board
           </p>

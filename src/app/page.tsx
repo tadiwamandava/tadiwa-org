@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Container, PageSection } from "@/components/ui";
 import { ProjectCard } from "@/components/project-card";
 import { PcbHero } from "@/components/pcb-hero";
-import { SocialLinks } from "@/components/social-links";
 import { getFeaturedProjects, getAllProjects, getAllPosts } from "@/lib/content";
 
 /**
@@ -40,14 +39,6 @@ export default function HomePage() {
 
   return (
     <Container wide className="pb-24">
-      <section className="py-16 sm:py-24">
-        <h1 className="max-w-4xl font-display text-display leading-[1.02] tracking-tight">
-          I&rsquo;m a junior at OU.
-        </h1>
-
-        <SocialLinks className="mt-9 sm:hidden" />
-      </section>
-
       {/* ---- the bench ----------------------------------------------------
           Progressive enhancement. This renders a server-side list of project
           links, and only layers a hand-written Canvas2D board over it once the
