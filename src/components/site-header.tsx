@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { NAV, SITE } from "@/lib/site";
-import { SearchTrigger } from "./search/search-trigger";
 import { SocialLinks } from "./social-links";
 import { NavLink } from "./nav-link";
 
@@ -37,11 +36,7 @@ export function SiteHeader() {
           </ul>
         </nav>
 
-        {/* Search on top, the icon row under it, both right-aligned. */}
-        <div className="flex flex-col items-end gap-2">
-          <SearchTrigger />
-          <SocialLinks />
-        </div>
+        <SocialLinks />
       </div>
     </header>
   );

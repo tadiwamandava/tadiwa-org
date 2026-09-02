@@ -83,7 +83,9 @@ export function CommandPalette() {
       }
     }
     window.addEventListener("keydown", onKey);
-    // The header button dispatches this rather than importing the component.
+    // Nothing dispatches this since the header button was removed. Kept as
+    // the seam: anything that wants to open the palette fires the event rather
+    // than importing this module and dragging its chunk onto the critical path.
     const onOpen = () => show();
     window.addEventListener("open-command-palette", onOpen);
     return () => {
