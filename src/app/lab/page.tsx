@@ -117,10 +117,6 @@ export default function LabPage() {
         ))}
       </ul>
 
-      <p className="mt-8 text-sm leading-relaxed text-subtle">
-        The unfinished ones are listed before they exist. The dates are real
-        commitments, and this page is the record of whether I hit them.
-      </p>
     </Container>
   );
 }

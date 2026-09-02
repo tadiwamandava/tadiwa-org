@@ -111,12 +111,7 @@ export default async function ResumePage(props: PageProps<"/resume">) {
           </h1>
 
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-muted">
-            Every project bullet below is a string out of{" "}
-            <code className="rounded-sm bg-surface-2 px-1.5 py-0.5 font-mono text-sm">
-              content/projects/*.mdx
-            </code>
-            , the same files that render the writeups. The two variants
-            reorder the same work; they never reword it.
+            Generated from the same files that render the writeups.
           </p>
 
           <div className="mt-9 flex flex-wrap items-center gap-4">

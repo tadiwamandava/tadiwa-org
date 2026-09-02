@@ -56,9 +56,8 @@ export default function HomePage() {
         </h1>
 
         <p className="mt-7 max-w-3xl text-xl leading-relaxed text-muted">
-          Storage engines, RTOS kernels, RISC-V cores, and the verification rigs
-          that prove them correct. The layer I care about is where software
-          stops being an abstraction and starts being a voltage.
+          Storage engines, RTOS kernels, RISC-V cores, and the verification
+          rigs that prove them correct.
         </p>
 
         <div className="mt-9 flex flex-wrap items-center gap-x-4 gap-y-3">
@@ -167,35 +166,6 @@ export default function HomePage() {
             </ul>
           </PageSection>
         )}
-
-        {/* ---- the one centred block ------------------------------------
-            The rhythm above is uniformly left-aligned, which is what makes
-            this read as an ending rather than another section. */}
-        <section id="contact" className="pt-20 text-center sm:pt-28">
-          <h2 className="font-display text-3xl tracking-tight sm:text-4xl">
-            Looking for a Summer 2027 internship
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl text-lg leading-relaxed text-muted">
-            Systems, ML infrastructure, and the silicon underneath. The résumé
-            is generated from the same writeups linked above, so it cannot drift
-            from them.
-          </p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-            <Link
-              href="/resume"
-              className="rounded bg-accent px-5 py-2.5 text-sm font-medium text-accent-contrast transition-colors hover:bg-accent-hover"
-            >
-              Read the résumé
-            </Link>
-            <Link
-              href="/colophon"
-              className="rounded border border-border-strong px-5 py-2.5 text-sm text-muted transition-colors hover:text-text"
-            >
-              How this site is built
-            </Link>
-          </div>
-          <SocialLinks className="mt-8 justify-center" />
-        </section>
       </div>
     </Container>
   );
