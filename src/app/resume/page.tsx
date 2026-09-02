@@ -269,15 +269,6 @@ export default async function ResumePage(props: PageProps<"/resume">) {
                 </SkillRow>
               ))}
             </dl>
-
-            <p
-              className={`${styles.noPrint} mt-4 border-l-2 border-border pl-3 text-xs leading-relaxed text-subtle`}
-            >
-              Languages and Frameworks are counted out of the corpus at render
-              time. Nothing reaches those two rows unless a project on this site
-              uses it, which is why they are shorter than a normal skills block
-              , and why every entry survives being asked about.
-            </p>
           </SheetSection>
         </article>
 
