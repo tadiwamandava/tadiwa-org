@@ -28,12 +28,11 @@ import styles from "./resume.module.css";
 /* ============================================================================
    /resume
 
-   The résumé is generated from the same corpus as the rest of the site. That is
-   not a party trick. It is the only way I have found to stop a résumé from
-   quietly diverging from the work it describes. Every project bullet on this
-   page is a string out of `content/projects/*.mdx`. If a number changes there,
-   it changes here, and if it is wrong here it is wrong on the writeup too,
-   where an interviewer can see it. One place to be wrong is the whole point.
+   The résumé is generated from the same corpus as the rest of the site, which
+   is what stops it drifting from the work it describes. Every project bullet on
+   this page is a string out of `content/projects/*.mdx`. If a number changes
+   there it changes here, and if it is wrong here it is wrong on the writeup
+   too, where an interviewer can see it.
 
    Two variants, one document. `roleRelevance` in each project's frontmatter
    scores it 0–3 against ten role families; the variant picks which families it

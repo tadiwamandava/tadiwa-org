@@ -835,8 +835,8 @@ export function NanoPlayground({
         <p className="mt-3 rounded border border-dashed border-border-strong bg-bg p-3 text-xs leading-relaxed text-muted">
           Nothing in the corpus matched, so the server refused before calling
           the API. That refusal cost nothing and is the same one the local
-          model gives, which is the point: the guard is in the retrieval stage,
-          not in whichever model sits behind it.
+          model gives: the guard sits in the retrieval stage, not in whichever
+          model runs behind it.
         </p>
       )}
 
@@ -868,7 +868,7 @@ export function NanoPlayground({
         {model === "kimi" ? (
           <>
             <strong className="font-medium text-muted">
-              This one is not running here, and that is the point.
+              This one is not running here.
             </strong>{" "}
             Kimi K3 is roughly a terabyte of weights even at four bits, and a
             mixture-of-experts model needs every expert resident whichever ones

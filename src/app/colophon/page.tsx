@@ -186,9 +186,8 @@ export default function ColophonPage() {
               Every benchmark must name its <Code>hardware</Code>, its{" "}
               <Code>methodology</Code>, and its <Code>gapAnalysis</Code>. The
               first two are obvious once stated: a throughput number without the
-              machine and the repetition count is not a measurement, it is a
-              claim, and it is the first thing an interviewer will ask you to
-              reproduce. The third is the interesting one. <Code>gapAnalysis</Code>{" "}
+              machine and the repetition count cannot be reproduced, and
+              reproducing it is the first thing an interviewer asks for. The third is the interesting one. <Code>gapAnalysis</Code>{" "}
               is the paragraph explaining why the reference implementation is
               still faster than mine. Making it required means a benchmark cannot
               ship as a victory lap. If I beat Redis at something, the schema
@@ -198,12 +197,12 @@ export default function ColophonPage() {
             </p>
             <p>
               Every design decision must name a <Code>rejected</Code> alternative.
-              A decision with no discarded option is not a decision, it is a
-              default that got written up in the past tense. Requiring the field
+              A decision with no discarded option is usually a default
+              written up in the past tense. Requiring the field
               means that when I sit down to document a choice, I have to be able
               to say what else was on the table. If I cannot, I learn that I
-              never actually chose. This is the field that is hardest to fill in
-              honestly and the one interviewers respond to most.
+              never actually chose. It is the hardest field to fill in and the one
+              interviewers respond to most.
             </p>
             <p>
               The corpus also gets its own gate. <Code>npm run check:content</Code>{" "}
@@ -212,7 +211,7 @@ export default function ColophonPage() {
               build cannot. It also reports every{" "}
               <Code>TODO</Code> and <Code>CONFIRM</Code> marker still in the
               corpus, which is how the placeholders on the{" "}
-              <Link href="/resume">résumé</Link> stay visible instead of quietly
+              <Link href="/resume">résumé</Link> stay visible instead of
               becoming permanent.
             </p>
           </div>

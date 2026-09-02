@@ -79,8 +79,7 @@ export default function InferenceLabPage() {
         {smol?.meta.finetuned
           ? "I fine-tuned it to answer from retrieved sources or decline, quantised it, and wrote the code that runs it."
           : "I quantised it and wrote the code that runs it."}{" "}
-        That distinction is the whole point of this page, so it goes above the
-        demo rather than in a footnote:{" "}
+        The distinction matters:{" "}
         <em>the engine is the artefact, the model is a payload</em>. The second
         model in the selector is the opposite trade: 359K parameters I did
         train, on this site&rsquo;s own prose, and it is much worse. The third
@@ -381,7 +380,7 @@ export default function InferenceLabPage() {
             <strong className="font-medium text-text">It is not a good model.</strong>{" "}
             135M parameters is small enough that it gets facts wrong
             confidently, and the demo does not hide that. It is here because it
-            is the largest thing that will honestly fit down a browser
+            is the largest thing that will realistically fit down a browser
             connection, not because it is impressive on its own.
           </p>
           {meta && (

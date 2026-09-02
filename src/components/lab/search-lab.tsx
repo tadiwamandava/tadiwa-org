@@ -387,8 +387,8 @@ function Conclusion({
         the ef ladder it is a loss.
       </p>
       <p>
-        So it earns its place on two other grounds, both of which the page has
-        just shown you rather than asserted. The first is that the structure is
+        So it earns its place on two other grounds, both measured above. The
+        first is that the structure is
         the artefact: the layer pyramid, the degree bound, the neighbour
         heuristic and the recall curve are the same objects at a hundred million
         vectors as they are at {fmt.count(corpusSize)}, and a demonstration that

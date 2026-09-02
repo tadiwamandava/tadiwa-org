@@ -42,7 +42,7 @@ const DEMOS: Demo[] = [
     slug: "search",
     title: "Vector search, client-side",
     blurb:
-      "Semantic search across everything here, running on an HNSW graph I wrote in Rust and compiled to WebAssembly. The page draws the index's layer structure, measures recall against an exhaustive scan while you watch, and is straight about the finding: at this corpus size the graph is not saving any time, and the reason it is still worth having is measured rather than asserted.",
+      "Semantic search across everything here, running on an HNSW graph I wrote in Rust and compiled to WebAssembly. The page draws the index's layer structure and measures recall against an exhaustive scan while you watch, including the part where the graph loses: at this corpus size it saves no time.",
     status: "live",
     href: "/lab/search",
     since: "August 2026",
@@ -119,8 +119,8 @@ export default function LabPage() {
       </ul>
 
       <p className="mt-8 text-sm leading-relaxed text-subtle">
-        The unfinished ones are listed before they exist on purpose. The dates
-        are real commitments, and this page is the record of whether I hit them.
+        The unfinished ones are listed before they exist. The dates are real
+        commitments, and this page is the record of whether I hit them.
       </p>
     </Container>
   );

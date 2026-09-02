@@ -218,8 +218,8 @@ function FreeText({
             Turning a sentence into a vector needs the embedding model:
             MiniLM-L6, int8-quantised, <strong className="font-medium">about 22 MB</strong>,
             served from this domain and run in this tab. Nothing above needs it,
-            that is the point of measuring with document vectors, so it is a
-            button rather than a page load.
+            because those measurements use the document vectors already loaded,
+            so this is a button and not a page load.
           </p>
           {modelState.status === "idle" && (
             <button

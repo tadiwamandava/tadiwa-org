@@ -161,7 +161,7 @@ export function GraphMap({
             </g>
 
             {/* The descent, if a query has been run. Dashed, numbered, and
-                drawn across layers on purpose: it is the one thing on this
+                drawn across layers, because it is the one thing in this
                 picture that is a sequence. */}
             {pathNodes.length > 1 && (
               <polyline
@@ -309,8 +309,8 @@ export function GraphMap({
           <Caption>
             Greedy descent takes one nearest step per layer until layer 0, where
             the wide <span className="font-mono">ef</span> sweep happens. With{" "}
-            {layers.length} layers that is a short list, which is the point of
-            the hierarchy, not a shortcoming of this corpus.
+            {layers.length} layers that is a short list, which is what the
+            hierarchy buys.
           </Caption>
         </Panel>
       )}

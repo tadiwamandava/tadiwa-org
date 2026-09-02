@@ -17,9 +17,9 @@ export default function WritingPage() {
       <header>
         <h1 className="font-display text-4xl tracking-tight">Writing</h1>
         <p className="mt-4 text-lg leading-relaxed text-muted">
-          One post per finished project. The formula: what I built, the hardest
-          bug told honestly, what the tutorials and vendor SDKs hide, the
-          numbers, and what I&rsquo;d do differently.
+          One post per finished project. What I built, the hardest bug, what
+          the tutorials and vendor SDKs leave out, the numbers, and what
+          I&rsquo;d do differently.
         </p>
       </header>
 
