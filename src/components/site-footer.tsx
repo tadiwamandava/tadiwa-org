@@ -1,13 +1,5 @@
 import { SITE } from "@/lib/site";
 
-const BUILT_WITH = [
-  "Next.js",
-  "TypeScript",
-  "Tailwind",
-  "Rust → WASM",
-  "C++ → WASM",
-];
-
 export function SiteFooter() {
   return (
     <footer className="mt-24 border-t border-border">
@@ -46,10 +38,6 @@ export function SiteFooter() {
                 ))}
             </ul>
           </nav>
-        </div>
-
-        <div className="mt-10 border-t border-border pt-6 text-xs text-subtle">
-          <p className="font-mono">{BUILT_WITH.join("  ·  ")}</p>
         </div>
       </div>
     </footer>
