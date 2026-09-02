@@ -90,13 +90,11 @@ export default function SearchLabPage() {
         <LabSection label="What this is">
           <div className="prose mt-5">
             <p>
-              Search on this site has two stages. The first is BM25 over an
-              inverted index: 80 KB of JSON, scored in the main thread, and the
-              only stage almost anyone will ever reach. The second is this one: a
-              hierarchical navigable small world graph over int8-quantised
-              document vectors, built by <Code>Index::build</Code> the moment you
-              opened this page, answering queries by walking a graph instead of
-              scanning a list.
+              Search here has two stages. BM25 over an 80 KB inverted index
+              answers the first keystroke and is the only stage almost anyone
+              reaches. This is the second: a hierarchical navigable small world
+              graph over int8 vectors, built by <Code>Index::build</Code> when
+              you opened this page.
             </p>
             <p>
               I wrote the graph rather than installed it. Construction, the
@@ -112,16 +110,13 @@ export default function SearchLabPage() {
               is already sub-millisecond</strong>, so the graph is not saving
               meaningful time here and the measurements below will show it doing
               roughly the same amount of arithmetic as the scan it replaces. It
-              earns its place because the structure is the point, and because it
-              is still sub-millisecond when the corpus is a hundred times larger
-              , which is also measured below rather than claimed.
-            </p>
-            <p>
-              An index that cannot be checked is a claim, not evidence. So{" "}
+              earns its place because the structure is the point: the traversal
+              that costs nothing to run at this size is the one that matters
+              once a corpus outgrows a linear scan. And because an index that
+              cannot be checked is a claim rather than evidence:{" "}
               <Code>brute_force</Code> is a first-class method of the crate, not
-              a test helper: it is the ground truth every recall number on this
-              page is computed against, sharing the same arithmetic and the same
-              vectors as the graph it is grading.
+              a test helper, and it is the ground truth every recall number
+              below is computed against.
             </p>
           </div>
         </LabSection>

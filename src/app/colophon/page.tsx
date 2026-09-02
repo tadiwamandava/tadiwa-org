@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { getEngineBytes } from "@/lib/nano";
 import Link from "next/link";
 import { Container } from "@/components/ui";
 import { getAllProjects, getAllPosts } from "@/lib/content";
@@ -23,7 +22,6 @@ export const metadata: Metadata = {
    ========================================================================= */
 
 export default function ColophonPage() {
-  const engineKb = getEngineBytes();
   // Counted at build, not typed in. A colophon that describes a corpus should
   // not be the one file that goes stale about its size.
   const projectCount = getAllProjects().length;
@@ -221,120 +219,8 @@ export default function ColophonPage() {
         </Section>
 
         {/* ---- search -------------------------------------------------------- */}
-        <Section label="Search, client-side">
-          <div className="prose mt-5">
-            <p>
-              Press <Code>⌘K</Code>. What answers the first keystroke is BM25
-              over a small inverted index: a few tens of kilobytes, already
-              loaded, scored synchronously in the main thread. What can answer
-              the second keystroke, if you opt in, is a vector search: an
-              HNSW graph over int8-quantised embeddings, matched against a
-              query embedded by a transformer running in this tab. Both
-              indexes are built from the same {projectCount} projects and{" "}
-              {postCount} {postCount === 1 ? "post" : "posts"} that feed every
-              other page, chunked into overlapping ~60-word windows so a hit
-              points at a specific claim rather than &ldquo;somewhere in this
-              project.&rdquo; No part of a search, lexical or semantic, ever
-              reaches a server; the request never leaves the browser.
-            </p>
-            <p>
-              The index itself (insertion, the graph search, the int8
-              quantisation) is <Code>crates/hnsw</Code>, hand-written Rust
-              compiled to WebAssembly. Not a library wrapped for the browser;
-              the graph construction and the layered search are mine, with
-              ten tests asserting the properties that actually matter for a
-              search index rather than just that the code runs: results come
-              back sorted and deduplicated, a larger search-time candidate
-              list never reduces recall, and recall@10 clears 90% against a
-              brute-force scan of the same vectors. The compiled artefact is
-              43,175 bytes raw, 18,381 gzipped, small enough that shipping it
-              by default was never the hard decision.
-            </p>
-            <p>
-              The embedding model was. Query embedding needs the same
-              transformer that built the index, running in the browser, and
-              even quantised to int8 that is a 22 MB download, on a portfolio,
-              for a feature most visitors will never open. So it is
-              not fetched on page load, or on the first keystroke, or even on
-              opening the palette. It is fetched once, after an explicit
-              click that states the size up front, same-origin rather than
-              from a third-party CDN. Until that click, or if it fails, the
-              palette says exactly which mode answered,{" "}
-              <Code>lexical · BM25</Code> or <Code>semantic · HNSW</Code>,
-              because claiming semantic while quietly serving lexical results
-              is a lie a visitor has no way to detect, which makes it the
-              worst kind of shortcut to take on a page arguing for rigour.
-            </p>
-            <p>
-              The cost, honestly stated: that 22 MB is gitignored, not
-              committed, so it is not part of a default build or a default
-              deploy. A visitor here gets instant lexical search always, and
-              semantic search only once the model has actually made it onto
-              this deployment, which as of this writing it has not. The
-              palette does not paper over that; it shows &ldquo;semantic
-              unavailable&rdquo; and the real reason on hover rather than a
-              button that quietly does nothing. Closing that gap is a
-              deployment decision, not a code one, and it is weighed in{" "}
-              <Code>DEPLOY.md</Code> rather than promised here.
-            </p>
-          </div>
-        </Section>
 
         {/* ---- inference ---------------------------------------------------- */}
-        <Section label="A transformer, in about 1,500 lines of C++">
-          <div className="prose mt-5">
-            <p>
-              <Code>/lab/inference</Code> runs a forward pass I wrote by hand:
-              no framework, no BLAS, no server. It compiles to{" "}
-              {engineKb ? `${(engineKb / 1024).toFixed(0)} KB` : "a few tens of KB"}{" "}
-              of WebAssembly and runs SmolLM2-135M in the visitor&rsquo;s tab at
-              about 25 tokens a second, from a 129 MB int8 file that is fetched
-              once, on an explicit click, and then cached.
-            </p>
-            <p>
-              The weights are Hugging Face&rsquo;s. Everything between the file
-              and the token is mine, and that list is the reason the project was
-              worth doing: RMSNorm, RoPE, grouped-query attention, SwiGLU, tied
-              embeddings, a KV cache, byte-level BPE, and a weight-only int8
-              matmul that multiplies the codes where they lie instead of
-              dequantising them. That last one is not a micro-optimisation.
-              It is the difference between 129 MB resident and 513 MB, and only
-              one of those numbers survives contact with a browser tab.
-            </p>
-            <p>
-              The only claim worth making about an engine is that it computes
-              what the reference computes, so that is the number the page leads
-              with. A fixed prompt is replayed through the C++ one token at a
-              time, KV cache included, and the final logits are diffed against
-              PyTorch. In fp32 they agree to 4.1 × 10⁻⁵ across thirty layers.
-              That is accumulated float noise, and it is what tells you the weight
-              layout, the head slicing and the cache are all right. Nothing
-              else would.
-            </p>
-            <p>
-              That diff earned its place by catching the one bug that mattered.
-              The converter read <Code>rope_theta</Code> with a default, this
-              transformers version nests the real value elsewhere, and so the
-              engine used 10,000 where the model was trained on 100,000. RoPE&rsquo;s
-              angle is zero at position zero, so single-token output was exact;
-              the error grew with every token after, and the argmax stayed
-              right anyway. It looked like a working engine. The logit diff said
-              6 × 10⁻¹, and after the fix, 4 × 10⁻⁵. The converter now raises
-              rather than defaulting.
-            </p>
-            <p>
-              What the page does not do is flatter the model. 135M parameters
-              gets facts wrong with total confidence, and the demo shows that
-              rather than curating around it. The second model in the selector
-              is one I trained here: 359K parameters on 66 KB of prose, train
-              loss 1.19 against validation 1.94, which is memorisation. It
-              is there precisely because it is bad: same engine, same kernels,
-              and the entire difference in output is the weights. The matmul
-              underneath both is a cache-aware triple loop with the optimisation
-              ladder still unclimbed.
-            </p>
-          </div>
-        </Section>
 
         {/* ---- contrast gate ------------------------------------------------ */}
         <Section label="Accessibility as a build gate">
@@ -385,98 +271,8 @@ export default function ColophonPage() {
         </Section>
 
         {/* ---- typography --------------------------------------------------- */}
-        <Section label="Type">
-          <div className="prose mt-5">
-            <p>
-              One web font, and it only sets headings. Saira is a squarish
-              grotesque carrying every display line on the site; the body and
-              the mono column are the operating system&rsquo;s own faces,
-              Helvetica Neue on Apple platforms and Arial or Liberation Sans
-              elsewhere, which are close enough in metrics that the layout does
-              not move between them.
-            </p>
-            <p>
-              Saira is here because the layout of this site follows a reference
-              that sets its headings in Industry. Industry is a commercial
-              licence from Fort Foundry and its files are not mine to copy off
-              somebody else&rsquo;s server, so this is the nearest open
-              equivalent: the same semi-condensed squarish proportions and flat
-              terminals, under the SIL Open Font License. If the licence is ever
-              bought, one line in <Code>layout.tsx</Code> changes and nothing
-              else does.
-            </p>
-            <p>
-              It ships as the <em>variable</em> cut rather than static weights,
-              which was not the first attempt. Asking for 600 and 700 emitted
-              two files and covered neither, because some display elements
-              resolve to 400 and those rendered in the fallback while the
-              heading beside them rendered in Saira. One variable file covers
-              the whole axis. Measured on the production build: a single
-              request, <strong className="font-medium text-text">32.5 KB</strong>,
-              latin only.
-            </p>
-            <p>
-              Tabular figures are on everywhere numbers are compared: benchmark
-              tables, the date column on the résumé, project timelines.
-              Proportional figures give a column of numbers a ragged left edge,
-              and a ragged column of numbers is a column nobody scans. This is one
-              CSS rule and it is the difference between a table you read and a
-              table you skip.
-            </p>
-            <p>
-              The font is self-hosted through <Code>next/font</Code>, fetched at
-              build and served from this origin, so no page load touches a Google
-              domain. That also buys the layout stability:{" "}
-              <Code>next/font</Code> computes the fallback&rsquo;s metrics at
-              build, so the swap when the real face arrives does not reflow
-              anything.
-            </p>
-            <p>
-              The cost, honestly stated: this page used to say the site
-              downloaded zero font files, and that was true and worth about
-              32 KB on the critical path. A display face was worth spending it
-              on. Body and mono are still free, which is where the bytes would
-              actually have hurt, because those are the two faces a reader spends
-              the most time inside.
-            </p>
-          </div>
-        </Section>
 
         {/* ---- highlighting -------------------------------------------------- */}
-        <Section label="Syntax highlighting, at build time">
-          <div className="prose mt-5">
-            <p>
-              Code blocks are tokenised by Shiki during the rehype pass that
-              compiles the MDX, not in the browser. rehype-pretty-code is
-              configured with two themes, and instead of baking one palette into
-              the markup it emits both as custom properties on every token
-              span:{" "}
-              <Code>--shiki-light</Code> and <Code>--shiki-dark</Code>. One CSS
-              rule picks the dark one. The light variable is still emitted and
-              now goes unused, which costs nothing at runtime because the
-              highlighting already happened at build.
-            </p>
-            <p>
-              Three things fall out of that. The page ships no highlighter
-              JavaScript, so there are no grammar bundles on the wire for content
-              that cannot change after build. There is no flash of unhighlighted
-              code, because the colours are in the HTML before it is sent.
-              And switching themes re-colours code with a CSS variable change
-              rather than a re-tokenise, so it happens in the same frame as
-              everything else on the page.
-            </p>
-            <p>
-              The alternative was a runtime highlighter, which is the common
-              choice and costs a few hundred kilobytes of grammars to do at read
-              time what can be done once at build. The one configuration detail
-              worth noting is <Code>keepBackground: false</Code>: Shiki themes
-              carry their own background colour, and letting it through would
-              make code blocks the single place on the site where a colour escapes
-              the token layer, and therefore the one place the contrast checker
-              could not see.
-            </p>
-          </div>
-        </Section>
 
         {/* ---- hindsight ----------------------------------------------------- */}
         <Section label="What I'd do differently">
@@ -499,17 +295,8 @@ export default function ColophonPage() {
               one-line fix I have not made.
             </Regret>
 
-            <Regret n={2} title="One colour still lives outside the stylesheet">
-              <Code>src/app/layout.tsx</Code> sets{" "}
-              <Code>viewport.themeColor</Code> to a literal hex, the page
-              background copied out of the token block. It is metadata rather
-              than CSS, so there is nowhere else it can go, and it is therefore
-              the one colour the contrast checker cannot see. It used to be two
-              literals, for a light theme and a dark one. Dropping the light
-              theme halved the problem without solving it.
-            </Regret>
 
-            <Regret n={3} title="Dropping the light theme deleted a gate as well as a feature">
+            <Regret n={2} title="Dropping the light theme deleted a gate as well as a feature">
               The palette used to exist three times: a light block, a{" "}
               <Code>prefers-color-scheme</Code> dark block, and a{" "}
               <Code>[data-theme]</Code> dark block that had to stay byte-identical
@@ -527,24 +314,7 @@ export default function ColophonPage() {
               <Code>@media</Code> block and watching it fail.
             </Regret>
 
-            <Regret n={4} title="The corpus is validated twice, by two code paths">
-              The content loader parses and validates when a page renders;{" "}
-              <Code>check:content</Code> parses and validates again, separately,
-              in its own script. Same files, same schema, two implementations of
-              the reading. They agree today. The first time they disagree, the
-              gate will be the one that is wrong, and it will be wrong in the
-              reassuring direction.
-            </Regret>
 
-            <Regret n={5} title="MDX compiles inside the render, not the build">
-              <Code>next-mdx-remote</Code> compiles each document during the React
-              render rather than in a compile-time content pipeline. It keeps the
-              corpus out of the module graph, which is genuinely nice, but it
-              means an MDX syntax error surfaces as a render error rather than at
-              parse time, and the compile cost is paid per rendered page instead
-              of once. At {projectCount} documents this is invisible. It is the
-              wrong shape at ten times that.
-            </Regret>
           </ol>
         </Section>
 

@@ -1,102 +1,82 @@
 # Before this goes live
 
-Every item below is a fact I could not verify and deliberately did **not** invent.
-They render as visible `CONFIRM:` / `TODO(tadiwa):` markers on the page rather
-than as plausible-looking guesses, because a wrong number on a résumé costs more
-than an obviously missing one, and an interviewer *will* ask about the number.
+Facts that were not verifiable when written, kept as visible `CONFIRM:` /
+`TODO(tadiwa):` markers rather than plausible guesses. A wrong number on a
+résumé costs more than an obviously missing one, and an interviewer will ask
+about the number.
 
 `npm run check:content` lists the content-side markers on every run.
 
+Most of this file was resolved on 2026-09-01 from the printed résumé
+(`mandava-resume-hardware.pdf`), which is the authority wherever the two
+disagree. What follows is only what is still open.
+
 ---
 
-## 1. Identity, `src/lib/site.ts`
+## 1. Invented date precision, `content/projects/*.mdx`
 
-- [x] `github`, set to `https://github.com/tadiwamandava`
-- [ ] `linkedin`, currently `CONFIRM-linkedin-slug`
-- [ ] `email`, left **blank on purpose**. Decide before filling: publishing an
-      address invites scrapers. An alias (`hi@tadiwa.org`) is better than your
-      personal Gmail. If you'd rather have no public email, delete the field and
-      the footer entry instead of leaving it empty.
-- [ ] `nowBuilding`, the "Now" strip on every page. Keep it current; it is the
-      recency signal, and a stale one is worse than none. It currently reads
-      "an LSM storage engine in Rust, and a bare-metal RTOS on STM32",
-      `lsm-storage-engine.mdx` is still `status: planned`, and
-      `rtos-stm32.mdx` has a `started` date in the future. Either the strip is
-      ahead of the content, or the content's dates need updating; re-check
-      both against reality together.
+The résumé dates five projects as `2026` with no month. The content schema
+requires an ISO `finished` date for anything `status: shipped`, so all five
+carry `started: 2026-01-01` / `finished: 2026-08-31`.
 
-## 2. Education, `src/lib/resume-data.ts`
+That span is a statement at year precision wearing month precision. It is not
+a lie, but it is not knowledge either.
 
-- [ ] Start term and expected graduation term
-- [ ] GPA, **only list it if it's ≥ 3.5.** Below that, omit the field entirely
-      rather than volunteering it; some chip-company screens gate on 3.0–3.5 and
-      will ask if they need it.
-- [ ] Honors / scholarships / Dean's List, or delete the list
-- [ ] City, state
+- [ ] Replace with the real months for `riscv-cpu-verification`, `rtos-stm32`,
+      `cuda-matmul`, `llm-inference-engine`, `lsm-storage-engine`.
 
-## 3. The OU IT job, `src/lib/resume-data.ts`
+## 2. `nowBuilding`, `src/lib/site.ts`
 
-- [ ] Employer name, job title, start and end dates
-- [ ] **Three bullets, each with a real number.** The formula is
-      *strong verb + what + how + measured outcome*:
-  - the support bullet, how many machines / tickets / users, over what period
-  - the automation bullet, what you scripted or standardised, and the time it
-    removed from the queue
-  - the ownership bullet, a system or process you were *the* person for
+Was "an LSM storage engine in Rust, and a bare-metal RTOS on STM32" until the
+résumé showed both finished, which made the homepage advertise completed work
+as in progress. It now reads "the retrieval and inference stack behind this
+site's lab", which is true but is a guess at what you consider current.
 
-## 4. Coursework, `src/lib/resume-data.ts`
+- [ ] Set it to whatever you are actually building. It is the most-read
+      sentence on the site after the headline.
 
-- [ ] Software-forward list: real OU course titles that matter to a software
-      screener (data structures, algorithms, OS, architecture…)
-- [ ] Hardware-forward list: digital design, circuits, DSP, embedded…
+## 3. Which name
 
-Include in-progress courses. Junior-year candidates are expected to have them.
+The site says **Tadiwa Mandava**; the résumé header says **Tadiwanashe
+Mandava**. Both are presumably right, and the domain settles the short form,
+but a screener holding both documents notices.
 
-## 5. Skills, `src/lib/resume-data.ts`
+- [ ] Decide whether the site should match the résumé.
 
-- [ ] Instruments and boards you have actually driven
-- [ ] EDA and simulation tools you have actually run
-- [ ] Working practices, five words
+## 4. K20 metrics, `content/projects/k20-curation.mdx`
 
-**Rule:** never list anything you can't defend for five minutes. Chip-company
-screens parse the skills line for keywords, and interviewers probe it
-specifically.
+Two metric cards read `TODO` for active users and records curated. Both are
+deleted rather than shipped as placeholders, so the project now shows one
+figure ("8 mo in production") derived from its dates.
 
-## 6. The K20 project, `content/projects/k20-curation.mdx`
+- [ ] If you have real usage numbers, add them back. If not, a measurable
+      substitute (codebase size, release cadence) beats an absent section.
 
-- [ ] `metrics`, active users, records curated (2 placeholders)
-- [ ] `resumeBullets`, 2 bullets, quantified
+## 5. Deliberately empty, not missing
 
-`dsp-audio-denoising` shipped alongside this one and already has real,
-non-placeholder `resumeBullets`; its only remaining marker is a `TODO(tadiwa)`
-inside a YAML comment (a note to self about a possible future number), which
-`check:content` still lists but which never reaches the rendered page. K20 is
-the one still showing placeholder text where a reader can actually see it,
-the metric cards and the résumé bullets. It's also the bigger of the two (a
-real client, a live migration), so these numbers carry the most weight. If
-you genuinely don't have user counts, replace the metric with something you
-*can* measure, codebase size, uptime, release cadence, rather than deleting
-the section.
+Not tasks. Recorded so nobody "fixes" them later:
 
-## 7. Project statuses, `content/projects/*.mdx`
+- **GPA, honors, coursework** are empty in `src/lib/resume-data.ts` and their
+  sections do not render. The printed résumé carries none of them, and a site
+  volunteering what the document omits is two claims about one person.
+- **Phone** is not published. The PDF carries one; a public page gets scraped.
+- **Education start term** is an empty string on purpose. The résumé prints
+  "Expected May 2028" alone, and the renderer collapses the range rather than
+  leaving a dangling arrow.
 
-Still accurate: everything except `k20-curation` and `dsp-audio-denoising` is
-marked `status: planned` with target dates drawn from your 12-month calendar.
-Both shipped projects already carry a `finished` date, so the content gate's
-"`shipped` needs `finished`" rule is satisfied for both, nothing to fix
-there. That is the safe default for the rest: `planned` can never be an
-overclaim.
+## 6. Deployment secrets, not content
 
-- [ ] Promote anything actually underway to `building`, or finished to `shipped`
-      (a `shipped` project also needs a `finished` date, the content gate
-      enforces this)
-- [ ] Correct the `started` dates to reality
+Neither is set, and the site is correct without both:
 
-## 8. Deployment
+- [ ] `OPENROUTER_API_KEY` turns on the Kimi K3 option in `/lab/inference`.
+      Unset, the card renders disabled reading "no API key on this
+      deployment". Set a spend cap at the provider first; the in-process rate
+      limit resets on every redeploy. See `DEPLOY.md` §4b.
+- [ ] `ADMIN_PASSWORD_HASH` and `ADMIN_SESSION_SECRET` turn on `/admin`.
+      Unset, it 404s in production, which is the intended default.
 
-- [x] `SITE.url` is `https://tadiwa.org` in `src/lib/site.ts`, already
-      correct, drives OG tags, the sitemap, and `robots.txt`. Re-check this
-      only if the domain ever changes.
-- [ ] Point `tadiwa.org` at an actual Coolify deployment. The code has been
-      ready for this since the URL above was set; what's missing is the
-      hosting + DNS action, not a code change. `DEPLOY.md` is the runbook.
+## 7. Content markers: none
+
+`content/projects/dsp-audio-denoising.mdx` was deleted on 2026-09-01, so the
+marker it carried is gone with it. `check:content` should now report zero
+placeholders. If it reports any, that is new and worth reading.

@@ -21,7 +21,6 @@ import { Caption, LabSection, Panel, Readout, fmt } from "./parts";
 import { GraphMap } from "./graph-map";
 import { RecallTable } from "./recall-panel";
 import { QueryPanel, type ModelState } from "./query-panel";
-import { ScalePanel } from "./scale-panel";
 
 /* ============================================================================
    The measured half of /lab/search.
@@ -341,11 +340,7 @@ export function SearchLab() {
             />
           </LabSection>
 
-          <LabSection n="05" label="The same code at 100× the corpus">
-            <ScalePanel ef={ef} smallCorpus={corpusSize} />
-          </LabSection>
-
-          <LabSection n="06" label="What this buys, and what it does not">
+          <LabSection n="05" label="What this buys, and what it does not">
             <Conclusion rows={rows} corpusSize={corpusSize} bruteMicros={bruteMicros} />
           </LabSection>
         </>

@@ -282,9 +282,8 @@ export function GraphMap({
         </Caption>
       </Panel>
 
-      <div className="mt-4 grid gap-4 md:grid-cols-2">
+      <div className="mt-4">
         <LayerTable layers={layers} selected={layer} />
-        <DegreeTable stats={stats} />
       </div>
 
       {path.length > 0 && (
@@ -373,59 +372,6 @@ function LayerTable({ layers, selected }: { layers: LayerStats[]; selected: numb
         Each node draws its own top layer from an exponentially decaying
         distribution, so the pyramid narrows by roughly a factor of M per step
         without anyone deciding the shape. Layer 0 always holds everything.
-      </Caption>
-    </Panel>
-  );
-}
-
-function DegreeTable({ stats }: { stats: LayerStats }) {
-  const max = Math.max(...stats.histogram.map((h) => h.count), 1);
-  return (
-    <Panel>
-      <h3 className="font-mono text-2xs tracking-[0.12em] text-muted uppercase">
-        Degree distribution · layer {stats.layer}
-      </h3>
-      <p className="mt-2 font-mono text-2xs text-subtle tabular-nums">
-        min {stats.minDegree} · mean {stats.meanDegree.toFixed(1)} · max {stats.maxDegree}
-      </p>
-      <table className="mt-3 w-full border-collapse">
-        <caption className="sr-only">
-          How many nodes at layer {stats.layer} have each out-degree.
-        </caption>
-        <thead>
-          <tr className="text-left font-mono text-2xs text-subtle uppercase">
-            <th scope="col" className="pb-1.5 font-normal">
-              Degree
-            </th>
-            <th scope="col" className="pb-1.5 font-normal">
-              Nodes
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {stats.histogram.map((h) => (
-            <tr key={h.degree}>
-              <th
-                scope="row"
-                className="w-12 py-1 pr-2 text-left font-mono text-xs font-normal text-muted tabular-nums"
-              >
-                {h.degree}
-              </th>
-              <td className="py-1">
-                <div className="flex items-center gap-2">
-                  <Bar pct={(h.count / max) * 100} />
-                  <span className="shrink-0 font-mono text-xs tabular-nums">{h.count}</span>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <Caption>
-        The bound is M above layer 0 and 2M at layer 0. Degrees pile up against
-        it because the neighbour heuristic prunes back to the cap rather than
-        refusing new edges, a node whose list is full gives up its most
-        redundant link, not the newcomer.
       </Caption>
     </Panel>
   );
