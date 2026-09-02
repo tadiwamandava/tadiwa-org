@@ -42,7 +42,7 @@ const DEMOS: Demo[] = [
     slug: "search",
     title: "Vector search, client-side",
     blurb:
-      "Semantic search across everything here, running on an HNSW graph I wrote in Rust and compiled to WebAssembly. The page draws the index's layer structure and measures recall against an exhaustive scan while you watch, including the part where the graph loses: at this corpus size it saves no time.",
+      "An HNSW graph I wrote in Rust, searching this site in your tab. Recall is measured live against a brute-force scan, including the part where the graph loses.",
     status: "live",
     href: "/lab/search",
     since: "August 2026",
@@ -51,7 +51,7 @@ const DEMOS: Demo[] = [
     slug: "inference",
     title: "A language model running in this tab",
     blurb:
-      "A transformer forward pass written by hand in C++ and compiled to WebAssembly: no framework, no BLAS, no server. Ask SmolLM2-135M a question and it answers in your tab at about 25 tokens a second, on RMSNorm, RoPE, grouped-query attention and an int8 matmul I wrote. The weights are Hugging Face's and the page says so first; the page also carries the logit-parity numbers against PyTorch and is specific about what is still slow.",
+      "SmolLM2-135M answering at about 25 tokens a second, on a forward pass I wrote in C++. No framework, no BLAS, no server.",
     status: "live",
     href: "/lab/inference",
     since: "August 2026",
@@ -60,7 +60,7 @@ const DEMOS: Demo[] = [
     slug: "riscv",
     title: "Step through a RISC-V core",
     blurb:
-      "The RV32I core from my hardware track, simulated in the browser: single-step instructions, watch the pipeline registers, and see forwarding and load-use stalls resolve cycle by cycle.",
+      "The RV32I core from my hardware track, single-stepped in the browser. Watch forwarding and load-use stalls resolve cycle by cycle.",
     status: "planned",
     eta: "June 2027",
   },
@@ -72,9 +72,8 @@ export default function LabPage() {
       <header>
         <h1 className="font-display text-4xl tracking-tight">Lab</h1>
         <p className="mt-4 text-lg leading-relaxed text-muted">
-          Claims are cheap, so these are things you can run yourself. Everything
-          here executes in your browser, from source I wrote, with no server doing
-          the interesting part off-screen.
+          Claims are cheap. Everything here runs in your browser, from source I
+          wrote.
         </p>
       </header>
 

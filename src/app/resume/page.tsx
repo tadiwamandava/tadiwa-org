@@ -115,10 +115,8 @@ export default async function ResumePage(props: PageProps<"/resume">) {
             <code className="rounded-sm bg-surface-2 px-1.5 py-0.5 font-mono text-sm">
               content/projects/*.mdx
             </code>
-            , the same files that render the writeups. The two variants reorder
-            the same work and change how deep each entry goes. They never
-            reword it. A résumé that is authored separately from the portfolio
-            drifts from it within a month; this one cannot.
+            , the same files that render the writeups. The two variants
+            reorder the same work; they never reword it.
           </p>
 
           <div className="mt-9 flex flex-wrap items-center gap-4">

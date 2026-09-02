@@ -66,11 +66,10 @@ export default function SearchLabPage() {
           </h1>
 
           <p className="mt-5 max-w-2xl text-xl leading-relaxed text-muted">
-            An HNSW graph I wrote in Rust and compiled to WebAssembly,{" "}
-            {kb(facts.wasmBytes)} raw and {kb(facts.wasmGzip)} over the wire,
-            searching {facts.count} chunks of this site&rsquo;s own writing
-            entirely inside your browser. Everything below is measured in this
-            tab while you read it, including the part where the graph loses.
+            An HNSW graph I wrote in Rust, {kb(facts.wasmGzip)} over the wire,
+            searching {facts.count} chunks of this site inside your browser.
+            Everything below is measured in this tab, including the part where
+            the graph loses.
           </p>
 
           <div className="mt-8 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4">

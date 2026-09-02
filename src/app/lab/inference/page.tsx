@@ -48,9 +48,7 @@ export default function InferenceLabPage() {
       <p className="mt-5 max-w-2xl text-lg leading-relaxed text-muted">
         A transformer forward pass written by hand in C++ and compiled to
         WebAssembly: no ML framework, no BLAS, no server. Ask the box below a
-        question and the answer is computed on your machine, by about 1,500
-        lines of code that I can explain line by line. The third option in the
-        selector is the exception, and it is labelled as one.
+        question and the answer is computed on your machine.
       </p>
 
       <dl className="mt-8 grid grid-cols-2 gap-5 sm:grid-cols-4">

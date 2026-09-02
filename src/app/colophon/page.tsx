@@ -40,10 +40,8 @@ export default function ColophonPage() {
           </h1>
 
           <p className="mt-5 max-w-2xl text-xl leading-relaxed text-muted">
-            This site is a portfolio piece, not a container for one. Below: what
-            it is built from, why each piece beat the thing it replaced, the two
-            checks that can fail the build, and the parts I would do
-            differently.
+            What this site is built from, why each piece beat the thing it
+            replaced, and the parts I would do differently.
           </p>
         </Container>
       </header>

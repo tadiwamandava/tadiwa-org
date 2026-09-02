@@ -67,9 +67,8 @@ export default async function ProjectsPage(props: PageProps<"/projects">) {
       <header className="max-w-2xl">
         <h1 className="font-display text-4xl tracking-tight">Projects</h1>
         <p className="mt-4 text-lg leading-relaxed text-muted">
-          Each of these has a writeup covering the architecture, the decisions I
-          made and the ones I rejected, and where there are numbers, the
-          methodology behind them.
+          Architecture, the alternatives I rejected, and the methodology behind
+          every number.
         </p>
       </header>
 

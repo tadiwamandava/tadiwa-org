@@ -22,14 +22,14 @@ const DEMOS = [
     href: "/lab/inference",
     title: "A language model, in your tab",
     blurb:
-      "SmolLM2-135M answering questions through a transformer forward pass written by hand in C++ and compiled to WebAssembly. It retrieves from this site before it answers, and declines when the sources do not cover the question.",
+      "SmolLM2-135M running on a forward pass I wrote in C++. It declines when the sources do not cover your question.",
     meta: "C++ · WebAssembly · 25 tok/s",
   },
   {
     href: "/lab/search",
     title: "Vector search, client-side",
     blurb:
-      "An HNSW graph written in Rust, compiled to WebAssembly, searching this site in your browser. The page draws the layer structure and measures recall against an exhaustive scan while you watch.",
+      "An HNSW graph I wrote in Rust, searching this site in your tab. Recall measured live against a brute-force scan.",
     meta: "Rust · WebAssembly · 43 KB",
   },
 ];
@@ -95,7 +95,7 @@ export default function HomePage() {
         <PageSection
           id="work"
           title="Selected work"
-          lead="Each one has a writeup covering the architecture, the decisions I made and the ones I rejected, and where there are numbers, the methodology behind them."
+          lead="Architecture, the alternatives I rejected, and the methodology behind every number."
           action={{ href: "/projects", label: "All projects" }}
         >
           {projects.length === 0 ? (
@@ -115,7 +115,7 @@ export default function HomePage() {
         <PageSection
           id="lab"
           title="Things you can run"
-          lead="Claims are cheap, so these are things you can run yourself. Both execute in your browser, from source I wrote, with no server doing the interesting part off-screen."
+          lead="Claims are cheap. Both of these run in your browser, from source I wrote."
           action={{ href: "/lab", label: "The lab" }}
         >
           <div className="grid gap-4 sm:grid-cols-2">
