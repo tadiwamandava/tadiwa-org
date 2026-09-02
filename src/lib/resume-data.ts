@@ -219,13 +219,6 @@ export const CURATED_SKILL_GROUPS: CuratedSkillGroup[] = [
       "RTL design, constrained-random verification, RISC-V RV32I",
     ],
   },
-  {
-    label: "Practices",
-    variants: ["software", "hardware"],
-    items: [
-      "Differential and property-based testing, Git, Linux, PostgreSQL",
-    ],
-  },
 ];
 
 /* ---------------------------------------------------------------------------
@@ -240,8 +233,6 @@ export interface ResumeVariant {
   label: string;
   /** The positioning line under the name on the document itself. */
   headline: string;
-  /** Screen-only explanation of what this variant is optimised for. */
-  rationale: string;
   /**
    * Role families this variant is aimed at, strongest first.
    *
@@ -259,8 +250,6 @@ export const RESUME_VARIANTS: Record<ResumeVariantId, ResumeVariant> = {
     id: "software",
     label: "Software-forward",
     headline: "Systems and infrastructure software",
-    rationale:
-      "Leads with the work that survives a code-reading interview: storage, services, migrations, and the measurements that back them.",
     families: [
       "systems",
       "backend-infra",
@@ -274,8 +263,6 @@ export const RESUME_VARIANTS: Record<ResumeVariantId, ResumeVariant> = {
     id: "hardware",
     label: "Hardware-forward",
     headline: "Firmware, RTL, and silicon bring-up",
-    rationale:
-      "Leads with the work below the operating system: bare-metal firmware, RTL, verification environments, and post-silicon debug.",
     families: [
       "firmware",
       "rtl-fpga",

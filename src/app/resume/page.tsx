@@ -102,32 +102,14 @@ export default async function ResumePage(props: PageProps<"/resume">) {
       >
         <div className="mx-auto max-w-(--container-wide) px-5 py-14 sm:px-8">
           <div className="max-w-3xl">
-          <p className="font-mono text-xs tracking-[0.14em] text-accent uppercase">
-            Résumé
-          </p>
-
           <h1 className="mt-5 font-display text-4xl leading-tight tracking-tight">
-            Two résumés, one corpus.
+            Résumé
           </h1>
-
-          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-muted">
-            Generated from the same files that render the writeups.
-          </p>
 
           <div className="mt-9 flex flex-wrap items-center gap-4">
             <VariantToggle current={variantId} />
             <PrintButton />
           </div>
-
-          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-subtle">
-            {variant.rationale} Ranked by{" "}
-            <code className="font-mono">roleRelevance</code> against{" "}
-            {variant.families
-              .map((f) => ROLE_FAMILY_LABELS[f])
-              .slice(0, 4)
-              .join(", ")}
-            , in that order of priority.
-          </p>
 
             {placeholders.length > 0 && <ConfirmBanner items={placeholders} />}
           </div>
@@ -299,41 +281,6 @@ export default async function ResumePage(props: PageProps<"/resume">) {
           </SheetSection>
         </article>
 
-        {/* ---- how it works (screen only) ------------------------------- */}
-        <aside
-          className={`${styles.noPrint} mt-10 max-w-3xl border-t border-border pt-6`}
-        >
-          <h2 className="font-mono text-2xs tracking-[0.14em] text-subtle uppercase">
-            How this page is assembled
-          </h2>
-          <ol className="mt-3 space-y-1.5 text-sm leading-relaxed text-subtle">
-            <li>
-              1. Anything with <code className="font-mono">status: planned</code>{" "}
-              is dropped before scoring. Ordering by relevance first and
-              filtering by existence second is how a plan ends up on a résumé.
-            </li>
-            <li>
-              2. Every survivor&rsquo;s{" "}
-              <code className="font-mono">roleRelevance</code> is scored against
-              this variant&rsquo;s role families, weighted by where each family
-              sits in the variant&rsquo;s priority list.
-            </li>
-            <li>
-              3. A project&rsquo;s tier comes from its single strongest signal,
-              not its total. Being narrow and excellent should outrank being
-              broad and lukewarm.
-            </li>
-            <li>
-              4. Tier sets a bullet allowance (3 / 2 / 1), then a page budget of
-              eight project bullets closes the tap. One page is a constraint on
-              the selection, not an excuse to shrink the type.
-            </li>
-            <li>
-              5. The bullets themselves are copied verbatim. Nothing on this page
-              writes prose about a project. Only the writeup does that.
-            </li>
-          </ol>
-        </aside>
       </div>
     </div>
   );
@@ -511,21 +458,6 @@ function ProjectEntry({ entry }: { entry: SelectedProject }) {
         <Bullets items={entry.bullets} />
       )}
 
-      {/* Screen only: why this project ranked where it did. The selection is a
-          claim about the work, so it should be inspectable rather than trusted. */}
-      <p
-        className={`${styles.noPrint} mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-2xs text-subtle`}
-      >
-        <span className="rounded-sm border border-border px-1.5 py-px uppercase">
-          {entry.tier}
-        </span>
-        {entry.reasons.map((r) => (
-          <span key={r.family}>
-            {ROLE_FAMILY_LABELS[r.family]}
-            <span className="text-accent"> {r.relevance}</span>
-          </span>
-        ))}
-      </p>
     </div>
   );
 }
