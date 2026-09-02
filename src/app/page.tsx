@@ -45,7 +45,7 @@ export default function HomePage() {
           chunk has loaded on a wide-enough viewport. */}
       <PcbHero />
 
-      <div className="mt-10 space-y-4 sm:mt-16">
+      <div>
         <PageSection
           id="work"
           title="Selected work"

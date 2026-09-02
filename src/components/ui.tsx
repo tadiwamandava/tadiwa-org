@@ -53,7 +53,7 @@ export function PageSection({
   children: React.ReactNode;
 }) {
   return (
-    <section id={id} className="scroll-mt-24 pt-20 sm:pt-28">
+    <section id={id} className="scroll-mt-24 pt-10 sm:pt-12">
       <div className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2">
         <h2 className="font-display text-3xl tracking-tight sm:text-4xl">{title}</h2>
         {action && (
@@ -68,7 +68,7 @@ export function PageSection({
       {lead && (
         <p className="mt-4 max-w-3xl text-lg leading-relaxed text-muted">{lead}</p>
       )}
-      <div className="mt-10">{children}</div>
+      <div className="mt-6">{children}</div>
     </section>
   );
 }

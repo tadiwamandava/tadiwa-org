@@ -447,14 +447,23 @@
   .readout {
     display: block;
     /* Fixed, not `min-height`. The readout swaps between one line of idle text
-       and a heading plus three lines of pitch; letting it size to its content
-       moves everything below the bench every time the pointer crosses a chip.
-       6.25rem is the tallest state: heading + 4px + 3 × 1.55 line-height at
-       --text-sm, inside the 12px padding. */
-    height: 6.25rem;
+       and a heading plus the pitch; letting it size to its content moves
+       everything below the bench every time the pointer crosses a chip.
+
+       Two values because the pitch wraps to three lines in a narrow column and
+       two in a wide one, measured across 640/768/900/1100/1600. Reserving the
+       narrow figure everywhere left ~30px of dead space under the board on a
+       desktop, which is the gap you notice before you notice the board. */
+    height: 6rem;
     margin-top: 14px;
     padding-top: 12px;
     border-top: 1px solid var(--border);
+  }
+}
+
+@media (min-width: 900px) {
+  .readout {
+    height: 4.75rem;
   }
 }
 
