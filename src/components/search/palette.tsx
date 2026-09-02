@@ -28,7 +28,6 @@ const ROUTES = [
   { label: "Lab", url: "/lab", hint: "Things you can run" },
   { label: "Writing", url: "/writing", hint: "Posts" },
   { label: "Résumé", url: "/resume", hint: "Two variants" },
-  { label: "Colophon", url: "/colophon", hint: "How this site is built" },
 ];
 
 interface Row {

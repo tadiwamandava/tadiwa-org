@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { SITE } from "@/lib/site";
 
 const BUILT_WITH = [
@@ -45,14 +44,6 @@ export function SiteFooter() {
                     </a>
                   </li>
                 ))}
-              <li>
-                <Link
-                  href="/colophon"
-                  className="text-muted underline decoration-border underline-offset-4 transition-colors hover:text-accent"
-                >
-                  Colophon
-                </Link>
-              </li>
             </ul>
           </nav>
         </div>

@@ -60,21 +60,7 @@ export default function HomePage() {
           rigs that prove them correct.
         </p>
 
-        <div className="mt-9 flex flex-wrap items-center gap-x-4 gap-y-3">
-          <Link
-            href="/projects"
-            className="rounded bg-accent px-4 py-2 text-sm font-medium text-accent-contrast transition-colors hover:bg-accent-hover"
-          >
-            See the work
-          </Link>
-          <Link
-            href="/resume"
-            className="rounded border border-border-strong px-4 py-2 text-sm text-muted transition-colors hover:text-text"
-          >
-            Résumé
-          </Link>
-          <SocialLinks className="sm:hidden" />
-        </div>
+        <SocialLinks className="mt-9 sm:hidden" />
 
         <p className="mt-8 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
           <span className="font-mono text-2xs tracking-[0.14em] text-subtle uppercase">

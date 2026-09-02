@@ -135,10 +135,8 @@ export default function SearchLabPage() {
               asserting that search returned ten things.
             </p>
             <p>
-              The rest of how this site is put together, including why every
-              colour on this page is a token and what fails the build, is in the{" "}
-              <Link href="/colophon">colophon</Link>. Other things you can run
-              are in the <Link href="/lab">lab</Link>.
+              Other things you can run are in the{" "}
+              <Link href="/lab">lab</Link>.
             </p>
           </div>
         </LabSection>
