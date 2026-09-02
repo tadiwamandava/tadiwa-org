@@ -163,30 +163,20 @@ export default function InferenceLabPage() {
             <p>
               Asked cold what a KV cache is, this model said it{" "}
               <em>&ldquo;stores the current and voltage values from previous
-              cycles&rdquo;</em>. It does not know, so it interpolates from
-              things that sound adjacent. No amount of fine-tuning fixes that at
-              135M parameters, because there is nowhere to keep the fact.
+              cycles&rdquo;</em>. At 135M parameters there is nowhere to keep
+              the fact, so it is not asked to recall one: retrieval puts the
+              passages in the prompt and the job drops to reading them. Chat
+              mode above is the control.
             </p>
             <p>
-              So it is not asked to recall one. The BM25 index that already
-              answers ⌘K retrieves the passages, they go into the prompt, and
-              the job drops from <em>know things</em> to{" "}
-              <em>read four paragraphs and answer from them</em>. Try the same
-              question in Chat and in Grounded above; Chat is the control, and
-              it is left in for that reason.
-            </p>
-            <p>
-              Retrieval could not fix the second half. Handed four sources that
-              did not contain the answer, the base model answered anyway:{" "}
+              That fixed the answers and not the refusals. Handed four sources
+              that did not contain the answer, the base model answered anyway,{" "}
               <strong className="font-medium text-text">
                 zero refusals out of fourteen
-              </strong>{" "}
-              on held-out questions, inventing a &ldquo;64-bit CPU with a 64-bit
-              instruction set&rdquo; for a project whose sources say nothing of
-              the kind. Declining <em>is</em> a short, learnable behaviour, a
-              habit rather than a fact to store, so that part is a LoRA: 4.9M
-              trainable parameters, 3.5% of the model, on 122 examples built
-              from this corpus.
+              </strong>
+              . Declining is a short, learnable habit rather than a fact to
+              store, so that part is a LoRA: 4.9M trainable parameters, 3.5% of
+              the model, on 122 examples from this corpus.
             </p>
           </div>
 
@@ -241,10 +231,9 @@ export default function InferenceLabPage() {
             training.
           </p>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-subtle">
-            The training answers are quoted straight from the corpus, not
-            written by a bigger model. Copying from context is the behaviour I
-            wanted, and supervision from something smarter would just teach it
-            to sound smarter while inventing more.
+            Training answers are quoted straight from the corpus, not written
+            by a bigger model. Supervision from something smarter would teach
+            this one to sound smarter while inventing more.
           </p>
         </section>
       )}
@@ -303,44 +292,39 @@ export default function InferenceLabPage() {
             {smolParity.length > 0 && (
               <>
                 {" "}
-                Natively it runs a token in about{" "}
+                A token takes about{" "}
                 <span className="font-mono">
                   {smolParity.find((p) => p.weights === "int8")?.msPerToken.toFixed(0)} ms
-                </span>
-                , and in WebAssembly it is slower again.
+                </span>{" "}
+                natively and longer in WebAssembly.
               </>
             )}{" "}
-            The optimisation ladder (blocking, hand-written SIMD, a fused
-            dequantise-and-multiply) is the interesting part and it has not
-            been climbed. Anyone reporting competitive numbers from an engine at
-            this stage has a benchmark bug.
+            Blocking, hand-written SIMD and a fused dequantise-and-multiply are
+            the interesting part, and I have not done them.
           </p>
           <p>
             <strong className="font-medium text-text">It is not a good model.</strong>{" "}
-            135M parameters is small enough that it gets facts wrong
-            confidently, and the demo does not hide that. It is here because it
-            is the largest thing that will realistically fit down a browser
-            connection, not because it is impressive on its own.
+            135M parameters gets facts wrong confidently and the demo does not
+            hide it. It is here because it is the largest thing that fits down a
+            browser connection.
+            {meta && (
+              <>
+                {" "}
+                The one I trained is worse and measurably so:{" "}
+                {(meta.params / 1000).toFixed(0)}K parameters on {kb(meta.corpusBytes)}{" "}
+                of prose, training loss{" "}
+                <span className="font-mono">{meta.trainLoss.toFixed(2)}</span> against
+                validation <span className="font-mono">{meta.valLoss.toFixed(2)}</span>,
+                which is memorisation. It stays in the selector because the engine
+                and the kernels are identical and only the weights differ.
+              </>
+            )}
           </p>
-          {meta && (
-            <p>
-              <strong className="font-medium text-text">The one I trained is worse still,</strong>{" "}
-              and measurably: {(meta.params / 1000).toFixed(0)}K parameters on{" "}
-              {kb(meta.corpusBytes)} of prose, final training loss{" "}
-              <span className="font-mono">{meta.trainLoss.toFixed(2)}</span> against
-              validation <span className="font-mono">{meta.valLoss.toFixed(2)}</span>.
-              That gap is memorisation, more parameters than characters to
-              learn from, so it reproduces fragments of this site rather than saying
-              anything. It stays in the selector because the comparison is the
-              content: same engine, same kernels, and the entire difference in
-              output quality is the weights.
-            </p>
-          )}
           <p>
             <strong className="font-medium text-text">What it is</strong> is the
-            whole path from a weights file to a token, written out and checked
-            against a reference: the format, the loader, the tokeniser, the KV
-            cache, grouped-query attention, the int8 kernel and the sampler.
+            whole path from a weights file to a token, checked against a
+            reference: the format, the loader, the tokeniser, the KV cache,
+            grouped-query attention, the int8 kernel and the sampler.
             {smol?.weightBytes && (
               <> Loading it costs {mb(smol.weightBytes)}, once, and only if you ask.</>
             )}
