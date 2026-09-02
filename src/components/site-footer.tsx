@@ -48,10 +48,7 @@ export function SiteFooter() {
           </nav>
         </div>
 
-        <div className="mt-10 flex flex-col gap-3 border-t border-border pt-6 text-xs text-subtle sm:flex-row sm:items-center sm:justify-between">
-          <p>
-            © {new Date().getFullYear()} {SITE.name}
-          </p>
+        <div className="mt-10 border-t border-border pt-6 text-xs text-subtle">
           <p className="font-mono">{BUILT_WITH.join("  ·  ")}</p>
         </div>
       </div>
