@@ -64,3 +64,10 @@ next-env.d.ts
 
 # Admin secrets never belong in the repo. `npm run admin:hash` prints them for
 # pasting into the deployment's environment; .env* is already ignored above.
+
+# Agent skills, installed per-machine via `npx skills`. Not part of the site,
+# and this repo is public: a visitor browsing it should see the work, not the
+# tooling. `skills-lock.json` goes with them; reinstall rather than clone.
+.agents/
+.claude/
+skills-lock.json
