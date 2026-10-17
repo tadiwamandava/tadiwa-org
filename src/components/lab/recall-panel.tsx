@@ -49,7 +49,7 @@ export function RecallTable({
   return (
     <Panel>
       <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
-        <h3 className="font-display text-lg">{title}</h3>
+        <h3 className="font-sans text-lg font-medium">{title}</h3>
         <p className="font-mono text-2xs text-subtle tabular-nums">
           k = {k} · {fmt.count(view.queryCount)} queries · {fmt.count(corpusSize)} vectors
         </p>
@@ -59,7 +59,7 @@ export function RecallTable({
         <ChartLegend mine="the graph" reference="exhaustive scan" />
       </div>
 
-      <div className="-mx-1 overflow-x-auto px-1">
+      <div className="-mx-1 overflow-x-auto px-1" tabIndex={0} role="region" aria-label="Recall and timing results">
         <table className="w-full min-w-[34rem] border-collapse">
           <caption className="sr-only">
             Recall against exhaustive ground truth, mean distance evaluations per
@@ -184,11 +184,8 @@ export function RecallTable({
         Recall@{k} is the fraction of the true {k} nearest neighbours the graph
         returned, with truth from an exhaustive scan of the same vectors.
         &ldquo;Scan&rdquo; is that scan: 100% by definition, {fmt.count(corpusSize)}{" "}
-        distance evaluations by construction. Times are a whole batch divided by
-        the number of queries, <span className="font-mono">performance.now()</span>{" "}
-        is clamped to about 5 µs in a browser that is not cross-origin isolated,
-        so one query on its own is below the clock&rsquo;s resolution and timing it
-        alone would report the clamp. {captionSuffix}
+        distance evaluations by construction. Timings average a batch of queries
+        to reduce the effect of browser timer precision. {captionSuffix}
       </Caption>
     </Panel>
   );
@@ -265,16 +262,11 @@ function Verdict({ view, running }: { view: SweepView; running: boolean }) {
           Recall does not move: every ef on the ladder returns all {k} true
           nearest neighbours, for all {fmt.count(view.queryCount)} queries.
         </strong>{" "}
-        At {fmt.count(corpusSize)} vectors there is nowhere for it to go, the
-        graph is dense enough relative to the corpus that layer 0&rsquo;s sweep
-        reaches the whole answer. Cost still moves, and it moves the wrong way to
-        be impressive: {minDist.toFixed(0)}–{maxDist.toFixed(0)} distance
-        evaluations per query against the scan&rsquo;s {fmt.count(corpusSize)}.{" "}
+        The graph used {minDist.toFixed(0)} to {maxDist.toFixed(0)} distance
+        evaluations per query; a full scan uses {fmt.count(corpusSize)}.{" "}
         {maxDist > corpusSize
-          ? "At the top of the ladder the graph does more arithmetic than the thing it replaces."
-          : "The saving, where there is one, is small."}{" "}
-        That is the honest read at this size, and it is the reason the section
-        below exists.
+          ? "Some settings performed more comparisons than the full scan."
+          : "Compare query timings to see the effect of those saved comparisons."}
         {running && " (still measuring)"}
       </>
     );
@@ -283,17 +275,15 @@ function Verdict({ view, running }: { view: SweepView; running: boolean }) {
   return (
     <>
       <strong className="font-medium text-text">
-        Recall climbs from {fmt.pct(first.recall)} at ef&nbsp;{first.ef} to{" "}
-        {fmt.pct(last.recall)} at ef&nbsp;{last.ef}, and the cost climbs with it:{" "}
+        Recall changes from {fmt.pct(first.recall)} at ef&nbsp;{first.ef} to{" "}
+        {fmt.pct(last.recall)} at ef&nbsp;{last.ef}. Distance evaluations change from{" "}
         {first.distances.toFixed(0)} → {last.distances.toFixed(0)} distance
         evaluations per query.
       </strong>{" "}
       Against a full scan of {fmt.count(corpusSize)} vectors, the cheapest
-      setting on the ladder touches {ratio.toFixed(0)}× fewer points
-      {speedup !== null && speedup > 1 ? ` and runs ${speedup.toFixed(0)}× faster` : ""},
-      and gives up {fmt.pct(1 - cheapest.recall)} of the true neighbours to do
-      it. That trade is what an approximate index is; the only question is
-      whether a page will show you the losing half of it.
+      setting uses {(100 / ratio).toFixed(1)}% as many distance calculations
+      {speedup !== null && speedup > 1 ? ` and runs ${speedup.toFixed(1)}× faster in this measurement` : ""}.
+      It misses {fmt.pct(1 - cheapest.recall)} of the true neighbours.
       {running && " (still measuring)"}
     </>
   );

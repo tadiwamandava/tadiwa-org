@@ -97,13 +97,22 @@ class SearchEngine {
     if (!this.lexPromise) {
       this.lexPromise = (async () => {
         const [chunks, lex] = await Promise.all([
-          fetch(`${BASE}/chunks.json`).then((r) => r.json() as Promise<Chunk[]>),
-          fetch(`${BASE}/lexical.json`).then((r) => r.json() as Promise<LexicalIndex>),
+          fetch(`${BASE}/chunks.json`).then((r) => {
+            if (!r.ok) throw new Error(`Search passages could not load (${r.status}).`);
+            return r.json() as Promise<Chunk[]>;
+          }),
+          fetch(`${BASE}/lexical.json`).then((r) => {
+            if (!r.ok) throw new Error(`Search index could not load (${r.status}).`);
+            return r.json() as Promise<LexicalIndex>;
+          }),
         ]);
         this.chunks = chunks;
         this.lexIndex = lex;
         this.emit();
-      })();
+      })().catch((err: unknown) => {
+        this.lexPromise = null;
+        throw err;
+      });
     }
     return this.lexPromise;
   }

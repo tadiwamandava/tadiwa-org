@@ -1,6 +1,6 @@
 ---
 title: CUDA Kernels, Chasing cuBLAS
-pitch: A matrix-multiply kernel optimised rung by rung toward cuBLAS, ending with an honest account of why the last 15% is hard.
+pitch: CUDA matrix-multiply kernels using shared-memory tiling, register blocking, and vectorised loads, compared against cuBLAS.
 status: shipped
 started: "2026-01-01"
 finished: "2026-08-31"
@@ -33,20 +33,21 @@ roleRelevance:
   systems: 2
 ---
 
-## The ladder
+## Matrix multiplication
 
-Naive kernel → global-memory coalescing → shared-memory tiling → register
-blocking → vectorised loads and double buffering. Every rung benchmarked as a
-percentage of cuBLAS in a GFLOPS table.
+I started with a naive matrix-multiply kernel and worked through coalesced
+memory access, shared-memory tiling, register blocking, and vectorised loads.
+Each change affects more than one constraint: using more registers can reduce
+memory traffic while limiting the number of active warps.
 
-The target is 70–85%. Then the best section of the writeup: precisely why the
-remaining gap exists: occupancy against register pressure, instruction
-scheduling, and the microarchitectural tuning NVIDIA does not publish.
-Documented understanding of a gap signals more depth than any victory claim, and
-a suspiciously large one signals the opposite.
+I use Nsight Compute to inspect occupancy, memory throughput, warp stalls, and
+register pressure. I check results against cuBLAS on non-power-of-two shapes
+before comparing performance. This page does not yet include a benchmark
+table with hardware and run conditions, so it makes no speedup claim.
 
-## Phase two
+## Attention
 
-FlashAttention's forward pass from the paper (fused, memory-hierarchy-aware
-attention with online softmax rescaling) integrated as a PyTorch custom op and
-benchmarked end to end against the built-in scaled dot-product attention.
+The attention kernel tiles Q, K, and V through GPU memory and uses online
+softmax rescaling to avoid materialising the full attention matrix. I exposed
+it as a PyTorch custom operator and checked its output against scaled
+dot-product attention.

@@ -42,6 +42,14 @@
   padding: 2.25rem 2rem;
 }
 
+.sheet :is(h1, h2, h3) { font-family: var(--font-sans); }
+.sheet a { overflow-wrap: anywhere; }
+
+@media (max-width: 420px) {
+  .sheetWrap { padding-inline: 12px; }
+  .sheet { padding: 24px 18px; }
+}
+
 @media (min-width: 640px) {
   .sheet {
     padding: 2.75rem 3rem;

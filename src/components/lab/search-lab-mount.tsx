@@ -17,7 +17,7 @@ const SearchLab = dynamic(() => import("./search-lab").then((m) => m.SearchLab),
   ssr: false,
   loading: () => (
     <Panel className="mt-16">
-      <p className="font-mono text-2xs text-subtle">loading the index…</p>
+      <p role="status" className="font-mono text-2xs text-subtle">Loading the index…</p>
     </Panel>
   ),
 });

@@ -146,6 +146,7 @@ export function SearchLab() {
   );
   const [modelState, setModelState] = useState<ModelState>({ status: "idle" });
   const embedRef = useRef<((text: string) => Promise<Float32Array>) | null>(null);
+  const queryRequest = useRef(0);
 
   const active = useMemo(() => {
     if (!lab) return null;
@@ -194,10 +195,26 @@ export function SearchLab() {
   function handleSubmitText(text: string) {
     const embed = embedRef.current;
     if (!embed) return;
-    void embed(text).then((vector) => setTextQuery({ vector, label: text }));
+    const request = ++queryRequest.current;
+    setModelState({ status: "embedding" });
+    void embed(text)
+      .then((vector) => {
+        if (request !== queryRequest.current) return;
+        setTextQuery({ vector, label: text });
+        setModelState({ status: "ready" });
+      })
+      .catch((err: unknown) => {
+        if (request !== queryRequest.current) return;
+        setModelState({
+          status: "error",
+          message: err instanceof Error ? err.message : String(err),
+        });
+      });
   }
 
   function handleSelectChunk(id: number) {
+    queryRequest.current++;
+    if (modelState.status === "embedding") setModelState({ status: "ready" });
     setTextQuery(null);
     setChunkId(id);
   }
@@ -211,15 +228,16 @@ export function SearchLab() {
       <LabSection n="01" label="The index, as loaded">
         {load.status === "error" ? (
           <Panel className="mt-6">
-            <p className="text-sm leading-relaxed text-muted">
-              The index did not load: {load.message}. Everything on this page
-              depends on it, so there is nothing to show, which is at least an
-              honest failure mode.
+            <p role="alert" className="text-sm leading-relaxed text-muted">
+              The search index could not load. {load.message}
             </p>
+            <button type="button" onClick={() => window.location.reload()} className="mt-3 rounded border border-border-strong px-4 py-2 text-sm">
+              Reload the demo
+            </button>
           </Panel>
         ) : !lab || !graph ? (
           <Panel className="mt-6">
-            <p className="font-mono text-2xs text-subtle">
+            <p role="status" className="font-mono text-2xs text-subtle">
               fetching vectors and wasm, then building the graph…
             </p>
           </Panel>
@@ -242,11 +260,9 @@ export function SearchLab() {
               />
             </div>
             <Caption>
-              {fmt.bytesKB(lab.payloadBytes)} of int8 vectors and 43.2 KB of
-              WebAssembly (18.3 KB over the wire), fetched when you opened this
-              page and not before. The graph was constructed here, in your
-              browser, from a fixed seed, which is what makes every number below
-              reproducible rather than a sample.
+              {fmt.bytesKB(lab.payloadBytes)} of int8 vectors, loaded with the
+              WebAssembly engine when you opened this page. A fixed seed makes
+              the graph structure repeatable. Timings depend on your device.
             </Caption>
           </Panel>
         )}
@@ -373,28 +389,17 @@ function Conclusion({
   return (
     <div className="mt-6 space-y-4 text-base leading-relaxed text-muted">
       <p>
-        <strong className="font-medium text-text">
-          At {fmt.count(corpusSize)} chunks this graph is not saving anyone any
-          time.
-        </strong>{" "}
-        A brute-force scan is {fmt.count(corpusSize)} dot products and finishes
-        in{" "}
-        {bruteMicros === null ? "well under a millisecond" : fmt.micros(bruteMicros)}.
-        The graph walk costs between {cheapest.distances.toFixed(0)} and{" "}
-        {dearest.distances.toFixed(0)} of the same dot products plus the queue
-        around them, so against the thing it replaces it is a wash.
+        A full scan compares all {fmt.count(corpusSize)} vectors
+        {bruteMicros === null ? "." : ` and took ${fmt.micros(bruteMicros)} in this tab.`}{" "}
+        Across this sweep, the graph averages between {cheapest.distances.toFixed(0)} and{" "}
+        {dearest.distances.toFixed(0)} distance calculations per query. Compare
+        the timings alongside recall to see whether those saved comparisons
+        offset the cost of managing the search queue.
       </p>
       <p>
-        It earns its place because the structure is the artefact. The layer
-        pyramid, the degree bound and the neighbour heuristic are the same
-        objects at a hundred million vectors as they are here, and a demo that
-        only works at a scale you cannot ship to a browser demonstrates
-        nothing.
-      </p>
-      <p>
-        What it does buy at any size: nothing leaves the tab. No server, no API
-        key, no log of what you searched for. The index is a file and the
-        search is a function, and both are here.
+        This small corpus lets you inspect the layers and check every result
+        against a full scan. It does not establish performance on larger
+        datasets. Query vectors and graph traversal are computed in your browser.
       </p>
     </div>
   );

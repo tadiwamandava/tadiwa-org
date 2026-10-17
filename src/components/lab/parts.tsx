@@ -121,7 +121,7 @@ export function Panel({
 
 export function Code({ children }: { children: React.ReactNode }) {
   return (
-    <code className="rounded-sm border border-border bg-surface-2 px-1 py-px font-mono text-[0.86em] whitespace-nowrap">
+    <code className="rounded-sm border border-border bg-surface-2 px-1 py-px font-mono text-[0.86em] break-words">
       {children}
     </code>
   );

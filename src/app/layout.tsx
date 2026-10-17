@@ -1,32 +1,21 @@
 import type { Metadata, Viewport } from "next";
-import { Source_Serif_4 } from "next/font/google";
+import localFont from "next/font/local";
 import { SiteHeader } from "@/components/site-header";
 import { PaletteMount } from "@/components/search/palette-mount";
 import { SITE } from "@/lib/site";
 import "./globals.css";
 
-/* One web font, for display only.
-
-   Source Serif 4, not Saira. Saira was chosen to approximate Industry, the
-   commercial face on a site this layout was referenced from, which made the
-   headline voice a substitute for somebody else's decision. A squarish
-   grotesque on near-black with a single bright accent is also the exact
-   costume every generated portfolio wears.
-
-   A serif is the opposite choice and the honest one here: this site argues
-   through writing, and a text face designed for reading says that before a
-   word is read. Source Serif is a workhorse rather than a fashion, which is
-   the point, and it is open-licensed.
-
-   Body and mono stay on the system stack, so the two faces a reader spends
-   the most time in cost zero bytes.
-
-   The VARIABLE cut, not static weights: one file covers the whole axis and
-   is smaller than the static cuts it replaces. Latin only, and next/font
-   computes fallback metrics at build so nothing reflows when it swaps in. */
-const display = Source_Serif_4({
-  subsets: ["latin"],
+const display = localFont({
+  src: "./fonts/audiowide-latin.woff2",
   variable: "--font-display-face",
+  weight: "400",
+  display: "swap",
+});
+
+const body = localFont({
+  src: "./fonts/onest-latin.woff2",
+  variable: "--font-body-face",
+  weight: "100 900",
   display: "swap",
 });
 
@@ -59,8 +48,8 @@ export const metadata: Metadata = {
    contrast checker cannot see, because it is metadata rather than CSS; it must
    stay equal to --bg in globals.css. */
 export const viewport: Viewport = {
-  colorScheme: "light",
-  themeColor: "#ffffff",
+  colorScheme: "dark",
+  themeColor: "#050505",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -71,7 +60,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
          this attribute the `scroll-behavior: smooth` in globals.css makes every
          route change slow-scroll to the top instead of jumping. */
       data-scroll-behavior="smooth"
-      className={`h-full antialiased ${display.variable}`}
+      className={`h-full antialiased ${display.variable} ${body.variable}`}
       suppressHydrationWarning
     >
       <body className="flex min-h-full flex-col bg-bg text-text">

@@ -37,27 +37,27 @@ roleRelevance:
   rtl-fpga: 1
 ---
 
-## The plan
+## Startup and drivers
 
-Delete the vendor scaffolding and write what it was hiding: the linker script,
-the vector table, the reset handler that copies `.data` and zeroes `.bss`, and
-the clock-tree configuration: flash wait states before the frequency jump, or
-it faults.
+I wrote the linker script, vector table, and reset handler for the STM32F446.
+The handler copies `.data`, zeroes `.bss`, and configures the clock tree.
+Setting flash wait states before raising the clock frequency is one of the
+ordering details that matters at startup.
 
-Then drivers straight from the reference manual: GPIO, UART with ring buffers,
-SysTick, I²C, SPI. **Every driver's first successful transaction gets captured on
-a logic analyzer and committed to the repo.** An annotated I²C trace showing
-start, address, ACK, and data phases is worth more than a paragraph claiming the
-driver works.
+The register-level drivers cover GPIO, UART with ring buffers, SysTick, I²C,
+and SPI. Logic-analyser captures let me compare bus activity with the expected
+transaction, including the start, address, ACK, and data phases of I²C.
 
-Then the kernel: task control blocks, a context switch in PendSV, preemptive
-round-robin on the SysTick tick, blocking delays that consume zero cycles, and a
-mutex with priority inheritance, which means owning the priority-inversion story
-rather than reciting it.
+## Scheduling
+
+The kernel uses task control blocks, per-task stacks, and PendSV context
+switching. SysTick drives time slicing, while a priority scheduler chooses
+the next task. A blocked task yields the CPU. Mutexes use priority inheritance
+to handle priority inversion.
 
 ## Proof on wires
 
-Each task toggles a distinct GPIO. The logic analyzer captures the interleaving,
-and `DWT->CYCCNT` measures the switch cost in cycles. Both go in the README,
-because "it works" and "it switches in N cycles, here is the capture" are
-different claims.
+Each task toggles a distinct GPIO so I can inspect scheduling on the logic
+analyser. `DWT->CYCCNT` measures context-switch cost in cycles. Fault registers
+such as CFSR and HFSR help narrow down stack-frame and exception-return errors
+in GDB.

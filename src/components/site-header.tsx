@@ -1,42 +1,22 @@
 import Link from "next/link";
 import { NAV, SITE } from "@/lib/site";
-import { SocialLinks } from "./social-links";
 import { NavLink } from "./nav-link";
+import styles from "./site-header.module.css";
 
-/**
- * Name and one-line tagline on the left, controls on the right.
- *
- * The text nav stays, which the reference layout does not have. That is not an
- * oversight in either direction: the reference is a single page and has nowhere
- * to navigate to, while this site has five real routes plus every project
- * writeup. Dropping wayfinding to match a site that does not need it would be
- * copying a constraint rather than a design.
- */
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-bg/85 backdrop-blur-sm">
-      <div className="mx-auto flex min-h-16 max-w-(--container-wide) flex-wrap items-center gap-x-6 gap-y-2 px-5 py-2.5 sm:px-8">
-        <Link href="/" className="group leading-tight">
-          <span className="block font-display text-lg font-semibold tracking-tight whitespace-nowrap">
-            {SITE.name}
-            <span className="text-accent">.</span>
-          </span>
-          <span className="block text-2xs tracking-wide text-subtle">
-            {SITE.role}
-          </span>
+    <header className={styles.header}>
+      <div className={styles.inner}>
+        <Link href="/" className={styles.brand} aria-label={`${SITE.name}, home`}>
+          <span>tadiwa<span className={styles.dot}>.</span></span>
         </Link>
-
-        <nav aria-label="Main" className="flex-1">
-          <ul className="flex items-center gap-1 text-sm">
-            {NAV.map((item) => (
-              <li key={item.href}>
-                <NavLink href={item.href}>{item.label}</NavLink>
-              </li>
-            ))}
+        <nav aria-label="Main" className={styles.nav}>
+          <ul>
+            {NAV.map((item) => <li key={item.href}><NavLink href={item.href}>{item.label}</NavLink></li>)}
+            <li><NavLink href="/writing">Writing</NavLink></li>
           </ul>
         </nav>
-
-        <SocialLinks />
+        <a href={`mailto:${SITE.email}`} className={styles.contact}>Email Tadiwa</a>
       </div>
     </header>
   );

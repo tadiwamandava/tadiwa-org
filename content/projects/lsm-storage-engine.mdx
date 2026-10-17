@@ -10,9 +10,9 @@ stack: ["tokio", "proptest", "criterion"]
 featured: true
 pinOrder: 1
 hardestThing: >-
-  Compaction is where this class of project dies. Merging sorted files while
+  Compaction has to merge sorted files while
   concurrent writes land, tombstones expire, and a crash can arrive between any
-  two syscalls means bugs corrupt data silently and surface hours later. The
+  two syscalls. Bugs can corrupt data silently and surface hours later. The
   mitigation is property-based testing from the first commit (random operation
   sequences checked against a plain HashMap model) plus a manifest log so a
   crash mid-compaction is replayable rather than fatal.
@@ -31,26 +31,24 @@ roleRelevance:
   generalist-swe: 2
 ---
 
-## The plan
+## Storage and recovery
 
-A storage engine, built in four milestones, because it composes the four things
-every systems interview actually probes: data structures on disk, OS interfaces,
-concurrency, and performance measurement.
+The server accepts Redis-compatible commands through RESP. An unmodified
+`redis-cli` can connect and issue `GET`, `SET`, and `DEL`.
 
-1. **A RESP-speaking server.** Enough of the Redis wire protocol that the real
-   `redis-cli` connects and issues `GET`/`SET`/`DEL`. The moment an unmodified
-   client talks to your binary is the moment the project becomes demonstrable.
-2. **Persistence and crash recovery.** Write-ahead log, a configurable fsync
-   policy, and a test that `kill -9`s the server mid-write-storm and verifies
-   every acknowledged write survived. That test runs in CI.
-3. **The LSM tree.** Memtable, sorted immutable SSTables with sparse indexes,
-   bloom filters, and background compaction.
-4. **Concurrency.** Many clients, readers that don't block on compaction, and a
-   flamegraph identifying where the time actually goes.
+A write-ahead log records changes before they enter the memtable. Immutable
+SSTables hold flushed data, with sparse indexes and Bloom filters to narrow
+reads. Background compaction merges the files while clients continue to read
+and write.
 
-## Why this one
+The fsync policy controls the durability/throughput tradeoff. Recovery tests
+interrupt the server during writes and check the resulting state. Property-based
+tests compare operation sequences with a reference HashMap, including sequences
+that cross a compaction or recovery boundary.
 
-Almost every backend I use sits on a storage engine I couldn't explain past a
-block diagram. The interesting problems (the durability-versus-throughput
-cliff, compaction without corruption, reads across immutable layers) only
-become real when you have to make them work.
+## Why I built it
+
+I could draw the storage engines behind the backends I used, but I could not
+explain their recovery behaviour in much detail. Implementing one made me work
+through the ordering of writes, file creation, and manifest updates. A crash
+between any two of those steps still needs a recoverable state.

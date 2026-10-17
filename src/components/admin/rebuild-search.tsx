@@ -48,7 +48,7 @@ export function RebuildSearch({ status }: { status: IndexStatus }) {
           ) : stale ? (
             <>
               <strong className="font-semibold">Stale.</strong> Content has changed since the
-              index was built, so search results are wrong until this runs.
+              index was built. Search may show older content until you rebuild it.
             </>
           ) : (
             <>Up to date as of {when(status.indexBuiltAt)}.</>

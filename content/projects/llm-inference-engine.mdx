@@ -32,32 +32,27 @@ roleRelevance:
   firmware: 1
 ---
 
-## The distinction that matters
+## The forward pass
 
-"I called an LLM API" is worth approximately nothing. The market is saturated
-with wrapper apps. What is scarce is understanding what happens between the
-weights file and the token.
+I wrote the code that turns model weights and input tokens into a prediction:
+tokenisation, embeddings, transformer blocks, attention, and sampling. The
+project started with GPT-2 inference in C++.
 
-## The ladder
+## Correctness and optimisation
 
-Optimisation as measured rungs, each with a tokens/sec number and an
-explanation, kept in a running `PERFORMANCE.md`:
+I check logits against a reference implementation before changing the kernels.
+A correct next token can hide numerical errors earlier in the forward pass,
+so I compare the values as well as the selected token.
 
-1. **Correct forward pass.** Embeddings, LayerNorm, multi-head attention, MLP
-   blocks, logits. Plain C++, no clever anything.
-2. **KV cache.** Typically the single largest win for generation. Derive why
-   before implementing it.
-3. **Matmul.** Loop reordering for cache locality, then blocking, then SIMD,
-   with an honest "mine vs. OpenBLAS" comparison rather than a victory claim.
-4. **Threading** across attention heads.
-5. **Quantisation.** int8 per-channel, then int4 grouped, reporting the whole
-   trade-off surface: model size, tokens/sec, perplexity delta.
+The optimisation work includes a KV cache, cache-aware matrix multiplication,
+SIMD, multithreading, and INT8/INT4 quantisation. Each changes the tradeoff
+between memory use, execution time, and numerical error. Benchmark results
+need the model, precision, and hardware alongside them to be comparable.
 
-That last rung is the one that connects directly to on-device ML work, the same
-discipline as the CMSIS-NN kernels on the embedded side, at a different scale.
+## Run the browser implementation
 
-## Where it ends up
-
-This engine is what will eventually run in your browser on this site, compiled
-to WebAssembly. Reading about an inference stack is one thing; watching one
-generate tokens in your own tab, with a live tokens/sec readout, is another.
+The [inference lab](/lab/inference) runs a C++ implementation compiled to
+WebAssembly. It includes SmolLM2 and a small model trained on this site’s prose,
+plus reference-comparison results when the build includes them. The lab reports
+generation timing on your device; it is a separate workload from the GPT-2
+implementation described here.

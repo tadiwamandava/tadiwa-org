@@ -97,15 +97,15 @@ function FilterGroup({
                 aria-current={active ? "true" : undefined}
                 className={
                   active
-                    ? "inline-flex items-center gap-1.5 rounded-full bg-accent px-2.5 py-0.5 text-2xs text-accent-contrast transition-colors"
+                    ? "inline-flex min-h-11 items-center gap-1.5 rounded border border-accent bg-accent px-3 py-2 text-2xs text-accent-contrast transition-colors"
                     // Border-only when inactive. Filled chips at this count
                     // (eleven languages) turn the top of the page into a wall
                     // of grey blocks that outweighs the work below it.
-                    : "inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-0.5 text-2xs text-subtle transition-colors hover:border-accent hover:text-text"
+                    : "inline-flex min-h-11 items-center gap-1.5 rounded border border-border-strong px-3 py-2 text-2xs text-subtle transition-colors hover:border-accent hover:text-text"
                 }
               >
                 {value}
-                <span className="tabular-nums opacity-70">{count}</span>
+                <span className="tabular-nums">{count}</span>
               </Link>
             </li>
           );

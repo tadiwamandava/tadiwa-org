@@ -1,121 +1,34 @@
 @import "tailwindcss";
 
-/* ============================================================================
-   TOKENS. The whole design system lives here.
-
-   PALETTE: slate + one teal.
-   A neutral slate ramp carries structure (roughly 60% white page / 30% light
-   grey surfaces) and a single teal accent carries action (roughly 10%). There
-   is no third hue. What is not carried by hue is carried by TONE, the only
-   channel that survives greyscale, colour-vision deficiency, cheap monitors
-   and print.
-
-   ONE DELIBERATE DEVIATION FROM THE BRIEF, and the reason for it:
-   the specified accent #0D9488 (teal-600) measures 3.74:1 on white. That
-   fails WCAG AA (4.5:1) in BOTH directions: as link text on the page, and as
-   a white button label on a teal fill. So `--accent` is teal-700 #0F766E
-   (5.47:1), which is visually the same colour at the 10% coverage an accent
-   gets, and legible. The brief's #0D9488 survives as `--accent-bright`, used
-   only where 3:1 is the real requirement: focus rings, chart bars, the status
-   dot, never for text.
-
-   Consequences worth knowing before you edit:
-     - `--status-*` are not three hues. `building` is the accent (it is the
-       live work, and the pill already pulses); `shipped` is the heaviest
-       neutral; `planned` is the lightest that still clears AA. The text label
-       in <StatusPill> names the state; colour only ranks them.
-     - `--chart-mine` / `--chart-reference` are an emphasis hierarchy, not a
-       categorical pair: the subject is saturated, the baseline is near-grey.
-
-   Structural rules (enforced by scripts/check-contrast.ts in CI):
-     - Every colour is defined once, on bare :root. There is one theme.
-     - No colour is defined anywhere else, and none inside a media query.
-
-   Layering rules:
-     - Token blocks, @theme, @keyframes, @view-transition and the
-       reduced-motion reset stay UNLAYERED so they outrank everything.
-     - Element defaults live in @layer base and component classes in
-       @layer components, so Tailwind utilities (@layer utilities) can override
-       them. Unlayered CSS beats every layer, so putting `h2 { font-family }` at
-       the top level silently defeats `class="font-mono"`.
-   ========================================================================= */
-
-/* One palette. There is no light theme and no toggle.
-   Surfaces are lifted straight off the reference this layout follows:
-   zinc-950 for the page, zinc-400 for secondary text, pure white for
-   headings. Teal stays as the accent because it is this site's, and the
-   reference simply has no accent colour to copy.
-
-   Because there is only one theme now, the contrast gate checks one set of
-   pairs rather than two plus a parity check between duplicate dark blocks.
-   That duplication existed so a media-query dark theme and a toggle-selected
-   dark theme could not drift; with nothing to toggle, it is gone. */
+/* iFactory-inspired palette: black surfaces, orange signals, white type.
+   Keep colors centralized so the existing contrast checks cover every route. */
 :root {
-  /* --- surfaces: paper, two steps -------------------------------------
-     A light ground, which reverses an earlier instruction of the owner's. It
-     is what this direction dealt before that instruction overrode it, and the
-     standing rule now is that the sources win where they disagree with me.
-
-     The steps are far enough apart to be seen. They were briefly set two
-     points apart, which made the panels invisible and the accent fail its
-     floor on the darkest one. */
-  --bg: #ffffff;
-  --surface: #f5f4f2;
-  --surface-2: #eae8e4;
-
-  /* --- text ------------------------------------------------------------ */
-  --text: #0a0a0a;
-  --text-muted: #55534f;
-  --text-subtle: #6a6762;
-
-  /* --- lines -----------------------------------------------------------
-     --border is a decorative hairline. --border-strong identifies a control
-     and therefore clears WCAG 1.4.11's 3:1. Do not swap. */
-  --border: #ddd9d2;
-  --border-strong: #8a8681;
-
-  /* --- accent ----------------------------------------------------------
-     One colour, and only one. The brief asked for vibrant colours, plural;
-     both sources say otherwise. The Fountain Institute piece opens on "five
-     or six saturated colors competing at once" as the first tell of a
-     generated interface, and this direction's own palette note reads "signal
-     red is the only colour in the interface". So: one red, used hard.
-
-     #d01008 rather than the #d92b21 dealt. It is the more saturated of the
-     two and it is the one that clears 4.5:1 on all three surfaces; the dealt
-     value manages 3.97 on the inset and would have shipped links that fail. */
-  --accent: #d01008;
-  --accent-hover: #a30c05;
-  --accent-contrast: #ffffff;
-  --accent-subtle: #fdeceb;
-  --accent-bright: #d01008;
-
-  /* --- project status: ranked by tone, named by the label -------------- */
-  --status-shipped: #1a1a1a;
-  --status-building: #d01008;
-  --status-planned: #6a6762;
-
-  /* --- benchmark marks: emphasis hierarchy, not a categorical pair ----- */
-  --chart-mine: #d01008;
-  --chart-reference: #8a8681;
-
-  --focus: #d01008;
-
-  /* --- the one dark band -----------------------------------------------
-     This direction's palette allows "one full black band" on the white
-     ground, and the assistant panel is it. Not decoration: the sphere is a
-     glow, and a glow needs dark to be a glow. Drawn on paper it washed out,
-     and its gold readout measured 1.83:1 against white.
-
-     The accent here is the same red, lightened for a dark ground. Still one
-     colour: one hue, two values, because 4.5:1 cannot be met on both grounds
-     by a single number. */
-  --band: #0d0c0b;
-  --band-text: #f5f4f2;
-  --band-muted: #a9a49c;
-  --band-accent: #ef5a4a;
-
-  color-scheme: light;
+  --bg: #050505;
+  --surface: #111111;
+  --surface-2: #1b1b1b;
+  --text: #f5f5f5;
+  --text-muted: #b8b8bd;
+  --text-subtle: #99999f;
+  --border: #29292c;
+  --border-strong: #707078;
+  --accent: #ff874f;
+  --accent-hover: #ffa578;
+  --accent-contrast: #080808;
+  --accent-subtle: #2b1b14;
+  --accent-bright: #ff874f;
+  --status-shipped: #f5f5f5;
+  --status-building: #ff874f;
+  --status-planned: #99999f;
+  --chart-mine: #ff874f;
+  --chart-reference: #818189;
+  --focus: #ff874f;
+  --band: #0b0b0c;
+  --band-text: #f5f5f5;
+  --band-muted: #b8b8bd;
+  --band-accent: #ff874f;
+  --inverse: #dddddd;
+  --inverse-text: #111111;
+  color-scheme: dark;
 }
 
 /* ============================================================================
@@ -146,24 +59,8 @@
   --color-chart-mine: var(--chart-mine);
   --color-chart-reference: var(--chart-reference);
 
-  /* TYPE. Helvetica Neue, with a real fallback chain.
-     Deliberately NOT loaded via next/font: Helvetica Neue is a system face on
-     macOS/iOS and has no web-font equivalent worth shipping, so the site now
-     downloads ZERO font files. That removes ~90KB from the critical path and
-     eliminates font-swap layout shift entirely. Windows and Linux fall through
-     to Arial / Liberation Sans, which are metrically close enough that the
-     layout does not move. */
-  --font-sans:
-    "Helvetica Neue", Helvetica, Arial, "Segoe UI", Roboto, system-ui,
-    sans-serif;
-  /* Display only. Source Serif carries headings; body and mono stay on the
-     system stack, so the two faces a reader spends the most time in cost
-     nothing. The fallback is a serif stack rather than the body's sans, so a
-     slow font does not flash a different voice. next/font matches metrics at
-     build, so nothing moves when it swaps in. */
-  --font-display:
-    var(--font-display-face), Charter, "Bitstream Charter", "Iowan Old Style",
-    Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-body-face), "Helvetica Neue", Arial, sans-serif;
+  --font-display: var(--font-display-face), "Arial Black", Arial, sans-serif;
   --font-mono:
     ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
     "Liberation Mono", monospace;
@@ -193,10 +90,8 @@
 
   /* Content measure. ~68ch is the readable ceiling for long prose. */
   --container-measure: 68ch;
-  /* 66.75rem = 1068px, measured off the reference layout rather than picked.
-     At a 1200px viewport that leaves 66px gutters, which is what gives the
-     page its full-bleed feel without the text actually running edge to edge. */
-  --container-wide: 66.75rem;
+  /* Wide landing-page layout; prose retains its own readable measure. */
+  --container-wide: 80rem;
 }
 
 /* ============================================================================
@@ -228,6 +123,23 @@
     text-rendering: optimizeLegibility;
   }
 
+  main, section, article {
+    min-width: 0;
+  }
+
+  button, select, input:not([type="checkbox"]):not([type="radio"]):not([type="range"]) {
+    min-height: 44px;
+  }
+
+  button {
+    min-width: 44px;
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+
   /* Tabular numerals everywhere a number is compared to another number.
      Benchmark tables are unreadable without this. */
   .tnum,
@@ -238,21 +150,20 @@
     font-feature-settings: "tnum";
   }
 
-  /* Display serif is the DEFAULT for headings, not a decree, section labels
-     opt out with `font-mono`, which works because this rule is layered. */
+  /* Audiowide identifies page titles; Onest keeps smaller headings readable. */
   h1,
   h2,
   h3,
   h4 {
-    /* A serif at display size wants far less negative tracking than a
-       squarish grotesque did, and semibold rather than bold: Source Serif's
-       700 is heavy enough on a dark ground to fill in its own counters. */
-    font-family: var(--font-display);
-    font-weight: 600;
-    line-height: 1.12;
+    font-family: var(--font-sans);
+    font-weight: 500;
+    line-height: 1.35;
     letter-spacing: -0.012em;
     text-wrap: balance;
+    overflow-wrap: anywhere;
   }
+
+  h1 { font-family: var(--font-display); font-weight: 400; }
 
   p,
   li {
@@ -287,6 +198,12 @@
     background-color: var(--accent-subtle);
     color: var(--text);
   }
+}
+
+/* Keep keyboard focus visible even on controls with utility outline resets. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--focus) !important;
+  outline-offset: 3px;
 }
 
 /* ============================================================================
@@ -466,14 +383,9 @@
     -webkit-overflow-scrolling: touch;
   }
 
-  /* ---- Shiki ------------------------------------------------------------
-     rehype-pretty-code emits both palettes as custom properties. The previous
-     comment here said a light theme was "one selector away if it ever comes
-     back". It came back, and this is that selector. Highlighting happens at
-     BUILD time, so carrying both palettes costs nothing at runtime and this
-     flip cost one line rather than a re-highlight. */
+  /* Shiki emits both palettes at build time; use the dark token colors. */
   .prose pre code span {
-    color: var(--shiki-light);
+    color: var(--shiki-dark);
   }
 }
 
@@ -562,11 +474,18 @@
 }
 
 .seam-clipped {
-  /* Set inline by the drag. This is only the pre-hydration value, so the
-     first paint is not a full-width document. */
+  /* Set inline by the drag; this is only the pre-hydration value, so the
+     first paint is not a full-width document. Straight here on purpose: the
+     torn polygon needs the same geometry the client will compute, and a
+     mismatch between server and client markup is worse than one straight
+     edge for one frame. */
   clip-path: inset(0 58% 0 0);
-  background: var(--bg);
+  background: #fff;
   z-index: 1;
+  /* The torn sheet sits on top of the designed page, so it casts. Small and
+     tight: paper lifted a millimetre, not a card floating a centimetre. */
+  filter: drop-shadow(2px 0 1px rgb(0 0 0 / 0.16))
+          drop-shadow(0 0 6px rgb(0 0 0 / 0.07));
 }
 
 .doc-view {
@@ -605,10 +524,11 @@
 }
 
 .seam-grip {
-  display: block;
-  width: 2px;
-  height: 100%;
-  background: var(--accent);
+  /* No rule down the edge. The tear is the division; a straight 2px line
+     beside a torn edge argues with it and makes the tear look like a
+     decoration applied to a seam rather than the seam itself. The handle is
+     the knob alone. */
+  display: none;
 }
 
 .seam-handle::after {
@@ -631,9 +551,9 @@
   outline: none;
 }
 
-.seam-handle:focus-visible .seam-grip {
+.seam-handle:focus-visible::after {
   outline: 2px solid var(--focus);
-  outline-offset: 2px;
+  outline-offset: 3px;
 }
 
 /* Below the fold of a phone the seam is unusable: both halves end up too

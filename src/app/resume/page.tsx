@@ -105,6 +105,7 @@ export default async function ResumePage(props: PageProps<"/resume">) {
           <h1 className="mt-5 font-display text-4xl leading-tight tracking-tight">
             Résumé
           </h1>
+          <p className="mt-4 text-muted">Choose a focus to change the project selection. Use Print / Save as PDF to export the résumé.</p>
 
           <div className="mt-9 flex flex-wrap items-center gap-4">
             <VariantToggle current={variantId} />

@@ -6,7 +6,7 @@ import { getAllPosts } from "@/lib/content";
 export const metadata: Metadata = {
   title: "Writing",
   description:
-    "Build logs and postmortems: what the tutorials skip, what the vendors hide, and the numbers.",
+    "Notes on implementation, debugging, and design decisions from Tadiwa Mandava’s engineering projects.",
 };
 
 export default function WritingPage() {
@@ -17,17 +17,15 @@ export default function WritingPage() {
       <header>
         <h1 className="font-display text-4xl tracking-tight">Writing</h1>
         <p className="mt-4 text-lg leading-relaxed text-muted">
-          One post per finished project. What I built, the hardest bug, what
-          the tutorials and vendor SDKs leave out, the numbers, and what
-          I&rsquo;d do differently.
+          Notes on implementation, debugging, and decisions I would revisit.
         </p>
       </header>
 
       {posts.length === 0 ? (
-        <p className="mt-12 rounded-lg border border-dashed border-border-strong p-10 text-center text-muted">
-          Nothing published yet. The first post lands with the first finished
-          project.
-        </p>
+        <div className="mt-12 border-y border-border py-8 text-muted">
+          <p>No standalone posts yet. The project pages already include implementation notes.</p>
+          <Link href="/projects" className="mt-4 inline-flex min-h-11 items-center text-text underline">Read the project writeups</Link>
+        </div>
       ) : (
         <ul className="mt-12 divide-y divide-border border-y border-border">
           {posts.map((post) => (

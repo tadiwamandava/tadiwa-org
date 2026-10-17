@@ -64,7 +64,7 @@ const NANO_PROMPTS = [
   "The engine is",
   "## Why this exists",
   "A crash-safe key-value store",
-  "The honest answer is",
+  "The storage engine uses",
 ];
 
 const mb = (n: number) => `${(n / 1048576).toFixed(0)} MB`;
@@ -481,13 +481,13 @@ export function NanoPlayground({
             disabled={busy || kimi.status !== "on"}
             onSelect={() => setModel("kimi")}
             title={kimi.status === "on" ? kimi.name : "kimi-k3"}
-            detail="2.8T params · not in this tab"
+            detail="Hosted API · sends your question"
             note={
               kimi.status === "checking"
                 ? "checking availability\u2026"
                 : kimi.status === "on"
-                  ? "hosted · the one thing here that leaves your machine"
-                  : "no API key on this deployment"
+                  ? "requires a server connection"
+                  : "not available on this deployment"
             }
           />
         </div>
@@ -540,12 +540,12 @@ export function NanoPlayground({
               ? "399 KB download"
               : "1.4 MB download"
             : model === "kimi"
-              ? "Grounded always, and the retrieval runs on the server. The browser sends the question and nothing else, so this cannot be used to relay arbitrary text to a paid API."
+              ? "Sends your question to the server, which retrieves sources and requests a hosted answer."
             : mode === "grounded"
-              ? "The BM25 index behind ⌘K retrieves the passages first; the model answers only from those, and they are listed underneath."
+              ? "Retrieves passages from this site and asks the model to use them. Check the sources listed below the answer."
               : mode === "chat"
-                ? "Asked cold, with no sources. This is the control, try the same question in both and watch it invent an answer here."
-                : "Fed in verbatim. No template, no stop token, it just continues the text."}
+                ? "Answers without retrieved sources. Compare the same question in Grounded mode."
+                : "Continues the prompt as plain text."}
         </p>
       </div>
 
@@ -553,10 +553,9 @@ export function NanoPlayground({
       {needsDownload ? (
         <div className="mt-5 rounded border border-dashed border-border-strong bg-bg p-5">
           <p className="max-w-2xl text-sm leading-relaxed text-muted">
-            {smolWeightBytes ? mb(smolWeightBytes) : "The weights"} of int8
-            weights, fetched once and kept in the browser&rsquo;s cache. Nothing
-            is downloaded until you press this, and nothing leaves your machine
-            afterwards, the whole forward pass runs here.
+            Download {smolWeightBytes ? mb(smolWeightBytes) : "the model weights"}{" "}
+            to run SmolLM2 locally. The weights are cached in this browser;
+            generation runs on your device. Choose Load the model to begin.
           </p>
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <button
@@ -627,7 +626,7 @@ export function NanoPlayground({
         <button
           type="button"
           onClick={run}
-          disabled={busy || needsDownload || listening !== null}
+          disabled={busy || needsDownload || listening !== null || !prompt.trim()}
           className="rounded bg-accent px-4 py-2 text-sm font-medium text-accent-contrast transition-colors hover:bg-accent-hover disabled:opacity-60"
         >
           {busy && !needsDownload ? "Generating…" : "Ask"}
@@ -871,42 +870,28 @@ export function NanoPlayground({
       <p className="mt-4 text-xs leading-relaxed text-subtle">
         {model === "kimi" ? (
           <>
-            <strong className="font-medium text-muted">
-              This one is not running here.
-            </strong>{" "}
-            Kimi K3 is roughly a terabyte of weights even at four bits, and a
-            mixture-of-experts model needs every expert resident whichever ones
-            a token actually uses, so it is four orders of magnitude past what a
-            tab can hold. It gets the same question, the same retrieved
-            passages and the same system prompt as the 135M model above, so what
-            differs between the two answers is the model rather than the
-            plumbing. Everything else on this page runs on your machine; this
-            is the exception, and it is opt-in for that reason.
+            The hosted option sends your question to the server and an external
+            model API. Compare its answer with the local model and inspect the
+            retrieved passages shown with each response.
           </>
         ) : model === "smol" ? (
           <>
-            <strong className="font-medium text-muted">The weights are not mine</strong>,
-            SmolLM2 was trained by Hugging Face, and this page would be lying if
-            it implied otherwise. What is mine is everything between the file and
-            the token: the format, the loader, RMSNorm, RoPE, grouped-query
-            attention, SwiGLU, the KV cache, the int8 matmul and the sampler.
+            Hugging Face trained SmolLM2. I wrote the weight loader,
+            transformer operations, KV cache, int8 matrix multiply, and sampler
+            used by this demo.
             {stats && stats.kv > 0 && (
               <>
                 {" "}
-                Of the {mb(stats.resident)} resident, {mb(stats.kv)} is the KV
-                cache, it grows with every token and is the reason context
-                windows cost memory rather than just time.
+                The engine reports {mb(stats.resident)} resident memory,
+                including {mb(stats.kv)} for the KV cache.
               </>
             )}
           </>
         ) : (
           <>
-            <strong className="font-medium text-muted">int8 here is a wire saving, not a memory one:</strong>{" "}
-            the small model dequantises to fp32 on load, so &ldquo;resident&rdquo;
-            is identical either way. The larger model does keep its weights
-            packed and multiplies them in place, that is what the int8 matmul
-            kernel bought, and it is the difference between 129 MB and 513 MB in
-            a tab.
+            The small model dequantises to fp32 on load. Choosing int8 reduces
+            its download size; resident memory stays the same. SmolLM2 keeps
+            its weights packed during inference to reduce memory use.
           </>
         )}
       </p>

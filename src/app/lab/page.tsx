@@ -40,7 +40,7 @@ const DEMOS: Demo[] = [
     slug: "search",
     title: "Vector search, client-side",
     blurb:
-      "An HNSW graph I wrote in Rust, searching this site in your tab. Recall is measured live against a brute-force scan, including the part where the graph loses.",
+      "Query an HNSW graph written in Rust. Compare its results and timing with a brute-force scan of the same vectors.",
     status: "live",
     href: "/lab/search",
   },
@@ -48,7 +48,7 @@ const DEMOS: Demo[] = [
     slug: "inference",
     title: "A language model running in this tab",
     blurb:
-      "SmolLM2-135M answering at about 25 tokens a second, on a forward pass I wrote in C++. No framework, no BLAS, no server.",
+      "Run a C++ forward pass compiled to WebAssembly. Inspect sources and generation timing, or compare with a hosted model when this deployment provides one.",
     status: "live",
     href: "/lab/inference",
   },
@@ -56,7 +56,7 @@ const DEMOS: Demo[] = [
     slug: "riscv",
     title: "Step through a RISC-V core",
     blurb:
-      "The RV32I core from my hardware track, single-stepped in the browser. Watch forwarding and load-use stalls resolve cycle by cycle.",
+      "Planned: a browser view of the RV32I core for stepping through forwarding and load-use stalls. The current implementation is described on the project page.",
     status: "planned",
   },
 ];
@@ -66,13 +66,14 @@ export default function LabPage() {
     <Container className="py-16">
       <header>
         <h1 className="font-display text-4xl tracking-tight">Lab</h1>
+        <p className="mt-5 text-lg leading-relaxed text-muted">Run the browser demos and inspect their results. Larger model downloads require a separate click.</p>
       </header>
 
       <ul className="mt-12 space-y-px overflow-hidden rounded-lg border border-border">
         {DEMOS.map((demo) => (
           <li key={demo.slug} className="bg-surface p-6">
             <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-              <h2 className="font-display text-xl">
+              <h2 className="font-sans text-xl font-medium">
                 {demo.href ? (
                   <Link href={demo.href} className="hover:text-accent">
                     {demo.title}
@@ -100,12 +101,13 @@ export default function LabPage() {
               <p className="mt-3">
                 <Link
                   href={demo.href}
-                  className="text-2xs text-accent underline decoration-dotted underline-offset-4"
+                  className="inline-flex min-h-11 items-center text-sm text-accent underline decoration-dotted underline-offset-4"
                 >
-                  {demo.status === "live" ? "Open the demo" : "See the build log"} →
+                  {demo.slug === "search" ? "Open search demo" : "Open inference demo"}
                 </Link>
               </p>
             )}
+            {!demo.href && <Link href="/projects/riscv-cpu-verification" className="mt-3 inline-flex min-h-11 items-center text-sm underline">Read about the RISC-V core</Link>}
           </li>
         ))}
       </ul>

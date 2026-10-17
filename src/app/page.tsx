@@ -1,163 +1,132 @@
 import Link from "next/link";
-import { Container, PageSection } from "@/components/ui";
-import { ProjectCard } from "@/components/project-card";
-import { PcbHero } from "@/components/pcb-hero";
-import { RevealMount } from "@/components/motion/reveal-mount";
-import { Seam } from "@/components/split/seam";
-import { DocumentView } from "@/components/split/document-view";
 import { getFeaturedProjects, getAllProjects, getAllPosts } from "@/lib/content";
-
-/**
- * The home page is the index of everything.
- *
- * Every section here has a full route behind it. That is deliberate: a reader
- * who scrolls once should reach the end knowing what is on the site, and a
- * reader who wants depth follows the link at the section heading. The routes
- * are not decoration either. A single page cannot be crawled per topic, cannot
- * be deep-linked in an application, and cannot be parsed by an ATS as separate
- * documents, so the sections summarise and the routes carry the detail.
- */
-
-const DEMOS = [
-  {
-    href: "/lab/inference",
-    title: "A language model, in your tab",
-    blurb:
-      "SmolLM2-135M running on a forward pass I wrote in C++. It declines when the sources do not cover your question.",
-    meta: "C++ · WebAssembly · 25 tok/s",
-  },
-  {
-    href: "/lab/search",
-    title: "Vector search, client-side",
-    blurb:
-      "An HNSW graph I wrote in Rust, searching this site in your tab. Recall measured live against a brute-force scan.",
-    meta: "Rust · WebAssembly · 43 KB",
-  },
-];
+import { SITE } from "@/lib/site";
+import { EngineeringStack } from "@/components/engineering-stack/engineering-stack";
+import styles from "./page.module.css";
 
 export default function HomePage() {
+  const all = getAllProjects();
   const featured = getFeaturedProjects();
-  const projects = (featured.length > 0 ? featured : getAllProjects()).slice(0, 4);
+  const projects = [
+    ...featured,
+    ...all.filter((project) => !featured.some((item) => item.slug === project.slug)),
+  ].slice(0, 6);
   const posts = getAllPosts().slice(0, 3);
 
-  const all = getAllProjects();
-
   return (
-    <Seam
-      documentHalf={<DocumentView projects={all} />}
-      designedHalf={<DesignedHome projects={projects} posts={posts} />}
-    />
-  );
-}
-
-/* The designed half: the site as it was before the seam, unchanged. Split out
-   so the two renderings are plainly two renderings rather than one component
-   branching on a flag. */
-function DesignedHome({
-  projects,
-  posts,
-}: {
-  projects: ReturnType<typeof getAllProjects>;
-  posts: ReturnType<typeof getAllPosts>;
-}) {
-  return (
-    <Container wide className="pb-24">
-      {/* ---- the bench ----------------------------------------------------
-          Progressive enhancement. This renders a server-side list of project
-          links, and only layers a hand-written Canvas2D board over it once the
-          chunk has loaded on a wide-enough viewport. */}
-      <PcbHero />
-
-      <div>
-        <PageSection
-          id="work"
-          title="Selected work"
-          action={{ href: "/projects", label: "All projects" }}
-        >
-          {projects.length === 0 ? (
-            <EmptyState
-              what="projects"
-              hint="Add an .mdx file to content/projects/. The schema in src/lib/content/schema.ts describes every field."
-            />
-          ) : (
-            <div className="grid gap-4 sm:grid-cols-2">
-              {projects.map((project, i) => (
-                // Staggered 60ms apart: inside the 30-80ms the source calls
-                // for, and short enough that the last card is not still
-                // arriving when the eye reaches it.
-                <RevealMount key={project.slug} delay={i * 0.06}>
-                  <ProjectCard project={project} />
-                </RevealMount>
-              ))}
+    <div className={styles.home}>
+      <section className={styles.hero} aria-labelledby="hero-heading">
+        <div className={`${styles.container} ${styles.heroGrid}`}>
+          <div className={styles.heroCopy}>
+            <p className={styles.byline}>Tadiwa Mandava · Computer Engineering at OU</p>
+            <h1 id="hero-heading">I build what’s<br /><em>underneath.</em></h1>
+            <p className={styles.intro}>
+              I’m a junior at the University of Oklahoma. I write storage engines,
+              real-time kernels, and inference code, and design the hardware they run on.
+            </p>
+            <div className={styles.actions}>
+              <a href="#work" className={styles.primaryButton}>View projects</a>
+              <Link href="/resume" className={styles.secondaryButton}>Read my résumé</Link>
             </div>
-          )}
-        </PageSection>
-
-        <PageSection
-          id="lab"
-          title="Things you can run"
-          action={{ href: "/lab", label: "The lab" }}
-        >
-          <div className="grid gap-4 sm:grid-cols-2">
-            {DEMOS.map((demo) => (
-              <article
-                key={demo.href}
-                className="group relative flex flex-col rounded-lg border border-border bg-surface p-5 transition-colors hover:border-border-strong"
-              >
-                <p className="text-2xs text-subtle">
-                  {demo.meta}
-                </p>
-                <h3 className="mt-3 font-display text-xl leading-snug">
-                  <Link href={demo.href} className="after:absolute after:inset-0">
-                    {demo.title}
-                  </Link>
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted">{demo.blurb}</p>
-              </article>
-            ))}
+            <p className={styles.currentWork}>
+              <span>Currently working on</span>
+              The retrieval and inference stack in <Link href="/lab">this site’s lab</Link>.
+            </p>
           </div>
-        </PageSection>
+          <EngineeringStack />
+        </div>
+      </section>
 
-        {posts.length > 0 && (
-          <PageSection
-            id="writing"
-            title="Writing"
-            action={{ href: "/writing", label: "All writing" }}
-          >
-            <ul className="divide-y divide-border border-y border-border">
+      <section id="work" className={styles.workSection} aria-labelledby="work-heading">
+        <div className={styles.container}>
+          <div className={styles.sectionHeader}>
+            <div>
+              <h2 id="work-heading">Selected projects</h2>
+              <p>Implementation notes, design decisions, and the bugs that took the most work.</p>
+            </div>
+            <Link href="/projects" className={styles.textLink}>Filter by language or domain</Link>
+          </div>
+          {projects.length > 0 ? (
+            <ol className={styles.projectList}>
+              {projects.map((project) => (
+                <li key={project.slug}>
+                  <Link href={`/projects/${project.slug}`} className={styles.projectRow}>
+                    <div>
+                      <h3>{project.title}</h3>
+                      <span className={styles.languages}>{project.languages.join(" / ")}</span>
+                    </div>
+                    <p>{project.pitch}</p>
+                    <span className={styles.readProject}>Read project</span>
+                  </Link>
+                </li>
+              ))}
+            </ol>
+          ) : <p className={styles.empty}>No project writeups are published yet.</p>}
+        </div>
+      </section>
+
+      <section id="lab" className={styles.labSection} aria-labelledby="lab-heading">
+        <div className={`${styles.container} ${styles.labLayout}`}>
+          <div className={styles.labIntro}>
+            <h2 id="lab-heading">Run the code<br />in your browser.</h2>
+            <p>The lab lets you inspect the results yourself. Model downloads start only when you request them.</p>
+            <Link href="/lab" className={styles.textLink}>Read about the demos</Link>
+          </div>
+          <div className={styles.demos}>
+            <article>
+              <p className={styles.languages}>C++ / WebAssembly</p>
+              <h3>Language-model inference</h3>
+              <p>Ask a question, inspect the retrieved sources, and watch a C++ forward pass generate tokens. Compare local models with the hosted option when available.</p>
+              <Link href="/lab/inference" className={styles.primaryButton}>Open inference demo</Link>
+            </article>
+            <article>
+              <p className={styles.languages}>Rust / WebAssembly</p>
+              <h3>Vector search</h3>
+              <p>Query an HNSW graph of this site. Change the search parameters and compare its results and timing with an exhaustive scan.</p>
+              <Link href="/lab/search" className={styles.secondaryButton}>Open search demo</Link>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      {posts.length > 0 && (
+        <section className={styles.writingSection} aria-labelledby="writing-heading">
+          <div className={styles.container}>
+            <div className={styles.sectionHeader}>
+              <h2 id="writing-heading">Writing</h2>
+              <Link href="/writing" className={styles.textLink}>All posts</Link>
+            </div>
+            <ul className={styles.postList}>
               {posts.map((post) => (
                 <li key={post.slug}>
-                  <Link
-                    href={`/writing/${post.slug}`}
-                    className="group flex flex-col gap-1 py-4 sm:flex-row sm:items-baseline sm:justify-between sm:gap-8"
-                  >
-                    <span className="font-display text-lg transition-colors group-hover:text-accent">
-                      {post.title}
-                    </span>
-                    <time
-                      dateTime={post.published}
-                      className="shrink-0 font-mono text-xs text-subtle tabular-nums"
-                    >
-                      {post.published}
-                    </time>
+                  <Link href={`/writing/${post.slug}`}>
+                    <time dateTime={post.published}>{post.published}</time>
+                    <h3>{post.title}</h3>
                   </Link>
                 </li>
               ))}
             </ul>
-          </PageSection>
-        )}
-      </div>
-    </Container>
-  );
-}
+          </div>
+        </section>
+      )}
 
-function EmptyState({ what, hint }: { what: string; hint: string }) {
-  return (
-    <div className="rounded-lg border border-dashed border-border-strong p-10 text-center">
-      <p className="text-muted">No {what} yet.</p>
-      <p className="mx-auto mt-2 max-w-md font-mono text-xs leading-relaxed text-subtle">
-        {hint}
-      </p>
+      <section className={styles.contactSection} aria-labelledby="contact-heading">
+        <div className={styles.container}>
+          <h2 id="contact-heading">Contact</h2>
+          <a href={`mailto:${SITE.email}`} className={styles.email}>{SITE.email}</a>
+          <p>For questions about a project or opportunities to work together.</p>
+          <div className={styles.contactLinks}>
+            <a href={SITE.github} target="_blank" rel="noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+            <a href={SITE.linkedin} target="_blank" rel="noreferrer">LinkedIn <span aria-hidden="true">↗</span></a>
+          </div>
+        </div>
+      </section>
+      <footer className={styles.footer}>
+        <div className={styles.container}>
+          <span>© {new Date().getFullYear()} {SITE.name}</span>
+          <a href="#hero-heading">Back to top</a>
+        </div>
+      </footer>
     </div>
   );
 }

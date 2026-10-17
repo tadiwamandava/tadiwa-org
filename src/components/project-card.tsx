@@ -12,8 +12,8 @@ import { MetricStat } from "./ui";
  */
 export function ProjectCard({ project }: { project: Project }) {
   return (
-    <article className="group relative flex flex-col rounded-lg border border-border bg-surface p-5 transition-colors hover:border-border-strong">
-      <h3 className="mt-3 font-display text-xl leading-snug">
+    <article className="group relative flex flex-col rounded-lg border border-border bg-surface p-6 transition-colors hover:border-border-strong focus-within:border-accent">
+      <h3 className="font-sans text-xl font-medium leading-snug">
         {/* Whole-card click target via ::after, but the anchor text stays the
             title so the link makes sense read out of context. */}
         <Link
@@ -34,15 +34,8 @@ export function ProjectCard({ project }: { project: Project }) {
         </div>
       )}
 
-      <div className="mt-5 flex flex-wrap items-center gap-1.5 pt-4 border-t border-border">
-        {project.languages.slice(0, 4).map((lang) => (
-          <span
-            key={lang}
-            className="rounded-sm bg-surface-2 px-1.5 py-0.5 font-mono text-2xs text-muted"
-          >
-            {lang}
-          </span>
-        ))}
+      <div className="mt-auto pt-6 font-mono text-2xs text-subtle">
+        {project.languages.join(" / ")}
       </div>
     </article>
   );

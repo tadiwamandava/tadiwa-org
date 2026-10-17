@@ -44,13 +44,13 @@ export function NewEntry({ kind }: { kind: EntryKind }) {
       >
         New {kind}, title
       </label>
-      <div className="mt-1 flex gap-2">
+      <div className="mt-1 flex flex-wrap gap-2">
         <input
           id={inputId}
           type="text"
-          className={`${inputClass} max-w-96`}
+          className={`${inputClass} min-w-0 max-w-96 flex-1 basis-60`}
           value={title}
-          placeholder={kind === "project" ? "LSM storage engine" : "What the gate taught me"}
+          placeholder={kind === "project" ? "LSM storage engine" : "Debugging the storage engine"}
           aria-describedby={`${inputId}-slug`}
           onChange={(event) => setTitle(event.target.value)}
         />
@@ -58,7 +58,7 @@ export function NewEntry({ kind }: { kind: EntryKind }) {
           {pending ? "Creating…" : "Create"}
         </button>
       </div>
-      <p id={`${inputId}-slug`} className="mt-1 font-mono text-xs text-subtle">
+      <p id={`${inputId}-slug`} className="mt-1 break-all font-mono text-xs text-subtle">
         {slug
           ? `content/${kind === "project" ? "projects" : "writing"}/${slug}.mdx`
           : "The slug comes from the title."}

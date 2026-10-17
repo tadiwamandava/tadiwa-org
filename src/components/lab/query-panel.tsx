@@ -57,6 +57,7 @@ export function QueryPanel({
             onChange={(e) => onSelectChunk(Number(e.target.value))}
             className="mt-2 w-full rounded-md border border-border-strong bg-bg px-3 py-2 text-sm text-text"
           >
+            {selectedId === null && <option value="" disabled>Free-text query active</option>}
             <optgroup label="Projects">
               {projects.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -74,9 +75,8 @@ export function QueryPanel({
           </select>
         </label>
         <p className="mt-2 text-xs leading-relaxed text-subtle">
-          Any chunk&rsquo;s own vector, used as the query. No model required,
-          these 384-dimensional vectors are in the 38 KB payload the page already
-          fetched.
+          Use a document vector as the query. These vectors are already loaded,
+          so this test does not need the embedding model.
         </p>
 
         {run && (
@@ -122,7 +122,7 @@ export function QueryPanel({
                       </span>
                       <Link
                         href={chunk.url}
-                        className="min-w-0 flex-1 truncate text-sm text-text hover:text-accent"
+                        className="min-w-0 min-h-11 flex-1 content-center truncate text-sm text-text hover:text-accent"
                       >
                         {chunk.title}
                         <span className="text-subtle"> · {chunk.section}</span>
@@ -147,11 +147,11 @@ export function QueryPanel({
             <Caption>
               Cosine similarity, 1.00 being identical.{" "}
               {run.source === "chunk"
-                ? "Result 1 is the query chunk itself, a self-query returns its own vector first, every time. The neighbours below it are the answer worth looking at."
+                ? "The query chunk can appear among its own results. Compare the other matches to see which passages are nearby."
                 : "The query was embedded in this tab and never left it."}{" "}
               {misses === 0
-                ? `All ${run.k} match an exhaustive scan of the same vectors, so the approximation cost nothing here.`
-                : `${misses} of ${run.k} differ from an exhaustive scan; that is the approximation, visible.`}
+                ? `All ${run.hits.length} returned results match the exhaustive scan.`
+                : `${misses} of ${run.hits.length} returned results differ from the exhaustive scan.`}
             </Caption>
           </>
         )}
@@ -166,6 +166,7 @@ export type ModelState =
   | { status: "idle" }
   | { status: "loading" }
   | { status: "ready" }
+  | { status: "embedding" }
   | { status: "error"; message: string };
 
 function FreeText({
@@ -186,12 +187,12 @@ function FreeText({
         Free text, optional
       </h3>
 
-      {modelState.status === "ready" ? (
+      {modelState.status === "ready" || modelState.status === "embedding" ? (
         <form
           className="mt-3 flex flex-wrap gap-2"
           onSubmit={(e) => {
             e.preventDefault();
-            if (text.trim()) onSubmitText(text.trim());
+            if (text.trim() && modelState.status === "ready") onSubmitText(text.trim());
           }}
         >
           <label className="sr-only" htmlFor="lab-free-text">
@@ -203,41 +204,42 @@ function FreeText({
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="how is the storage engine kept crash-safe?"
-            className="min-w-[14rem] flex-1 rounded-md border border-border-strong bg-bg px-3 py-2 text-sm text-text placeholder:text-subtle"
+            className="min-w-0 basis-full flex-1 rounded-md border border-border-strong bg-bg px-3 py-2 text-sm text-text placeholder:text-subtle sm:basis-auto"
           />
           <button
             type="submit"
+            disabled={!text.trim() || modelState.status === "embedding"}
             className="rounded-md bg-accent px-4 py-2 text-2xs text-accent-contrast"
           >
-            Embed &amp; search
+            {modelState.status === "embedding" ? "Searching…" : "Embed & search"}
           </button>
+          {modelState.status === "embedding" && <p role="status" className="basis-full text-sm text-subtle">Embedding your query…</p>}
         </form>
       ) : (
         <>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
             Turning a sentence into a vector needs the embedding model:
             MiniLM-L6, int8-quantised, <strong className="font-medium">about 22 MB</strong>,
-            served from this domain and run in this tab. Nothing above needs it,
-            because those measurements use the document vectors already loaded,
-            so this is a button and not a page load.
+            served from this domain and run in this tab. The document-vector
+            tests above work without this download.
           </p>
-          {modelState.status === "idle" && (
+          {(modelState.status === "idle" || modelState.status === "error") && (
             <button
               type="button"
               onClick={onLoadModel}
               className="mt-3 rounded-md border border-border-strong bg-surface-2 px-4 py-2 text-2xs text-text hover:border-accent hover:text-accent"
             >
-              Load the model · 22 MB
+              {modelState.status === "error" ? "Retry model download" : "Load embedding model · about 22 MB"}
             </button>
           )}
           {modelState.status === "loading" && (
-            <p className="mt-3 font-mono text-2xs text-subtle">
-              downloading and initialising the model…
+            <p role="status" className="mt-3 text-sm text-subtle">
+              Downloading and preparing the model…
             </p>
           )}
           {modelState.status === "error" && (
-            <p className="mt-3 font-mono text-2xs text-muted" title={modelState.message}>
-              the model did not load, {modelState.message}
+            <p role="alert" className="mt-3 break-words text-sm text-muted">
+              Text search could not finish. {modelState.message}
             </p>
           )}
         </>

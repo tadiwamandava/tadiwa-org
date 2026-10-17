@@ -1,6 +1,6 @@
 ---
 title: Hive, a Classroom Curation Platform
-pitch: A content-curation platform for a real client, migrated from JSX to TypeScript while it stayed live and kept shipping features.
+pitch: A classroom platform for publishing collections of links, images, and video, migrated from JSX to TypeScript during weekly releases.
 status: shipped
 started: "2026-01-15"
 finished: "2026-08-30"
@@ -20,10 +20,6 @@ hardestThing: >-
   TypeScript incrementally, module by module, keeping the build green and the app
   shipping the whole way, rather than doing the big-bang rewrite that usually
   strands a project half-converted.
-
-metrics:
-  - value: "8 mo"
-    label: "in production"
 
 decisions:
   - made: Incremental TypeScript migration, file-by-file, with `allowJs` on
@@ -88,27 +84,23 @@ artifacts:
 
 ## What it is
 
-A content-curation platform built for a real client: curators sign in, pull items into
+A classroom content-curation platform: curators sign in, pull items into
 collections, tag and order them, and publish the result to a public-facing view. React
 front end, AdonisJS API, PostgreSQL underneath, deployed and used in production.
 
-The interesting engineering was not the CRUD. It was that the application was already
-live when the largest change, full TypeScript adoption, had to happen.
+The application was already live when I began the TypeScript migration.
+New features still had to ship while I converted the existing modules.
 
 ## The migration, concretely
 
 The starting point was a JSX codebase with no type coverage and an active feature
 roadmap. The approach:
 
-1. **Turn on `allowJs` and `checkJs: false`.** Both languages compile. Nothing breaks.
-2. **Convert leaf-first.** Utility modules and types have no internal dependents, so
-   converting them can't cascade. Each one lands as its own small, reviewable commit.
-3. **Model the domain before the components.** Once `Item`, `Collection`, `Tag`, and
-   `Curator` were real types, converting the components that consumed them became
-   mechanical, and the compiler started finding actual bugs rather than restating
-   what I already knew.
-4. **Ratchet, never loosen.** Once a module compiled under strict settings, it stayed
-   there.
+1. Enable `allowJs` with `checkJs: false` so JavaScript and TypeScript modules can coexist.
+2. Convert utility modules first, keeping each change small enough to review and deploy.
+3. Define `Item`, `Collection`, `Tag`, and `Curator` before converting the components
+   that use them.
+4. Keep strict settings enabled on converted modules.
 
 The payoff was the class of bug that stopped happening: the API returned nullable
 fields that the UI rendered unconditionally, and TypeScript surfaced every one of those
@@ -116,18 +108,13 @@ sites at compile time instead of leaving them for a curator to find.
 
 ## What production taught me
 
-Real users on a real deadline changed how I work more than any of the technical
-content did:
+Feedback often described the symptom without identifying the cause. “The list
+feels slow” meant a rendering problem on one screen and a query problem on
+another. I had to reproduce each report before deciding where to fix it.
 
-- **A deploy is not a finish line.** The first week after launch produced more
-  requirements than the whole design phase, not because the design was wrong, but
-  because people only discover what they need once they can touch it.
-- **Client feedback is usually a symptom, not a diagnosis.** "The list feels slow" was
-  a rendering problem on one screen and a query problem on another. Both arrived
-  phrased identically.
-- **Boring is a feature.** Nothing about this stack is novel, and that was the correct
-  call: the novelty budget went into shipping and operating it, which is what the
-  client was actually paying for.
+I also left instrumentation too late. Without request-latency measurements,
+performance conversations were harder to resolve. I would add that visibility
+earlier on the next project.
 
 <Callout kind="note">
 The code is client-owned, so there is no public repository, but the app is live

@@ -28,6 +28,7 @@ const ROUTES = [
   { label: "Lab", url: "/lab", hint: "Things you can run" },
   { label: "Résumé", url: "/resume", hint: "Two variants" },
 ];
+const IDLE_SEMANTIC = { status: "idle" } as const;
 
 interface Row {
   key: string;
@@ -45,6 +46,8 @@ export function CommandPalette() {
 
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [queryError, setQueryError] = useState<string | null>(null);
   // The semantic pass IS async, so it lands in state, but from a promise
   // callback, never synchronously in an effect body. Declared up here
   // because hide() resets it.
@@ -54,23 +57,31 @@ export function CommandPalette() {
   const semantic = useSyncExternalStore(
     useCallback((cb: () => void) => engine.subscribe(cb), [engine]),
     () => engine.semantic,
-    () => ({ status: "idle" }) as const,
+    () => IDLE_SEMANTIC,
   );
 
   // ---- open / close --------------------------------------------------------
+
+  const loadIndex = useCallback(() => {
+    setLoadError(null);
+    void engine.loadLexical().catch((err: unknown) => {
+      setLoadError(err instanceof Error ? err.message : "Search could not load.");
+    });
+  }, [engine]);
 
   const show = useCallback(() => {
     triggerRef.current = document.activeElement;
     setOpen(true);
     dialogRef.current?.showModal();
-    void engine.loadLexical();
-  }, [engine]);
+    loadIndex();
+  }, [loadIndex]);
 
   const hide = useCallback(() => {
     setOpen(false);
     dialogRef.current?.close();
     setQuery("");
     setSemanticRows(null);
+    setQueryError(null);
     (triggerRef.current as HTMLElement | null)?.focus?.();
   }, []);
 
@@ -144,9 +155,13 @@ export function CommandPalette() {
     const q = query.trim();
     if (!open || q.length === 0 || !engine.semanticReady) return;
     let cancelled = false;
-    void engine.searchSemantic(q, 8).then((hits) => {
-      if (!cancelled) setSemanticRows({ q, rows: [...routeRows(q), ...toRows(hits)] });
-    });
+    void engine.searchSemantic(q, 8)
+      .then((hits) => {
+        if (!cancelled) setSemanticRows({ q, rows: [...routeRows(q), ...toRows(hits)] });
+      })
+      .catch(() => {
+        if (!cancelled) setQueryError("Semantic search failed. Keyword results are shown instead.");
+      });
     return () => {
       cancelled = true;
     };
@@ -211,30 +226,39 @@ export function CommandPalette() {
           ref={inputRef}
           autoFocus
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => { setQuery(e.target.value); setQueryError(null); }}
           onKeyDown={onKeyDown}
           placeholder="Search projects, decisions, writing…"
           aria-label="Search query"
+          role="combobox"
+          aria-expanded={open}
+          aria-autocomplete="list"
+          aria-activedescendant={rows.length ? `palette-result-${active}` : undefined}
           aria-controls="palette-results"
-          className="w-full bg-transparent py-3.5 text-base outline-none placeholder:text-subtle"
+          className="min-w-0 w-full bg-transparent py-3.5 text-base outline-none placeholder:text-subtle"
         />
-        <kbd className="hidden shrink-0 rounded border border-border px-1.5 py-0.5 font-mono text-2xs text-subtle sm:block">
-          esc
-        </kbd>
+        <button type="button" onClick={hide} className="shrink-0 px-2 text-sm text-muted">Close</button>
       </div>
 
       <p className="sr-only" aria-live="polite">
         {rows.length} result{rows.length === 1 ? "" : "s"}
       </p>
+      {loadError && (
+        <div className="border-b border-border px-4 py-3">
+          <p role="alert" className="text-sm text-muted">{loadError} Page shortcuts still work.</p>
+          <button type="button" onClick={loadIndex} className="mt-2 text-sm text-accent underline">Retry search download</button>
+        </div>
+      )}
+      {queryError && <p role="status" className="px-4 py-3 text-sm text-muted">{queryError}</p>}
 
       <ul id="palette-results" role="listbox" className="max-h-[52vh] overflow-y-auto py-1.5">
         {rows.length === 0 && (
           <li className="px-4 py-6 text-center text-sm text-subtle">
-            {engine.lexicalReady ? "Nothing matches that." : "Loading index…"}
+            {loadError ? "Search is unavailable until the index loads." : engine.lexicalReady ? "No matches. Try a project name or technology." : "Loading index…"}
           </li>
         )}
         {rows.map((row, i) => (
-          <li key={row.key} role="option" aria-selected={i === active}>
+          <li key={row.key} id={`palette-result-${i}`} role="option" aria-selected={i === active}>
             <button
               type="button"
               tabIndex={-1}
@@ -252,14 +276,14 @@ export function CommandPalette() {
                 <span className="mt-0.5 block truncate text-xs text-subtle">{row.sub}</span>
               </span>
               {row.badge && (
-                <span className="mt-0.5 shrink-0 font-mono text-2xs text-subtle">{row.badge}</span>
+                <span className="mt-0.5 hidden max-w-32 truncate font-mono text-2xs text-subtle sm:block">{row.badge}</span>
               )}
             </button>
           </li>
         ))}
       </ul>
 
-      <div className="flex items-center justify-between gap-3 border-t border-border px-4 py-2">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-2">
         <span className="font-mono text-2xs text-subtle">{modeLabel}</span>
         {semantic.status === "idle" && (
           <button
@@ -271,16 +295,10 @@ export function CommandPalette() {
           </button>
         )}
         {semantic.status === "error" && (
-          // The reason rides along in `title`: a bare "unavailable" is useless
-          // to anyone trying to work out whether it is their network, their
-          // browser, or the site.
-          <span
-            className="font-mono text-2xs text-subtle"
-            title={semantic.message}
-            data-error={semantic.message}
-          >
-            semantic unavailable
-          </span>
+          <div>
+            <p role="alert" className="break-words text-sm text-muted">Semantic search could not load. {semantic.message}</p>
+            <button type="button" onClick={() => void engine.loadSemantic()} className="text-sm text-accent underline">Retry semantic search</button>
+          </div>
         )}
         {semantic.status === "ready" && (
           <span className="font-mono text-2xs text-subtle">

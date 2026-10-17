@@ -1,6 +1,6 @@
 ---
 title: RISC-V Core + Verification Environment
-pitch: A pipelined RV32I core on an FPGA, plus the constrained-random rig that proves it correct.
+pitch: A pipelined RV32I core on a Basys 3 FPGA, checked against a reference simulator with constrained-random instruction sequences.
 status: shipped
 started: "2026-01-01"
 finished: "2026-08-31"
@@ -14,8 +14,8 @@ hardestThing: >-
   appear for specific instruction adjacencies, which directed tests almost never
   generate. The answer is differential testing: run thousands of random programs
   against both the core and a reference instruction-set simulator, and diff the
-  architectural state after every retired instruction. The rig finds in minutes
-  what waveform-staring finds in days.
+  architectural state after every retired instruction. A mismatch identifies
+  the instruction and state to inspect in the waveform.
 resumeBullets:
   - >-
       Designed a synthesizable RV32I core in SystemVerilog, extending a
@@ -40,33 +40,26 @@ roleRelevance:
 
 ## Why the verification half exists
 
-Roughly 60% of chip-design effort is verification, and the undergraduate
-pipeline into it is nearly empty. Students consider it unglamorous, mostly
-without ever learning what it is. Verification is adversarial systems thinking:
-you are trying to break something on purpose, with evidence.
-
-So this project deliberately produces **two** things: a designed core, and a
-serious environment that proves it correct.
+Pipeline bugs often depend on the instructions next to each other. A load-use
+hazard or a forwarded result can fail in a sequence that a small directed test
+never exercises. I built the test environment alongside the core to compare
+each retired instruction with a Python instruction-set simulator.
 
 ## The rig
 
-- **A self-checking testbench.** The core runs alongside a reference ISS I write
-  in Python; every retired instruction's architectural state is compared
-  automatically.
-- **Constrained-random program generation.** Random-but-legal instruction
-  sequences: arithmetic first, then memory ops with address constraints, then
-  branches with bounded targets, thousands of programs a night in CI.
-- **Functional coverage.** Which opcodes, hazard patterns, and branch outcomes
-  the random tests have actually exercised, so generation can be steered at the
-  holes.
-- **Assertions** for the invariants: `x0` reads zero, no writeback conflicts, PC
-  alignment.
+- The testbench compares registers, the program counter, and memory with the
+  reference simulator after each retired instruction.
+- The generator produces legal arithmetic, memory, and branch sequences with
+  bounded addresses and targets.
+- Coverage records which opcodes, hazards, and branch outcomes the tests exercise.
+- Assertions check invariants such as `x0` reading zero and PC alignment.
 
-That is UVM's methodology (stimulus, checking, coverage) without the UVM
-boilerplate, and it is describable in exactly those terms.
+The environment separates stimulus, checking, and coverage without depending
+on UVM. Passing these tests provides evidence about the exercised cases; it is
+not a proof that the core has no bugs.
 
-## The log that matters
+## Regression tests
 
-Every bug the random tests catch that directed tests missed gets logged:
-symptom, cause, fix, lesson. That file is the most interview-useful artifact the
-project produces.
+Each bug gets a regression test and a record of its symptom, cause, and fix.
+The shorter failing sequence makes it easier to see which pipeline assumption
+was wrong and to check that later changes preserve the fix.

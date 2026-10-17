@@ -15,16 +15,16 @@ import type { ReactNode } from "react";
 
 /** Bordered controls, not just tinted ones, `--border-strong` clears 1.4.11. */
 export const inputClass =
-  "w-full rounded-sm border border-border-strong bg-bg px-2 py-1.5 text-sm text-text " +
+  "w-full min-h-11 rounded-sm border border-border-strong bg-bg px-2 py-1.5 text-sm text-text " +
   "placeholder:text-subtle disabled:opacity-60";
 
 export const buttonClass =
-  "inline-flex items-center gap-1.5 rounded-sm border border-border-strong bg-surface " +
+  "inline-flex min-h-11 items-center gap-1.5 rounded-sm border border-border-strong bg-surface " +
   "px-2.5 py-1 text-2xs text-text transition-colors " +
   "hover:bg-surface-2 disabled:cursor-not-allowed disabled:opacity-50";
 
 export const primaryButtonClass =
-  "inline-flex items-center gap-1.5 rounded-sm border border-accent bg-accent px-3 py-1.5 " +
+  "inline-flex min-h-11 items-center gap-1.5 rounded-sm border border-accent bg-accent px-3 py-1.5 " +
   "text-2xs text-accent-contrast transition-colors " +
   "hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50";
 
@@ -63,7 +63,7 @@ export function Help({ id, children }: { id: string; children: ReactNode }) {
 export function FieldError({ id, messages }: { id: string; messages: string[] }) {
   if (messages.length === 0) return null;
   return (
-    <p id={id} className="mt-1 text-xs leading-snug text-accent">
+    <p id={id} role="alert" className="mt-1 text-xs leading-snug text-accent">
       {messages.join(" · ")}
     </p>
   );

@@ -8,7 +8,7 @@ import { getAllProjects } from "@/lib/content";
 export const metadata: Metadata = {
   title: "Projects",
   description:
-    "Storage engines, RTOS kernels, RISC-V cores, and the verification environments that prove them correct.",
+    "Engineering projects in systems, embedded software, hardware verification, and machine learning.",
 };
 
 function firstParam(value: string | string[] | undefined): string | undefined {
@@ -40,12 +40,12 @@ export default async function ProjectsPage(props: PageProps<"/projects">) {
     <Container wide className="py-16">
       <header className="max-w-2xl">
         <h1 className="font-display text-4xl tracking-tight">Projects</h1>
+        <p className="mt-5 text-lg leading-relaxed text-muted">Filter by domain or language. Each writeup explains the implementation and the problems I worked through.</p>
       </header>
 
       {allProjects.length === 0 ? (
         <p className="mt-12 rounded-lg border border-dashed border-border-strong p-10 text-center text-muted">
-          No projects yet. Add an <code>.mdx</code> file to{" "}
-          <code>content/projects/</code>.
+          No project writeups are published yet.
         </p>
       ) : (
         <>
@@ -64,7 +64,7 @@ export default async function ProjectsPage(props: PageProps<"/projects">) {
               </p>
               <Link
                 href="/projects"
-                className="mt-4 inline-block text-xs text-accent underline decoration-dotted underline-offset-4 transition-colors hover:text-text"
+                className="mt-4 inline-flex min-h-11 items-center text-sm text-accent underline decoration-dotted underline-offset-4 transition-colors hover:text-text"
               >
                 Clear filters
               </Link>

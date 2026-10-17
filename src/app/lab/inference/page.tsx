@@ -16,7 +16,7 @@ import {
 export const metadata: Metadata = {
   title: "Inference engine",
   description:
-    "A transformer forward pass written by hand in C++, compiled to WebAssembly, running a 135M-parameter model in your browser, with the logit-parity numbers against PyTorch.",
+    "Run a C++ transformer engine in your browser and inspect its logit comparisons against PyTorch, kernel tests, and grounding evaluations.",
 };
 
 const kb = (n: number) => `${(n / 1024).toFixed(0)} KB`;
@@ -30,68 +30,53 @@ export default function InferenceLabPage() {
   const meta = getModelMeta();
   const smol = getSmolInfo();
   const engineBytes = getEngineBytes();
-
-  // The weights are 129 MB, which is over GitHub's per-file ceiling, so a
-  // clone may not have them. They are available if they are on disk, or if
-  // this deployment points at an origin that serves them.
   const smolAvailable =
     smol?.weightBytes != null || !!process.env.NEXT_PUBLIC_NANO_WEIGHTS_BASE;
 
   return (
     <Container className="py-16">
-      <p className="text-2xs text-accent">
-        Lab / Inference engine
+      <p className="text-sm text-muted">
+        <Link href="/lab" className="text-accent hover:underline">Lab</Link> / Inference engine
       </p>
       <h1 className="mt-5 font-display text-4xl leading-tight tracking-tight">
         A language model running in this tab.
       </h1>
       <p className="mt-5 max-w-2xl text-lg leading-relaxed text-muted">
-        A transformer forward pass I wrote by hand in C++ and compiled to
-        WebAssembly. No ML framework, no BLAS, no server. Ask the box below
-        something and the answer is computed on your machine.
+        I wrote a transformer forward pass in C++ and compiled it to WebAssembly.
+        Try local generation below, compare the model&apos;s answers with retrieved
+        sources, and inspect the engine&apos;s test results.
       </p>
 
-      <dl className="mt-8 grid grid-cols-2 gap-5 sm:grid-cols-4">
+      <dl className="mt-8 grid grid-cols-2 gap-5 sm:grid-cols-3">
         {[
-          smol ? ["parameters", `${(smol.meta.params / 1e6).toFixed(0)}M`] : null,
-          smol
-            ? ["layers × dim", `${smol.meta.n_layer} × ${smol.meta.n_embd}`]
-            : null,
+          smol ? ["SmolLM2 parameters", `${(smol.meta.params / 1e6).toFixed(0)}M`] : null,
+          smol ? ["layers × dimension", `${smol.meta.n_layer} × ${smol.meta.n_embd}`] : null,
           ["engine", engineBytes ? `${kb(engineBytes)} wasm` : "wasm"],
-          ["network calls after load", "0"],
-        ]
-          .filter((x): x is [string, string] => x !== null)
-          .map(([k, v]) => (
-            <div key={k}>
-              <dd className="font-mono text-xl tabular-nums text-text">{v}</dd>
-              <dt className="mt-0.5 text-xs text-subtle">{k}</dt>
-            </div>
-          ))}
+        ].filter((x): x is [string, string] => x !== null).map(([k, v]) => (
+          <div key={k}>
+            <dt className="text-sm text-subtle">{k}</dt>
+            <dd className="mt-1 font-mono text-xl tabular-nums text-text">{v}</dd>
+          </div>
+        ))}
       </dl>
 
-      {/* ---- the credit, up front ---------------------------------------- */}
-      <p className="mt-8 max-w-2xl border-l-2 border-border-strong pl-4 leading-relaxed text-muted">
-        <strong className="font-medium text-text">The weights are not mine.</strong>{" "}
-        {smol?.meta.model ?? "SmolLM2-135M-Instruct"} was trained by Hugging
-        Face.{" "}
-        {smol?.meta.finetuned
-          ? "I fine-tuned it to answer from retrieved sources or decline, quantised it, and wrote the code that runs it."
-          : "I quantised it and wrote the code that runs it."}{" "}
-        The distinction matters:{" "}
-        <em>the engine is the artefact, the model is a payload</em>. The second
-        model in the selector is the opposite trade: 359K parameters I did
-        train, on this site&rsquo;s own prose, and it is much worse. The third
-        is neither: Kimi K3 is 2.8 trillion parameters in somebody
-        else&rsquo;s datacentre, reached over an API, and it is there as the
-        control. Same question, same retrieved passages, same system prompt, so
-        the difference between its answer and the 135M model&rsquo;s is the
-        model rather than the plumbing.
-      </p>
+      <div className="mt-8 max-w-2xl space-y-3 border-l-2 border-border-strong pl-4 leading-relaxed text-muted">
+        <p>
+          Hugging Face trained {smol?.meta.model ?? "SmolLM2-135M-Instruct"}.{" "}
+          {smol?.meta.finetuned
+            ? "I fine-tuned it on retrieved-source answers and refusals, quantised its weights, and wrote the inference engine."
+            : "I quantised its weights and wrote the inference engine."}{" "}
+          The smaller tadiwa-nano model was trained on this site&apos;s prose.
+        </p>
+        <p>
+          Both run locally after their weights load. When available, the hosted
+          model offers a comparison: selecting it sends your question to the
+          server for retrieval and generation through an external API.
+        </p>
+      </div>
 
       <section className="mt-12">
-        <h2 className="mb-5 border-b border-border pb-2 text-xs text-muted">
-          Run it
-        </h2>
+        <h2 className="mb-5 border-b border-border pb-3 text-lg">Run the model</h2>
         <NanoMount
           smolWeightBytes={smol?.weightBytes ?? null}
           smolParams={smol?.meta.params ?? null}
@@ -100,150 +85,91 @@ export default function InferenceLabPage() {
         />
       </section>
 
-      {/* ---- what the engine implements ---------------------------------- */}
-
-      {/* ---- parity ------------------------------------------------------ */}
       {(smolParity.length > 0 || parity.length > 0) && (
         <section className="mt-14">
-          <h2 className="border-b border-border pb-2 text-xs text-muted">
-            Does it match the model it came from?
-          </h2>
+          <h2 className="border-b border-border pb-3 text-lg">Comparison with PyTorch</h2>
           <p className="mt-4 max-w-2xl leading-relaxed text-muted">
-            The only claim worth making about an engine is that it computes what
-            the reference computes. A fixed prompt is replayed through the C++,
-            KV cache and all, one token at a time, exactly as generation runs,
-            and the final logits are diffed against PyTorch&rsquo;s.
+            The test replays a fixed prompt through the C++ engine, including
+            its KV cache, one token at a time. These saved results compare the
+            final logits with PyTorch. They check the tested prompt and weights;
+            they do not establish that every input will match.
           </p>
-
           {smolParity.length > 0 && (
             <>
-              <h3 className="mt-6 text-2xs text-subtle">
+              <h3 className="mt-6 text-sm text-muted">
                 SmolLM2-135M · {smolParity[0].vocab.toLocaleString()} logits
               </h3>
               <ParityTable rows={smolParity} />
-              <p className="mt-4 max-w-2xl text-sm leading-relaxed text-subtle">
-                fp32 agrees to{" "}
-                <span className="font-mono">
-                  {smolParity.find((p) => p.weights === "fp32")?.maxAbsDiff.toExponential(1) ??
-                    "float noise"}
-                </span>{" "}
-                across thirty layers, which is accumulated float noise and not a
-                bug. int8 diverges by{" "}
-                <span className="font-mono">
-                  {smolParity.find((p) => p.weights === "int8")?.maxAbsDiff.toFixed(2) ?? "more"}
-                </span>{" "}
-                in the worst logit and still picks the same token. That gap is
-                the quantisation itself, stated as a measurement rather than
-                waved at. This number is what caught the one bug that mattered:
-                a silently-defaulted RoPE θ left the engine exact at position
-                zero, still selecting the right token, and wrong by 6 × 10⁻¹ by
-                the fifth. Nothing but a logit diff would have found it.
-              </p>
             </>
           )}
-
           {parity.length > 0 && (
             <>
-              <h3 className="mt-8 text-2xs text-subtle">
+              <h3 className="mt-8 text-sm text-muted">
                 tadiwa-nano-359K · {parity[0].vocab} logits
               </h3>
               <ParityTable rows={parity} />
             </>
           )}
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-subtle">
+            Max |diff| is the largest logit difference; RMS describes the overall
+            difference. Argmax checks whether both engines select the same next
+            token. Quantisation can change the logits even when that token agrees.
+          </p>
         </section>
       )}
 
-      {/* ---- grounding --------------------------------------------------- */}
       {evals.length > 0 && (
         <section className="mt-14">
-          <h2 className="border-b border-border pb-2 text-xs text-muted">
-            Making it stop making things up
-          </h2>
-          <div className="mt-4 max-w-2xl space-y-4 leading-relaxed text-muted">
-            <p>
-              Asked cold what a KV cache is, this model said it{" "}
-              <em>&ldquo;stores the current and voltage values from previous
-              cycles&rdquo;</em>. At 135M parameters there is nowhere to keep
-              the fact, so it is not asked to recall one: retrieval puts the
-              passages in the prompt and the job drops to reading them. Chat
-              mode above is the control.
-            </p>
-            <p>
-              That fixed the answers and not the refusals. Handed four sources
-              that did not contain the answer, the base model answered anyway,{" "}
-              <strong className="font-medium text-text">
-                zero refusals out of fourteen
-              </strong>
-              . Declining is a short, learnable habit rather than a fact to
-              store, so that part is a LoRA: 4.9M trainable parameters, 3.5% of
-              the model, on 122 examples from this corpus.
-            </p>
-          </div>
-
-          <table className="mt-6 w-full border-collapse">
-            <caption className="sr-only">
-              Grounded behaviour on held-out questions.
-            </caption>
-            <thead>
-              <tr className="border-b border-border text-left">
-                {["Model", "Refuses when it should", "Refuses when it shouldn't", "Grounding"].map((h) => (
-                  <th key={h} scope="col" className="py-2 text-2xs text-subtle">
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {evals.map((e) => (
-                <tr key={e.label} className="border-b border-border">
-                  <td className="py-3 font-mono text-sm">
-                    {e.label === "base" ? "SmolLM2 stock" : "+ grounded LoRA"}
-                  </td>
-                  <td className="py-3 font-mono text-sm tabular-nums text-muted">
-                    {e.refusalOnUnanswerable === null
-                      ? "–"
-                      : `${(e.refusalOnUnanswerable * 100).toFixed(0)}%`}
-                  </td>
-                  <td className="py-3 font-mono text-sm tabular-nums text-muted">
-                    {e.falseRefusalOnAnswerable === null
-                      ? "–"
-                      : `${(e.falseRefusalOnAnswerable * 100).toFixed(0)}%`}
-                  </td>
-                  <td className="py-3 font-mono text-sm tabular-nums text-muted">
-                    {(e.groundingOfAnswers * 100).toFixed(0)}%
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-subtle">
-            The middle column is what keeps the first one honest. A model
-            trained hard enough on refusals refuses everything, scores 100% on
-            the left, and is useless. Both are always reported, and the
-            training set is held under 40% refusals rather than over half.
-            &ldquo;Grounding&rdquo; is the share of generated five-word
-            sequences appearing verbatim in the sources: an approximation, not
-            a proof. It scores a faithful paraphrase low, and it scores an
-            answer drawn from the right project&rsquo;s <em>wrong section</em>
-            as a success. That happened, and the number cannot see it.
-            Held out by page, so the eval pages contributed nothing to
-            training.
+          <h2 className="border-b border-border pb-3 text-lg">Grounding and refusals</h2>
+          <p className="mt-4 max-w-2xl leading-relaxed text-muted">
+            Grounded mode retrieves passages from this site before generation.
+            A LoRA fine-tune teaches the model to answer from those sources or
+            decline when they do not contain an answer. These saved evaluations
+            compare the base model with that fine-tune on held-out pages.
           </p>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-subtle">
-            Training answers are quoted straight from the corpus, not written
-            by a bigger model. Supervision from something smarter would teach
-            this one to sound smarter while inventing more.
+          <div className="mt-6 overflow-x-auto" tabIndex={0} role="region" aria-label="Grounding evaluation results">
+            <table className="w-full min-w-[560px] border-collapse">
+              <caption className="sr-only">Grounded behaviour on held-out questions.</caption>
+              <thead>
+                <tr className="border-b border-border text-left">
+                  {["Model", "Correct refusals", "Incorrect refusals", "Source overlap"].map((h) => (
+                    <th key={h} scope="col" className="py-2 pr-4 text-sm text-subtle">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {evals.map((e) => (
+                  <tr key={e.label} className="border-b border-border">
+                    <th scope="row" className="py-3 pr-4 text-left font-mono text-sm font-normal">
+                      {e.label === "base" ? "SmolLM2 stock" : "+ grounded LoRA"}
+                    </th>
+                    <td className="py-3 pr-4 font-mono text-sm tabular-nums text-muted">
+                      {e.refusalOnUnanswerable === null ? "–" : `${(e.refusalOnUnanswerable * 100).toFixed(0)}%`}
+                    </td>
+                    <td className="py-3 pr-4 font-mono text-sm tabular-nums text-muted">
+                      {e.falseRefusalOnAnswerable === null ? "–" : `${(e.falseRefusalOnAnswerable * 100).toFixed(0)}%`}
+                    </td>
+                    <td className="py-3 font-mono text-sm tabular-nums text-muted">
+                      {(e.groundingOfAnswers * 100).toFixed(0)}%
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-subtle">
+            Correct refusals are measured on unanswerable questions; incorrect
+            refusals on answerable ones. Source overlap measures generated
+            five-word sequences found verbatim in the retrieved passages. It
+            misses faithful paraphrases and can reward quotations that do not
+            answer the question. It is not a factual-accuracy score.
           </p>
         </section>
       )}
 
-      {/* ---- ops --------------------------------------------------------- */}
       {ops && (
         <section className="mt-14">
-          <h2 className="border-b border-border pb-2 text-xs text-muted">
-            The kernels underneath
-          </h2>
+          <h2 className="border-b border-border pb-3 text-lg">Kernel tests</h2>
           <p className="mt-4 text-sm text-subtle">
             {ops.passing} of {ops.ops.length} matching their golden fixtures ·
             tolerance {ops.tolerance.toExponential(0)}
@@ -253,130 +179,81 @@ export default function InferenceLabPage() {
               <li key={r.op} className="grid gap-1 sm:grid-cols-[9rem_1fr] sm:gap-4">
                 <span className="font-mono text-sm">
                   {r.op}
-                  <span
-                    className={`ml-2 text-2xs ${
-                      r.state === "pass" ? "text-shipped" : r.state === "fail" ? "text-accent" : "text-subtle"
-                    }`}
-                  >
-                    {r.state === "pass" ? "ok" : r.state}
+                  <span className={`ml-2 text-xs ${r.state === "pass" ? "text-shipped" : r.state === "fail" ? "text-accent" : "text-subtle"}`}>
+                    {r.state === "pass" ? "pass" : r.state}
                   </span>
                 </span>
-                <span className="text-sm leading-relaxed text-muted">
-                  {OP_NOTES[r.op] ?? ""}
-                </span>
+                <span className="text-sm leading-relaxed text-muted">{OP_NOTES[r.op] ?? ""}</span>
               </li>
             ))}
           </ul>
           <p className="mt-5 max-w-2xl text-sm leading-relaxed text-subtle">
-            The fixtures are data produced by a numpy oracle, not a second
-            implementation. Otherwise the test only proves the two copies agree.
-            One of them was too weak and said so: the softmax fixture was written
-            to catch a missing max-subtraction, and when a deliberately broken
-            softmax was dropped in, it passed. The sampled maximum simply never
-            reached the float32 <span className="font-mono">expf</span> ceiling.
-            It pins an extreme value now, and the broken version fails with{" "}
-            <span className="font-mono">inf</span>.
+            NumPy produces the reference fixtures. The softmax fixture includes
+            an extreme value to test numerical stability: a version without
+            max-subtraction overflows and fails that case.
           </p>
         </section>
       )}
 
-      {/* ---- honesty ----------------------------------------------------- */}
       <section className="mt-14">
-        <h2 className="border-b border-border pb-2 text-xs text-muted">
-          What this is not
-        </h2>
+        <h2 className="border-b border-border pb-3 text-lg">Limits of this demo</h2>
         <div className="mt-5 max-w-2xl space-y-4 leading-relaxed text-muted">
           <p>
-            <strong className="font-medium text-text">It is not fast.</strong> The
-            matmul is a cache-aware triple loop with SIMD left to the compiler.
-            {smolParity.length > 0 && (
-              <>
-                {" "}
-                A token takes about{" "}
-                <span className="font-mono">
-                  {smolParity.find((p) => p.weights === "int8")?.msPerToken.toFixed(0)} ms
-                </span>{" "}
-                natively and longer in WebAssembly.
-              </>
-            )}{" "}
-            Blocking, hand-written SIMD and a fused dequantise-and-multiply are
-            the interesting part, and I have not done them.
+            The matrix multiply uses a cache-aware triple loop, with SIMD left
+            to the compiler. Generation speed depends on your device and appears
+            alongside each run. Blocking, hand-written SIMD, and fused
+            dequantisation remain future work.
           </p>
           <p>
-            <strong className="font-medium text-text">It is not a good model.</strong>{" "}
-            135M parameters gets facts wrong confidently and the demo does not
-            hide it. It is here because it is the largest thing that fits down a
-            browser connection.
-            {meta && (
-              <>
-                {" "}
-                The one I trained is worse and measurably so:{" "}
-                {(meta.params / 1000).toFixed(0)}K parameters on {kb(meta.corpusBytes)}{" "}
-                of prose, training loss{" "}
-                <span className="font-mono">{meta.trainLoss.toFixed(2)}</span> against
-                validation <span className="font-mono">{meta.valLoss.toFixed(2)}</span>,
-                which is memorisation. It stays in the selector because the engine
-                and the kernels are identical and only the weights differ.
-              </>
-            )}
+            The models can produce incorrect answers even with retrieved sources.
+            This demo exercises the path from a weights file to a token: loading,
+            tokenisation, attention, the KV cache, quantised kernels, and sampling.
+            {smol?.weightBytes ? <> The SmolLM2 weights download is {mb(smol.weightBytes)}.</> : null}
           </p>
-          <p>
-            <strong className="font-medium text-text">What it is</strong> is the
-            whole path from a weights file to a token, checked against a
-            reference: the format, the loader, the tokeniser, the KV cache,
-            grouped-query attention, the int8 kernel and the sampler.
-            {smol?.weightBytes && (
-              <> Loading it costs {mb(smol.weightBytes)}, once, and only if you ask.</>
-            )}
-          </p>
+          {meta && (
+            <p>
+              The smaller model has {(meta.params / 1000).toFixed(0)}K parameters
+              and was trained on {kb(meta.corpusBytes)} of prose. Its saved
+              training loss is {meta.trainLoss.toFixed(2)} and validation loss
+              is {meta.valLoss.toFixed(2)}. It is included to test the engine
+              with a small model trained on this site.
+            </p>
+          )}
         </div>
       </section>
-
-      <p className="mt-14 text-sm text-subtle">
-        <Link href="/lab" className="text-accent underline decoration-dotted underline-offset-4">
-          ← Back to the lab
-        </Link>
+      <p className="mt-14 text-sm">
+        <Link href="/lab" className="inline-flex min-h-11 items-center text-accent underline underline-offset-4">Back to the lab</Link>
       </p>
     </Container>
   );
 }
 
-function ParityTable({
-  rows,
-}: {
+function ParityTable({ rows }: {
   rows: { weights: string; maxAbsDiff: number; rmsDiff: number; argmaxMatch: boolean; pass: boolean }[];
 }) {
   return (
-    <table className="mt-3 w-full border-collapse">
-      <caption className="sr-only">Logit agreement with PyTorch.</caption>
-      <thead>
-        <tr className="border-b border-border text-left">
-          {["Weights", "Max |diff|", "RMS", "Argmax", "Verdict"].map((h) => (
-            <th key={h} scope="col" className="py-2 text-2xs text-subtle">
-              {h}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((p) => (
-          <tr key={p.weights} className="border-b border-border">
-            <td className="py-3 font-mono text-sm">{p.weights}</td>
-            <td className="py-3 font-mono text-sm tabular-nums text-muted">
-              {p.maxAbsDiff.toExponential(2)}
-            </td>
-            <td className="py-3 font-mono text-sm tabular-nums text-muted">
-              {p.rmsDiff.toExponential(2)}
-            </td>
-            <td className="py-3 text-2xs text-muted">
-              {p.argmaxMatch ? "match" : "differs"}
-            </td>
-            <td className={`py-3 text-2xs ${p.pass ? "text-shipped" : "text-accent"}`}>
-              {p.pass ? "pass" : "fail"}
-            </td>
+    <div className="mt-3 overflow-x-auto" tabIndex={0} role="region" aria-label="Logit comparison results">
+      <table className="w-full min-w-[480px] border-collapse">
+        <caption className="sr-only">Logit agreement with PyTorch.</caption>
+        <thead>
+          <tr className="border-b border-border text-left">
+            {["Weights", "Max |diff|", "RMS", "Argmax", "Verdict"].map((h) => (
+              <th key={h} scope="col" className="py-2 pr-4 text-sm text-subtle">{h}</th>
+            ))}
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {rows.map((p) => (
+            <tr key={p.weights} className="border-b border-border">
+              <th scope="row" className="py-3 pr-4 text-left font-mono text-sm font-normal">{p.weights}</th>
+              <td className="py-3 pr-4 font-mono text-sm tabular-nums text-muted">{p.maxAbsDiff.toExponential(2)}</td>
+              <td className="py-3 pr-4 font-mono text-sm tabular-nums text-muted">{p.rmsDiff.toExponential(2)}</td>
+              <td className="py-3 pr-4 text-sm text-muted">{p.argmaxMatch ? "match" : "differs"}</td>
+              <td className={`py-3 text-sm ${p.pass ? "text-shipped" : "text-accent"}`}>{p.pass ? "pass" : "fail"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }

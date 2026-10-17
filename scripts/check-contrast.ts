@@ -169,6 +169,7 @@ interface Check {
 const CHECKS: Check[] = [
   // Body copy.
   { fg: "--text", bg: "--bg", min: AA_BODY, note: "body text on page" },
+  { fg: "--inverse-text", bg: "--inverse", min: AA_BODY, note: "contact text and focus ring" },
   { fg: "--text", bg: "--surface", min: AA_BODY, note: "body text on card" },
   { fg: "--text", bg: "--surface-2", min: AA_BODY, note: "body text on inset" },
   { fg: "--text-muted", bg: "--bg", min: AA_BODY, note: "secondary text" },

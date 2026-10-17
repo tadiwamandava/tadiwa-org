@@ -10,7 +10,7 @@ const NanoPlayground = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="rounded-lg border border-border bg-surface p-5 text-sm text-subtle">
+      <div role="status" className="rounded-lg border border-border bg-surface p-5 text-sm text-subtle">
         Loading the playground…
       </div>
     ),

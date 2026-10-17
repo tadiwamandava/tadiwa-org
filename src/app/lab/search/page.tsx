@@ -26,7 +26,7 @@ import { SearchLabMount } from "@/components/lab/search-lab-mount";
 export const metadata: Metadata = {
   title: "Vector search, client-side",
   description:
-    "An HNSW index written in Rust and compiled to WebAssembly, searching this site in your browser, with its layer structure drawn, its recall measured live against an exhaustive scan, and an honest account of what it does not buy.",
+    "Inspect a Rust HNSW index in your browser and compare its search results, recall, and query timings with a full scan of this site's content.",
 };
 
 const SEARCH_DIR = join(process.cwd(), "public", "search");
@@ -40,6 +40,7 @@ function shippedFacts() {
     wasmBytes: wasm.byteLength,
     wasmGzip: gzipSync(wasm).byteLength,
     vectorBytes: vectors.byteLength,
+    lexicalBytes: readFileSync(join(SEARCH_DIR, "lexical.json")).byteLength,
     count: view.getUint32(4, true),
     dim: view.getUint32(8, true),
   };
@@ -62,14 +63,13 @@ export default function SearchLabPage() {
           </p>
 
           <h1 className="mt-5 font-display text-4xl leading-tight tracking-tight">
-            A vector index that demonstrates itself.
+            Vector search in your browser.
           </h1>
 
           <p className="mt-5 max-w-2xl text-xl leading-relaxed text-muted">
-            An HNSW graph I wrote in Rust, {kb(facts.wasmGzip)} over the wire,
-            searching {facts.count} chunks of this site inside your browser.
-            Everything below is measured in this tab, including the part where
-            the graph loses.
+            A Rust HNSW graph searches {facts.count} passages from this site.
+            Inspect its layers, run a query, and compare its results with a full
+            scan. The WebAssembly engine is {kb(facts.wasmGzip)} when gzipped.
           </p>
 
           <div className="mt-8 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4">
@@ -80,7 +80,7 @@ export default function SearchLabPage() {
               label="int8 vector payload"
               title="384 float32 dimensions per chunk would be four times this."
             />
-            <Readout value="0" label="network calls per query" />
+            <Readout value={kb(facts.lexicalBytes)} label="keyword index" />
           </div>
         </Container>
       </header>
@@ -89,33 +89,22 @@ export default function SearchLabPage() {
         <LabSection label="What this is">
           <div className="prose mt-5">
             <p>
-              Search here has two stages. BM25 over an 80 KB inverted index
-              answers the first keystroke and is the only stage almost anyone
-              reaches. This is the second: a hierarchical navigable small world
-              graph over int8 vectors, built by <Code>Index::build</Code> when
-              you opened this page.
+              The site search starts with BM25 keyword matching. Optional
+              semantic search uses an HNSW graph over int8 vectors. This demo
+              exposes that graph, built by <Code>Index::build</Code> when you
+              open the page.
             </p>
             <p>
-              I wrote the graph rather than installed it. Construction, the
-              neighbour-selection heuristic, the search, the quantised vector
-              format and the WebAssembly bindings are in{" "}
-              <Code>crates/hnsw/src/</Code>, in about 1,200 lines of Rust with
-              the paper&rsquo;s algorithm numbers in the comments. What the
-              browser downloads for it is {kb(facts.wasmGzip)}.
+              I implemented graph construction, neighbour selection, search,
+              the quantised vector format, and WebAssembly bindings in{" "}
+              <Code>crates/hnsw/src/</Code>. Select an existing passage to query
+              immediately, or download the embedding model to enter your own text.
             </p>
             <p>
-              The honest part comes first, because it is the part a demo page
-              usually buries: <strong>at {facts.count} chunks, a brute-force scan
-              is already sub-millisecond</strong>, so the graph is not saving
-              meaningful time here and the measurements below will show it doing
-              roughly the same amount of arithmetic as the scan it replaces. It
-              earns its place because the structure is the point: the traversal
-              that costs nothing to run at this size is the one that matters
-              once a corpus outgrows a linear scan. And because an index that
-              cannot be checked is a claim rather than evidence:{" "}
-              <Code>brute_force</Code> is a first-class method of the crate, not
-              a test helper, and it is the ground truth every recall number
-              below is computed against.
+              With only {facts.count} passages, a full scan is a useful baseline.
+              Each recall measurement compares the graph&apos;s results against{" "}
+              <Code>brute_force</Code>. Timings are measured in this tab; adjust
+              the search effort to see its effect on recall and computation.
             </p>
           </div>
         </LabSection>
@@ -129,10 +118,9 @@ export default function SearchLabPage() {
               WebAssembly in it: construction, ALG 4&rsquo;s neighbour heuristic,
               the layer descent, and a brute-force scan kept for grading.{" "}
               <Code>quant.rs</Code> is the on-the-wire vector format.{" "}
-              <Code>lib.rs</Code> is nothing but marshalling across the JS
-              boundary, plus the introspection API this page renders. The Rust
-              test suite asserts recall against ground truth rather than
-              asserting that search returned ten things.
+              <Code>lib.rs</Code> handles the JavaScript boundary and the
+              introspection API used here. The Rust tests compare recall with
+              exhaustive search results.
             </p>
             <p>
               Other things you can run are in the{" "}
