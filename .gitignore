@@ -71,3 +71,6 @@ next-env.d.ts
 .agents/
 .claude/
 skills-lock.json
+
+# MCP server config is per-machine tooling, same reasoning as .agents/ above.
+.mcp.json
