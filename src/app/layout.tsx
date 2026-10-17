@@ -60,7 +60,7 @@ export const metadata: Metadata = {
    stay equal to --bg in globals.css. */
 export const viewport: Viewport = {
   colorScheme: "dark",
-  themeColor: "#09090b",
+  themeColor: "#1a1310",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

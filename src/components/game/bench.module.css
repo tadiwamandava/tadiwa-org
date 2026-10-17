@@ -33,10 +33,10 @@
    The ink ladder is the part that had to be measured, because it is text on a
    ground the contrast gate cannot see:
 
-     light  --surface #f8fafc on --text #0f172a        17.0:1   titles
-            --border-strong #7c8ca1 on --text          5.24:1   pitch, status
-            --surface on --text-muted #475569           7.22:1   chip labels
-            --accent-bright #0d9488 on --text           4.79:1   live copper (3:1)
+     The figures that used to sit here were measured against a light theme
+     that no longer exists and a teal accent replaced twice since. Run
+     `npm run check:contrast` for current numbers rather than trusting a
+     comment.
      dark   --text #f8fafc on --surface #1e293b        14.1:1   titles
             --text-subtle #94a3b8 on --surface          5.71:1   pitch, status
             --text on --surface-2 #293548              11.9:1   chip labels

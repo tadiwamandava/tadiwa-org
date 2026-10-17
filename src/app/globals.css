@@ -370,7 +370,11 @@
   }
 
   .prose blockquote {
-    border-left: 2px solid var(--accent);
+    /* Was a 2px accent bar down the left edge. A coloured rule beside a block
+       of text is the commonest ornament in generated UI, and it was spending
+       the page's one accent on decoration rather than on an action. The indent
+       and the italic already say "quotation". */
+    border-left: 1px solid var(--border);
     padding-left: 1.1em;
     font-style: italic;
     color: var(--text-muted);

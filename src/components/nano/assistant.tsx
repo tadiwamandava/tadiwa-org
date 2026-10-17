@@ -90,7 +90,7 @@ export function Assistant({
   );
 
   return (
-    <div className="rounded-lg border border-border bg-[#0a0c10] p-5">
+    <div className="rounded-lg border border-border bg-bg p-5">
       <div className="relative mx-auto aspect-square w-full max-w-sm">
         <canvas
           ref={canvasRef}
@@ -131,8 +131,8 @@ export function Assistant({
               className="max-w-[16rem] rounded border border-white/20 bg-transparent px-2 py-1 text-white/70 outline-none focus-visible:border-[#ffb020]"
             >
               {voices.map((v) => (
-                <option key={v.name} value={v.name} className="bg-[#0a0c10]">
-                  {v.preferred ? "★ " : ""}
+                <option key={v.name} value={v.name} className="bg-bg">
+                  {v.preferred ? "preferred · " : ""}
                   {v.name} · {v.lang}
                 </option>
               ))}

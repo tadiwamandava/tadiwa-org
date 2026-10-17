@@ -1,5 +1,4 @@
 import Link from "next/link";
-import type { ProjectFrontmatter } from "@/lib/content/schema";
 
 /**
  * The page measure.
@@ -70,39 +69,6 @@ export function PageSection({
       )}
       <div className="mt-6">{children}</div>
     </section>
-  );
-}
-
-const STATUS_COPY = {
-  shipped: { label: "Shipped", cls: "text-shipped" },
-  building: { label: "Building", cls: "text-building" },
-  planned: { label: "Planned", cls: "text-planned" },
-} as const;
-
-export function StatusPill({
-  status,
-}: {
-  status: ProjectFrontmatter["status"];
-}) {
-  const { label, cls } = STATUS_COPY[status];
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 text-2xs tracking-wide uppercase ${cls}`}
-    >
-      <span
-        className="size-1.5 rounded-full bg-current"
-        aria-hidden
-        // A pulsing dot on in-flight work reads as "this is live", but it is
-        // decoration, so it is hidden from assistive tech and respects
-        // reduced-motion via the global rule.
-        style={
-          status === "building"
-            ? { animation: "pulse-dot 2.4s ease-in-out infinite" }
-            : undefined
-        }
-      />
-      {label}
-    </span>
   );
 }
 

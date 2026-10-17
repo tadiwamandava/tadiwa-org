@@ -647,9 +647,13 @@ export function NanoPlayground({
                 : "border-border-strong text-muted hover:text-text"
             }`}
           >
-            <span aria-hidden="true" className={listening !== null ? "animate-pulse" : ""}>
-              ●
-            </span>
+            {/* Only while recording. A dot that is always there is not a
+                status; it is decoration wearing a status's clothes. */}
+            {listening !== null && (
+              <span aria-hidden="true" className="animate-pulse">
+                ●
+              </span>
+            )}
             {listening !== null ? `${MAX_SECONDS - listening}s` : "Speak"}
           </button>
         )}
