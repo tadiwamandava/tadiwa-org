@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Container, PageSection } from "@/components/ui";
 import { ProjectCard } from "@/components/project-card";
 import { PcbHero } from "@/components/pcb-hero";
+import { RevealMount } from "@/components/motion/reveal-mount";
 import { getFeaturedProjects, getAllProjects, getAllPosts } from "@/lib/content";
 
 /**
@@ -59,8 +60,13 @@ export default function HomePage() {
             />
           ) : (
             <div className="grid gap-4 sm:grid-cols-2">
-              {projects.map((project) => (
-                <ProjectCard key={project.slug} project={project} />
+              {projects.map((project, i) => (
+                // Staggered 60ms apart: inside the 30-80ms the source calls
+                // for, and short enough that the last card is not still
+                // arriving when the eye reaches it.
+                <RevealMount key={project.slug} delay={i * 0.06}>
+                  <ProjectCard project={project} />
+                </RevealMount>
               ))}
             </div>
           )}

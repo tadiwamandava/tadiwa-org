@@ -477,6 +477,47 @@
   }
 }
 
+/* ---- Masked line reveal --------------------------------------------------
+   The direction's signature move: each line of a heading rises from behind
+   its own baseline on load.
+
+   CSS, not Motion, and deliberately. Emil Kowalski's rule is that CSS carries
+   predetermined animations because they run off the main thread and stay
+   smooth while the browser is busy loading; JS is for the dynamic and
+   interruptible. A heading entrance is as predetermined as animation gets, so
+   this costs zero bytes of JavaScript.
+
+   The mask is the point. Without `overflow: hidden` on the wrapper the line
+   slides up from empty space; with it, the line rises from behind its own
+   baseline and nothing in the real world appears from nothing.
+
+   900ms is far past the 300ms ceiling for UI animation, and that ceiling is
+   about controls a visitor uses many times a day. This fires once per page
+   load, which the same source files under "rare" and allows delight for. */
+.reveal-line {
+  display: block;
+  overflow: hidden;
+}
+
+.reveal-line > * {
+  display: block;
+  animation: reveal-line 900ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+/* The second line follows the first, not alongside it. */
+.reveal-line:nth-of-type(2) > * {
+  animation-delay: 110ms;
+}
+
+@keyframes reveal-line {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
