@@ -39,7 +39,7 @@ export default function InferenceLabPage() {
 
   return (
     <Container className="py-16">
-      <p className="text-2xs tracking-[0.14em] text-accent uppercase">
+      <p className="text-2xs text-accent">
         Lab / Inference engine
       </p>
       <h1 className="mt-5 font-display text-4xl leading-tight tracking-tight">
@@ -89,7 +89,7 @@ export default function InferenceLabPage() {
       </p>
 
       <section className="mt-12">
-        <h2 className="mb-5 border-b border-border pb-2 text-xs tracking-[0.14em] text-muted uppercase">
+        <h2 className="mb-5 border-b border-border pb-2 text-xs text-muted">
           Run it
         </h2>
         <NanoMount
@@ -105,7 +105,7 @@ export default function InferenceLabPage() {
       {/* ---- parity ------------------------------------------------------ */}
       {(smolParity.length > 0 || parity.length > 0) && (
         <section className="mt-14">
-          <h2 className="border-b border-border pb-2 text-xs tracking-[0.14em] text-muted uppercase">
+          <h2 className="border-b border-border pb-2 text-xs text-muted">
             Does it match the model it came from?
           </h2>
           <p className="mt-4 max-w-2xl leading-relaxed text-muted">
@@ -117,7 +117,7 @@ export default function InferenceLabPage() {
 
           {smolParity.length > 0 && (
             <>
-              <h3 className="mt-6 text-2xs tracking-wide text-subtle uppercase">
+              <h3 className="mt-6 text-2xs text-subtle">
                 SmolLM2-135M · {smolParity[0].vocab.toLocaleString()} logits
               </h3>
               <ParityTable rows={smolParity} />
@@ -144,7 +144,7 @@ export default function InferenceLabPage() {
 
           {parity.length > 0 && (
             <>
-              <h3 className="mt-8 text-2xs tracking-wide text-subtle uppercase">
+              <h3 className="mt-8 text-2xs text-subtle">
                 tadiwa-nano-359K · {parity[0].vocab} logits
               </h3>
               <ParityTable rows={parity} />
@@ -156,7 +156,7 @@ export default function InferenceLabPage() {
       {/* ---- grounding --------------------------------------------------- */}
       {evals.length > 0 && (
         <section className="mt-14">
-          <h2 className="border-b border-border pb-2 text-xs tracking-[0.14em] text-muted uppercase">
+          <h2 className="border-b border-border pb-2 text-xs text-muted">
             Making it stop making things up
           </h2>
           <div className="mt-4 max-w-2xl space-y-4 leading-relaxed text-muted">
@@ -187,7 +187,7 @@ export default function InferenceLabPage() {
             <thead>
               <tr className="border-b border-border text-left">
                 {["Model", "Refuses when it should", "Refuses when it shouldn't", "Grounding"].map((h) => (
-                  <th key={h} scope="col" className="py-2 text-2xs tracking-wide text-subtle uppercase">
+                  <th key={h} scope="col" className="py-2 text-2xs text-subtle">
                     {h}
                   </th>
                 ))}
@@ -241,7 +241,7 @@ export default function InferenceLabPage() {
       {/* ---- ops --------------------------------------------------------- */}
       {ops && (
         <section className="mt-14">
-          <h2 className="border-b border-border pb-2 text-xs tracking-[0.14em] text-muted uppercase">
+          <h2 className="border-b border-border pb-2 text-xs text-muted">
             The kernels underneath
           </h2>
           <p className="mt-4 text-sm text-subtle">
@@ -254,7 +254,7 @@ export default function InferenceLabPage() {
                 <span className="font-mono text-sm">
                   {r.op}
                   <span
-                    className={`ml-2 text-2xs uppercase ${
+                    className={`ml-2 text-2xs ${
                       r.state === "pass" ? "text-shipped" : r.state === "fail" ? "text-accent" : "text-subtle"
                     }`}
                   >
@@ -282,7 +282,7 @@ export default function InferenceLabPage() {
 
       {/* ---- honesty ----------------------------------------------------- */}
       <section className="mt-14">
-        <h2 className="border-b border-border pb-2 text-xs tracking-[0.14em] text-muted uppercase">
+        <h2 className="border-b border-border pb-2 text-xs text-muted">
           What this is not
         </h2>
         <div className="mt-5 max-w-2xl space-y-4 leading-relaxed text-muted">
@@ -352,7 +352,7 @@ function ParityTable({
       <thead>
         <tr className="border-b border-border text-left">
           {["Weights", "Max |diff|", "RMS", "Argmax", "Verdict"].map((h) => (
-            <th key={h} scope="col" className="py-2 text-2xs tracking-wide text-subtle uppercase">
+            <th key={h} scope="col" className="py-2 text-2xs text-subtle">
               {h}
             </th>
           ))}
@@ -368,10 +368,10 @@ function ParityTable({
             <td className="py-3 font-mono text-sm tabular-nums text-muted">
               {p.rmsDiff.toExponential(2)}
             </td>
-            <td className="py-3 text-2xs uppercase text-muted">
+            <td className="py-3 text-2xs text-muted">
               {p.argmaxMatch ? "match" : "differs"}
             </td>
-            <td className={`py-3 text-2xs uppercase ${p.pass ? "text-shipped" : "text-accent"}`}>
+            <td className={`py-3 text-2xs ${p.pass ? "text-shipped" : "text-accent"}`}>
               {p.pass ? "pass" : "fail"}
             </td>
           </tr>

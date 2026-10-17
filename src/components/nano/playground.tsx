@@ -446,7 +446,7 @@ export function NanoPlayground({
 
       {/* ---- model ------------------------------------------------------- */}
       <div role="group" aria-labelledby="model-label">
-        <span id="model-label" className="mb-2 block text-2xs tracking-wide text-subtle uppercase">
+        <span id="model-label" className="mb-2 block text-2xs text-subtle">
           Model
         </span>
         <div className="grid gap-2 sm:grid-cols-3">
@@ -502,11 +502,11 @@ export function NanoPlayground({
           <div role="group" aria-labelledby="kimi-fixed">
             <span
               id="kimi-fixed"
-              className="mr-3 text-2xs tracking-wide text-subtle uppercase"
+              className="mr-3 text-2xs text-subtle"
             >
               Prompting
             </span>
-            <span className="rounded border border-accent bg-accent px-2.5 py-1 text-2xs uppercase text-accent-contrast">
+            <span className="rounded border border-accent bg-accent px-2.5 py-1 text-2xs text-accent-contrast">
               Grounded
             </span>
           </div>
@@ -598,7 +598,7 @@ export function NanoPlayground({
       ) : null}
 
       {/* ---- prompt ------------------------------------------------------ */}
-      <label htmlFor="nano-prompt" className="mt-5 block text-2xs tracking-wide text-subtle uppercase">
+      <label htmlFor="nano-prompt" className="mt-5 block text-2xs text-subtle">
         {model === "smol" && mode === "chat" ? "Ask it something" : "Prompt"}
       </label>
       <textarea
@@ -669,7 +669,7 @@ export function NanoPlayground({
               });
             }}
             aria-pressed={speak}
-            className={`rounded border px-3 py-2 text-2xs uppercase transition-colors ${
+            className={`rounded border px-3 py-2 text-2xs transition-colors ${
               speak
                 ? "border-accent text-accent"
                 : "border-border text-subtle hover:text-muted"
@@ -736,7 +736,7 @@ export function NanoPlayground({
       {/* ---- what it was allowed to read -------------------------------- */}
       {grounding && !grounding.empty && (
         <details className="mt-3 rounded border border-border bg-bg p-3" open>
-          <summary className="cursor-pointer text-2xs tracking-wide text-subtle uppercase">
+          <summary className="cursor-pointer text-2xs text-subtle">
             {usedCount(grounding.passages)} source
             {usedCount(grounding.passages) === 1 ? "" : "s"} the model was shown ·{" "}
             {grounding.stage}
@@ -779,7 +779,7 @@ export function NanoPlayground({
               <button
                 type="button"
                 onClick={compare}
-                className="rounded border border-border-strong px-3 py-1.5 text-2xs uppercase text-muted transition-colors hover:text-text"
+                className="rounded border border-border-strong px-3 py-1.5 text-2xs text-muted transition-colors hover:text-text"
               >
                 Ask Kimi K3 the same question →
               </button>
@@ -793,7 +793,7 @@ export function NanoPlayground({
             </>
           ) : (
             <>
-              <p className="text-2xs tracking-wide text-subtle uppercase">
+              <p className="text-2xs text-subtle">
                 {hosted.status === "streaming"
                   ? "Kimi K3 · streaming…"
                   : hosted.status === "done"
@@ -953,7 +953,7 @@ function Segmented({
   const id = `seg-${label.toLowerCase()}`;
   return (
     <div role="group" aria-labelledby={id}>
-      <span id={id} className="mr-3 text-2xs tracking-wide text-subtle uppercase">
+      <span id={id} className="mr-3 text-2xs text-subtle">
         {label}
       </span>
       {options.map(([v, text]) => (
@@ -963,7 +963,7 @@ function Segmented({
           onClick={() => onChange(v)}
           aria-pressed={value === v}
           disabled={disabled}
-          className={`ml-1 rounded border px-2.5 py-1 text-2xs uppercase transition-colors disabled:opacity-50 ${
+          className={`ml-1 rounded border px-2.5 py-1 text-2xs transition-colors disabled:opacity-50 ${
             value === v
               ? "border-accent bg-accent text-accent-contrast"
               : "border-border text-muted hover:border-border-strong"

@@ -54,7 +54,7 @@ export default function SearchLabPage() {
     <article>
       <header className="border-b border-border bg-surface">
         <Container className="py-14">
-          <p className="text-2xs tracking-[0.14em] text-subtle uppercase">
+          <p className="text-2xs text-subtle">
             <Link href="/lab" className="hover:text-accent">
               Lab
             </Link>{" "}

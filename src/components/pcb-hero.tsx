@@ -47,7 +47,7 @@ export function PcbHero() {
         {/* Same heading treatment as every other section on the page. It was
             a small mono label, which made the one interactive thing on the
             home page read as a caption for the section above it. */}
-        <div className="mb-4 flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2">
+        <div className="mb-4">
           {/* The page's only h1. The home page opens on the board rather
               than on a sentence about the person who made it. */}
           <h1
@@ -56,9 +56,6 @@ export function PcbHero() {
           >
             The bench
           </h1>
-          <p className="text-2xs tracking-wide text-subtle uppercase">
-            Every project, as one board
-          </p>
         </div>
 
         <Bench projects={projects} />

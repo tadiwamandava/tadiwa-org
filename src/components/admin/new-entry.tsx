@@ -40,7 +40,7 @@ export function NewEntry({ kind }: { kind: EntryKind }) {
     >
       <label
         htmlFor={inputId}
-        className="block text-2xs tracking-wide text-muted uppercase"
+        className="block text-2xs text-muted"
       >
         New {kind}, title
       </label>

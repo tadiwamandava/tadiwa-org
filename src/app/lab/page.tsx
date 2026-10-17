@@ -86,7 +86,7 @@ export default function LabPage() {
                 )}
               </h2>
               <span
-                className={`text-2xs tracking-wide uppercase ${
+                className={`text-2xs ${
                   demo.status === "live" ? "text-shipped" : "text-subtle"
                 }`}
               >
@@ -104,7 +104,7 @@ export default function LabPage() {
               <p className="mt-3">
                 <Link
                   href={demo.href}
-                  className="text-2xs tracking-wide text-accent uppercase underline decoration-dotted underline-offset-4"
+                  className="text-2xs text-accent underline decoration-dotted underline-offset-4"
                 >
                   {demo.status === "live" ? "Open the demo" : "See the build log"} →
                 </Link>

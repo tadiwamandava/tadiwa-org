@@ -103,7 +103,7 @@ export function Assistant({
           see it, and as the live region that announces changes. */}
       <p
         aria-live="polite"
-        className="mt-2 text-center text-2xs tracking-[0.2em] text-[#ffb020] uppercase"
+        className="mt-2 text-center text-2xs tracking-[0.2em] text-[#ffb020]"
       >
         {LABEL[mode]}
       </p>
@@ -113,7 +113,7 @@ export function Assistant({
           type="button"
           onClick={onToggleSpeak}
           aria-pressed={speaking}
-          className={`rounded border px-3 py-1.5 text-2xs uppercase transition-colors ${
+          className={`rounded border px-3 py-1.5 text-2xs transition-colors ${
             speaking
               ? "border-[#ffb020] text-[#ffb020]"
               : "border-white/20 text-white/50 hover:text-white/80"

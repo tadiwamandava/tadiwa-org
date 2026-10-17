@@ -145,12 +145,18 @@
     "Liberation Mono", monospace;
 
   /* Fluid type scale. Steps are ~1.2 minor third at the small end, opening to
-     ~1.33 at display sizes where the viewport can afford it. */
-  --text-2xs: 0.6875rem;
-  --text-xs: 0.75rem;
-  --text-sm: 0.8125rem;
-  --text-base: 0.9375rem;
-  --text-lg: 1.0625rem;
+     ~1.33 at display sizes where the viewport can afford it.
+
+     The small end was raised: 2xs was 11px and xs was 12px, under the 13px
+     floor, and base was 15px under the 16px body floor. Small type is the
+     cheapest way to make a page look designed and the fastest way to make it
+     unreadable, and 128 elements were set at 11px. Nothing here is under 13px
+     now and body is 16px. */
+  --text-2xs: 0.8125rem;
+  --text-xs: 0.875rem;
+  --text-sm: 0.9375rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
   --text-xl: clamp(1.1875rem, 0.4vw + 1.1rem, 1.375rem);
   --text-2xl: clamp(1.4375rem, 0.9vw + 1.25rem, 1.75rem);
   --text-3xl: clamp(1.75rem, 1.6vw + 1.4rem, 2.25rem);
@@ -426,8 +432,6 @@
     font-weight: 600;
     color: var(--text-muted);
     font-size: var(--text-xs);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
   }
 
   /* Any wide block scrolls inside itself. The page body must never scroll

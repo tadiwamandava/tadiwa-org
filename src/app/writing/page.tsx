@@ -37,7 +37,7 @@ export default function WritingPage() {
                   <h2 className="font-display text-xl transition-colors group-hover:text-accent">
                     {post.title}
                     {post.draft && (
-                      <span className="ml-2 text-2xs tracking-wide text-accent uppercase">
+                      <span className="ml-2 text-2xs text-accent">
                         draft
                       </span>
                     )}

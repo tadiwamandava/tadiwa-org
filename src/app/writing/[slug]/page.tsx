@@ -39,7 +39,7 @@ export default async function PostPage(props: PageProps<"/writing/[slug]">) {
     <Container className="py-14">
       <Link
         href="/writing"
-        className="text-2xs tracking-[0.12em] text-subtle uppercase transition-colors hover:text-accent"
+        className="text-2xs text-subtle transition-colors hover:text-accent"
       >
         ← Writing
       </Link>

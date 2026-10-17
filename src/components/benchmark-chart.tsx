@@ -110,7 +110,7 @@ export function BenchmarkChart({ set }: { set: BenchmarkSet }) {
       {/* The honest paragraph. §2.3: honest gap analysis reads as competence;
           suspicious victory claims read as fabrication. */}
       <div className="mt-4 border-l-2 border-border-strong pl-4">
-        <p className="mb-1 text-2xs tracking-[0.12em] text-muted uppercase">
+        <p className="mb-1 text-2xs text-muted">
           Why the gap
         </p>
         <p className="text-sm leading-relaxed text-muted">{set.gapAnalysis}</p>
@@ -128,7 +128,7 @@ function Row({
 }) {
   return (
     <div className="grid grid-cols-[5.5rem_1fr] gap-3">
-      <dt className="text-2xs tracking-wide text-subtle uppercase">
+      <dt className="text-2xs text-subtle">
         {label}
       </dt>
       <dd className="text-muted">{children}</dd>

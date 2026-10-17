@@ -242,7 +242,7 @@ export function FieldControl(props: ControlProps) {
       const helpId = spec.help ? `${groupId}-help` : undefined;
       return (
         <fieldset aria-describedby={helpId}>
-          <legend className="text-2xs tracking-wide text-muted uppercase">
+          <legend className="text-2xs text-muted">
             {spec.label}
             {!spec.optional && <span className="ml-1 text-accent">*</span>}
           </legend>
@@ -358,7 +358,7 @@ export function FieldControl(props: ControlProps) {
               return (
                 <li key={index} className="rounded border border-border bg-surface p-2.5">
                   <div className="mb-2 flex items-center justify-between gap-2 border-b border-border pb-1.5">
-                    <p className="truncate text-2xs tracking-wide text-muted uppercase">
+                    <p className="truncate text-2xs text-muted">
                       {spec.label} {index + 1}
                       {heading && <span className="ml-2 normal-case">{heading}</span>}
                     </p>
@@ -412,7 +412,7 @@ export function FieldControl(props: ControlProps) {
       const scale = Array.from({ length: max - min + 1 }, (_, i) => min + i);
       return (
         <fieldset aria-describedby={helpId}>
-          <legend className="text-2xs tracking-wide text-muted uppercase">
+          <legend className="text-2xs text-muted">
             {spec.label}
           </legend>
           {spec.help && helpId && <Help id={helpId}>{spec.help}</Help>}
@@ -462,7 +462,7 @@ function ListLegend({ spec, count }: { spec: FieldSpec; count: number }) {
     max !== undefined ? `max ${max}` : null,
   ].filter(Boolean);
   return (
-    <legend className="text-2xs tracking-wide text-muted uppercase">
+    <legend className="text-2xs text-muted">
       {spec.label}
       {!spec.optional && <span className="ml-1 text-accent">*</span>}
       <span className="ml-2 text-subtle tabular-nums">

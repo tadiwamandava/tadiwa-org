@@ -49,7 +49,7 @@ export function QueryPanel({
     <>
       <Panel className="mt-6">
         <label className="block">
-          <span className="text-2xs tracking-[0.12em] text-muted uppercase">
+          <span className="text-2xs text-muted">
             Query vector
           </span>
           <select
@@ -182,7 +182,7 @@ function FreeText({
 
   return (
     <Panel className="mt-4">
-      <h3 className="text-2xs tracking-[0.12em] text-muted uppercase">
+      <h3 className="text-2xs text-muted">
         Free text, optional
       </h3>
 
@@ -207,7 +207,7 @@ function FreeText({
           />
           <button
             type="submit"
-            className="rounded-md bg-accent px-4 py-2 text-2xs tracking-wide text-accent-contrast uppercase"
+            className="rounded-md bg-accent px-4 py-2 text-2xs text-accent-contrast"
           >
             Embed &amp; search
           </button>
@@ -225,7 +225,7 @@ function FreeText({
             <button
               type="button"
               onClick={onLoadModel}
-              className="mt-3 rounded-md border border-border-strong bg-surface-2 px-4 py-2 text-2xs tracking-wide text-text uppercase hover:border-accent hover:text-accent"
+              className="mt-3 rounded-md border border-border-strong bg-surface-2 px-4 py-2 text-2xs text-text hover:border-accent hover:text-accent"
             >
               Load the model · 22 MB
             </button>

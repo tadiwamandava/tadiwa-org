@@ -58,7 +58,7 @@ export function PageSection({
         {action && (
           <Link
             href={action.href}
-            className="text-2xs tracking-wide text-accent uppercase underline decoration-dotted underline-offset-4 transition-colors hover:text-text"
+            className="text-2xs text-accent underline decoration-dotted underline-offset-4 transition-colors hover:text-text"
           >
             {action.label} →
           </Link>
@@ -82,7 +82,7 @@ export function SectionHeading({
 }) {
   return (
     <div className="mb-6 flex items-baseline justify-between gap-4 border-b border-border pb-2">
-      <h2 className="text-xs tracking-[0.14em] text-muted uppercase">
+      <h2 className="text-xs text-muted">
         {children}
       </h2>
       {action && (
@@ -117,7 +117,7 @@ export function MetricStat({
       <div
         className={
           pending
-            ? "rounded border border-dashed border-border-strong px-1.5 py-0.5 text-2xs tracking-wide text-subtle uppercase"
+            ? "rounded border border-dashed border-border-strong px-1.5 py-0.5 text-2xs text-subtle"
             : "font-mono text-xl font-medium text-text tabular-nums"
         }
       >

@@ -83,7 +83,7 @@ function FilterGroup({
           route 98/100 on it. The visual size comes from the class, not the tag. */}
       <h2
         id={headingId}
-        className="w-20 shrink-0 text-2xs tracking-[0.14em] text-subtle uppercase"
+        className="w-20 shrink-0 text-2xs text-subtle"
       >
         {label}
       </h2>
@@ -97,11 +97,11 @@ function FilterGroup({
                 aria-current={active ? "true" : undefined}
                 className={
                   active
-                    ? "inline-flex items-center gap-1.5 rounded-full bg-accent px-2.5 py-0.5 text-2xs tracking-wide text-accent-contrast uppercase transition-colors"
+                    ? "inline-flex items-center gap-1.5 rounded-full bg-accent px-2.5 py-0.5 text-2xs text-accent-contrast transition-colors"
                     // Border-only when inactive. Filled chips at this count
                     // (eleven languages) turn the top of the page into a wall
                     // of grey blocks that outweighs the work below it.
-                    : "inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-0.5 text-2xs tracking-wide text-subtle uppercase transition-colors hover:border-accent hover:text-text"
+                    : "inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-0.5 text-2xs text-subtle transition-colors hover:border-accent hover:text-text"
                 }
               >
                 {value}
@@ -163,7 +163,7 @@ export function ProjectFilter({
       {hasActiveFilter && (
         <Link
           href="/projects"
-          className="shrink-0 text-2xs tracking-wide text-accent uppercase underline decoration-dotted underline-offset-4 transition-colors hover:text-text"
+          className="shrink-0 text-2xs text-accent underline decoration-dotted underline-offset-4 transition-colors hover:text-text"
         >
           Clear filters
         </Link>

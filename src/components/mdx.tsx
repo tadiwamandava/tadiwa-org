@@ -31,7 +31,7 @@ function Callout({
 
   return (
     <aside className={`my-6 rounded border-l-2 ${style} px-4 py-3`}>
-      <p className="mb-1 text-2xs tracking-[0.12em] text-muted uppercase">
+      <p className="mb-1 text-2xs text-muted">
         {label}
       </p>
       <div className="[&>*+*]:mt-2 [&>p]:text-base [&>p]:leading-relaxed">
