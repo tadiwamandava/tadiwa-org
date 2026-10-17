@@ -22,6 +22,12 @@ const eslintConfig = defineConfig([
     // viewer), and eslint will happily walk into site-packages and report on
     // somebody else's bundled preact.
     "**/.venv/**",
+    // Agent skills installed by `npx skills`, and the working files their
+    // scripts write. Gitignoring them does not stop eslint walking them: it
+    // reported three rules-of-hooks errors against a helper called
+    // useRendition that is not a React hook and is not ours.
+    ".agents/**",
+    ".taste-skill/**",
   ]),
 ]);
 

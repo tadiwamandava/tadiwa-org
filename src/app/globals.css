@@ -57,43 +57,43 @@
      palette of every generated app, and the opposite of what this site's own
      brief asked for. Hue sits around 30deg throughout, so the greys read warm
      against the ochre instead of fighting it. */
-  --bg: #13110f;
-  --surface: #1b1815;
-  --surface-2: #24201c;
+  --bg: #1a1310;
+  --surface: #241a15;
+  --surface-2: #2e221b;
 
   /* --- text ------------------------------------------------------------
      Not #fff. Pure white on a warm ground reads as a colour mistake, and at
      this size it glares; #f6f2ec carries the same hue as the surfaces. */
   --text: #f6f2ec;
   --text-muted: #b3a89c;
-  --text-subtle: #928678;
+  --text-subtle: #988a7b;
 
   /* --- lines -----------------------------------------------------------
      --border is a decorative hairline. --border-strong identifies a control
      (inputs, toggles) and therefore clears WCAG 1.4.11's 3:1. Do not swap. */
-  --border: #2e2924;
-  --border-strong: #766a5d;
+  --border: #3a2e25;
+  --border-strong: #786d61;
 
   /* --- accent ----------------------------------------------------------
      One hue, and a muted ochre rather than a neon. It has to clear 4.5:1 on
      all three surfaces as link text, which is what rules out the brighter
      versions of this colour. */
-  --accent: #d9a05b;
-  --accent-hover: #e8b878;
-  --accent-contrast: #13110f;
-  --accent-subtle: #332518;
-  --accent-bright: #d9a05b;
+  --accent: #ef5a4a;
+  --accent-hover: #f58274;
+  --accent-contrast: #1a1310;
+  --accent-subtle: #3d1d18;
+  --accent-bright: #ef5a4a;
 
   /* --- project status: ranked by tone, named by the label -------------- */
   --status-shipped: #e8e2d9;
-  --status-building: #d9a05b;
-  --status-planned: #928678;
+  --status-building: #ef5a4a;
+  --status-planned: #988a7b;
 
   /* --- benchmark marks: emphasis hierarchy, not a categorical pair ----- */
-  --chart-mine: #d9a05b;
-  --chart-reference: #6b6054;
+  --chart-mine: #ef5a4a;
+  --chart-reference: #786d61;
 
-  --focus: #d9a05b;
+  --focus: #ef5a4a;
 
   color-scheme: dark;
 }
