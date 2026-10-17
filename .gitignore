@@ -74,3 +74,6 @@ skills-lock.json
 
 # MCP server config is per-machine tooling, same reasoning as .agents/ above.
 .mcp.json
+
+# Working files from the taste skill's scripts.
+.taste-skill/
