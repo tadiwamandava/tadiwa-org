@@ -51,51 +51,57 @@
    That duplication existed so a media-query dark theme and a toggle-selected
    dark theme could not drift; with nothing to toggle, it is gone. */
 :root {
-  /* --- surfaces: warm near-black, two lifted steps ----------------------
-     Hand-mixed rather than lifted off a Tailwind ramp. The previous values
-     were zinc-950/800/500 with a teal-400 accent, which is the stock dark
-     palette of every generated app, and the opposite of what this site's own
-     brief asked for. Hue sits around 30deg throughout, so the greys read warm
-     against the ochre instead of fighting it. */
-  --bg: #1a1310;
-  --surface: #241a15;
-  --surface-2: #2e221b;
+  /* --- surfaces: paper, two steps -------------------------------------
+     A light ground, which reverses an earlier instruction of the owner's. It
+     is what this direction dealt before that instruction overrode it, and the
+     standing rule now is that the sources win where they disagree with me.
 
-  /* --- text ------------------------------------------------------------
-     Not #fff. Pure white on a warm ground reads as a colour mistake, and at
-     this size it glares; #f6f2ec carries the same hue as the surfaces. */
-  --text: #f6f2ec;
-  --text-muted: #b3a89c;
-  --text-subtle: #988a7b;
+     The steps are far enough apart to be seen. They were briefly set two
+     points apart, which made the panels invisible and the accent fail its
+     floor on the darkest one. */
+  --bg: #ffffff;
+  --surface: #f5f4f2;
+  --surface-2: #eae8e4;
+
+  /* --- text ------------------------------------------------------------ */
+  --text: #0a0a0a;
+  --text-muted: #55534f;
+  --text-subtle: #6a6762;
 
   /* --- lines -----------------------------------------------------------
      --border is a decorative hairline. --border-strong identifies a control
-     (inputs, toggles) and therefore clears WCAG 1.4.11's 3:1. Do not swap. */
-  --border: #3a2e25;
-  --border-strong: #786d61;
+     and therefore clears WCAG 1.4.11's 3:1. Do not swap. */
+  --border: #ddd9d2;
+  --border-strong: #8a8681;
 
   /* --- accent ----------------------------------------------------------
-     One hue, and a muted ochre rather than a neon. It has to clear 4.5:1 on
-     all three surfaces as link text, which is what rules out the brighter
-     versions of this colour. */
-  --accent: #ef5a4a;
-  --accent-hover: #f58274;
-  --accent-contrast: #1a1310;
-  --accent-subtle: #3d1d18;
-  --accent-bright: #ef5a4a;
+     One colour, and only one. The brief asked for vibrant colours, plural;
+     both sources say otherwise. The Fountain Institute piece opens on "five
+     or six saturated colors competing at once" as the first tell of a
+     generated interface, and this direction's own palette note reads "signal
+     red is the only colour in the interface". So: one red, used hard.
+
+     #d01008 rather than the #d92b21 dealt. It is the more saturated of the
+     two and it is the one that clears 4.5:1 on all three surfaces; the dealt
+     value manages 3.97 on the inset and would have shipped links that fail. */
+  --accent: #d01008;
+  --accent-hover: #a30c05;
+  --accent-contrast: #ffffff;
+  --accent-subtle: #fdeceb;
+  --accent-bright: #d01008;
 
   /* --- project status: ranked by tone, named by the label -------------- */
-  --status-shipped: #e8e2d9;
-  --status-building: #ef5a4a;
-  --status-planned: #988a7b;
+  --status-shipped: #1a1a1a;
+  --status-building: #d01008;
+  --status-planned: #6a6762;
 
   /* --- benchmark marks: emphasis hierarchy, not a categorical pair ----- */
-  --chart-mine: #ef5a4a;
-  --chart-reference: #786d61;
+  --chart-mine: #d01008;
+  --chart-reference: #8a8681;
 
-  --focus: #ef5a4a;
+  --focus: #d01008;
 
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 /* ============================================================================
@@ -443,13 +449,13 @@
   }
 
   /* ---- Shiki ------------------------------------------------------------
-     rehype-pretty-code emits both palettes as custom properties and this
-     picks the dark one. The light variable is still emitted into the markup
-     and now goes unused; leaving the dual-theme config in place costs nothing
-     at runtime (highlighting happens at BUILD time) and means a light theme
-     is one selector away if it ever comes back. */
+     rehype-pretty-code emits both palettes as custom properties. The previous
+     comment here said a light theme was "one selector away if it ever comes
+     back". It came back, and this is that selector. Highlighting happens at
+     BUILD time, so carrying both palettes costs nothing at runtime and this
+     flip cost one line rather than a re-highlight. */
   .prose pre code span {
-    color: var(--shiki-dark);
+    color: var(--shiki-light);
   }
 }
 

@@ -59,8 +59,8 @@ export const metadata: Metadata = {
    contrast checker cannot see, because it is metadata rather than CSS; it must
    stay equal to --bg in globals.css. */
 export const viewport: Viewport = {
-  colorScheme: "dark",
-  themeColor: "#1a1310",
+  colorScheme: "light",
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
