@@ -536,6 +536,116 @@
   }
 }
 
+/* ---- The seam -------------------------------------------------------------
+   Two renderings of one page, stacked, the top one clipped.
+
+   The left half is not a 1996 pastiche. It is the browser's default rendering
+   of this page's own markup, which is what a crawler, an ATS parser and a
+   screen reader receive. The site has argued in prose since its first commit
+   that its canvas board is an enhancement over semantic HTML; this makes that
+   argument draggable instead.
+
+   Times is the browser's default serif, not a joke about old websites, and the
+   link colours are the user-agent's own. Changing them would make this a
+   drawing of a document rather than a document. */
+.seam-wrap {
+  position: relative;
+  isolation: isolate;
+}
+
+.seam-layer {
+  grid-area: 1 / 1;
+}
+
+.seam-wrap {
+  display: grid;
+}
+
+.seam-clipped {
+  /* Set inline by the drag. This is only the pre-hydration value, so the
+     first paint is not a full-width document. */
+  clip-path: inset(0 58% 0 0);
+  background: var(--bg);
+  z-index: 1;
+}
+
+.doc-view {
+  font-family: Times, "Times New Roman", serif;
+  font-size: 16px;
+  line-height: 1.4;
+  color: #000;
+  background: #fff;
+  padding: 2rem 1.5rem 6rem;
+  min-height: 100%;
+}
+
+.doc-view h1 { font-size: 2em; margin: 0.67em 0; font-weight: bold; }
+.doc-view h2 { font-size: 1.5em; margin: 0.83em 0; font-weight: bold; }
+.doc-view p  { margin: 1em 0; }
+.doc-view ul { margin: 1em 0; padding-left: 40px; list-style: disc; }
+.doc-view li { margin: 0.4em 0; }
+.doc-view hr { margin: 1em 0; border: none; border-top: 1px solid #000; }
+.doc-view a  { color: #00e; text-decoration: underline; }
+.doc-view a:visited { color: #551a8b; }
+
+.seam-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 42%;
+  z-index: 2;
+  width: 44px;                 /* a real target, not a 2px line */
+  margin-left: -22px;
+  cursor: col-resize;
+  touch-action: none;          /* or the browser scrolls instead of dragging */
+  display: grid;
+  place-items: center;
+  background: none;
+  border: 0;
+}
+
+.seam-grip {
+  display: block;
+  width: 2px;
+  height: 100%;
+  background: var(--accent);
+}
+
+.seam-handle::after {
+  content: "";
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: var(--accent);
+  /* Pressed state is on the handle, not the grip, so the whole target
+     responds. 160ms, the duration this source gives for press feedback. */
+  transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.seam-handle:active::after {
+  transform: scale(0.9);
+}
+
+.seam-handle:focus-visible {
+  outline: none;
+}
+
+.seam-handle:focus-visible .seam-grip {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* Below the fold of a phone the seam is unusable: both halves end up too
+   narrow to read. The designed page is shown alone and the document half is
+   not rendered at all. */
+@media (max-width: 760px) {
+  .seam-clipped,
+  .seam-handle {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

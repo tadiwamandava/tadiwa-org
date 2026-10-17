@@ -3,6 +3,8 @@ import { Container, PageSection } from "@/components/ui";
 import { ProjectCard } from "@/components/project-card";
 import { PcbHero } from "@/components/pcb-hero";
 import { RevealMount } from "@/components/motion/reveal-mount";
+import { Seam } from "@/components/split/seam";
+import { DocumentView } from "@/components/split/document-view";
 import { getFeaturedProjects, getAllProjects, getAllPosts } from "@/lib/content";
 
 /**
@@ -38,6 +40,26 @@ export default function HomePage() {
   const projects = (featured.length > 0 ? featured : getAllProjects()).slice(0, 4);
   const posts = getAllPosts().slice(0, 3);
 
+  const all = getAllProjects();
+
+  return (
+    <Seam
+      documentHalf={<DocumentView projects={all} />}
+      designedHalf={<DesignedHome projects={projects} posts={posts} />}
+    />
+  );
+}
+
+/* The designed half: the site as it was before the seam, unchanged. Split out
+   so the two renderings are plainly two renderings rather than one component
+   branching on a flag. */
+function DesignedHome({
+  projects,
+  posts,
+}: {
+  projects: ReturnType<typeof getAllProjects>;
+  posts: ReturnType<typeof getAllPosts>;
+}) {
   return (
     <Container wide className="pb-24">
       {/* ---- the bench ----------------------------------------------------
