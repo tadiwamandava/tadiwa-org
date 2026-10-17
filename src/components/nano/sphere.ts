@@ -230,7 +230,7 @@ export class Sphere {
         ctx.beginPath();
         ctx.moveTo(a.sx, a.sy);
         ctx.lineTo(b.sx, b.sy);
-        ctx.strokeStyle = `rgba(255, ${170 + Math.floor(depth * 60)}, ${50 + Math.floor(amp * 90)}, ${
+        ctx.strokeStyle = `rgba(239, ${90 + Math.floor(depth * 70)}, ${50 + Math.floor(amp * 90)}, ${
           (base + amp * 0.35) * (0.15 + depth * 0.85)
         })`;
         ctx.lineWidth = 0.5 + depth * 0.9;
@@ -331,10 +331,10 @@ export class Sphere {
         else ctx.lineTo(p.sx, p.sy);
       }
       ctx.closePath();
-      ctx.strokeStyle = `rgba(255, 205, 110, ${(0.10 + amp * 0.5) * depth})`;
+      ctx.strokeStyle = `rgba(255, 150, 135, ${(0.10 + amp * 0.5) * depth})`;
       ctx.lineWidth = 0.7;
       ctx.stroke();
-      ctx.fillStyle = `rgba(255, 170, 40, ${(0.03 + amp * 0.16) * depth})`;
+      ctx.fillStyle = `rgba(239, 90, 74, ${(0.03 + amp * 0.16) * depth})`;
       ctx.fill();
     }
 
@@ -353,7 +353,7 @@ export class Sphere {
       const alpha = (0.12 + depth * 0.55) * (0.45 + amp * 1.5);
       // Hotter core, cooler rim, the gradient the reference gets from bloom.
       const g = 150 + Math.floor(depth * 90 + amp * 60);
-      ctx.strokeStyle = `rgba(255, ${Math.min(240, g)}, ${Math.floor(40 + amp * 120)}, ${Math.min(1, alpha)})`;
+      ctx.strokeStyle = `rgba(239, ${Math.min(200, g)}, ${Math.floor(40 + amp * 120)}, ${Math.min(1, alpha)})`;
       ctx.lineWidth = (s.spar ? 1.6 : 0.9) * (0.5 + depth);
       ctx.beginPath();
       ctx.moveTo(a.sx, a.sy);
@@ -363,7 +363,7 @@ export class Sphere {
       // A tick at the tip. Cheap, and it gives the silhouette the studded
       // texture that makes it look built rather than drawn.
       if (depth > 0.45) {
-        ctx.fillStyle = `rgba(255, 230, 170, ${alpha * 0.8})`;
+        ctx.fillStyle = `rgba(255, 190, 180, ${alpha * 0.8})`;
         ctx.fillRect(b.sx - 0.9, b.sy - 0.9, 1.8, 1.8);
       }
     }
@@ -372,9 +372,9 @@ export class Sphere {
     const energy = this.smooth.reduce((n, v) => n + v, 0) / BANDS;
     const cr = R * (0.34 + energy * 0.5);
     const core = ctx.createRadialGradient(cx, cy, 0, cx, cy, cr);
-    core.addColorStop(0, `rgba(255, 244, 214, ${0.42 + energy * 0.45})`);
-    core.addColorStop(0.28, `rgba(255, 186, 70, ${0.16 + energy * 0.24})`);
-    core.addColorStop(1, "rgba(255, 140, 0, 0)");
+    core.addColorStop(0, `rgba(255, 228, 222, ${0.42 + energy * 0.45})`);
+    core.addColorStop(0.28, `rgba(239, 110, 92, ${0.16 + energy * 0.24})`);
+    core.addColorStop(1, "rgba(208, 16, 8, 0)");
     ctx.fillStyle = core;
     ctx.beginPath();
     ctx.arc(cx, cy, cr, 0, Math.PI * 2);

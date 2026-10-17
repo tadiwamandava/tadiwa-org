@@ -101,6 +101,20 @@
 
   --focus: #d01008;
 
+  /* --- the one dark band -----------------------------------------------
+     This direction's palette allows "one full black band" on the white
+     ground, and the assistant panel is it. Not decoration: the sphere is a
+     glow, and a glow needs dark to be a glow. Drawn on paper it washed out,
+     and its gold readout measured 1.83:1 against white.
+
+     The accent here is the same red, lightened for a dark ground. Still one
+     colour: one hue, two values, because 4.5:1 cannot be met on both grounds
+     by a single number. */
+  --band: #0d0c0b;
+  --band-text: #f5f4f2;
+  --band-muted: #a9a49c;
+  --band-accent: #ef5a4a;
+
   color-scheme: light;
 }
 
@@ -110,6 +124,10 @@
    ========================================================================= */
 @theme inline {
   --color-bg: var(--bg);
+  --color-band: var(--band);
+  --color-band-text: var(--band-text);
+  --color-band-muted: var(--band-muted);
+  --color-band-accent: var(--band-accent);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
   --color-text: var(--text);

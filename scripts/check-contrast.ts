@@ -184,6 +184,15 @@ const CHECKS: Check[] = [
   { fg: "--accent", bg: "--bg", min: AA_BODY, note: "link on page" },
   { fg: "--accent", bg: "--surface", min: AA_BODY, note: "link on card" },
   { fg: "--accent", bg: "--surface-2", min: AA_BODY, note: "link on inset" },
+
+  /* The one dark band. These pairs exist because their absence cost
+     something: the assistant panel carried four hardcoded golds outside the
+     token layer, so when the ground went from near-black to white this gate
+     reported 27 passes while the panel's readout sat at 1.83:1. A colour the
+     gate cannot see is a colour that breaks silently. */
+  { fg: "--band-text", bg: "--band", min: AA_BODY, note: "text on the dark band" },
+  { fg: "--band-muted", bg: "--band", min: AA_BODY, note: "secondary on the dark band" },
+  { fg: "--band-accent", bg: "--band", min: AA_BODY, note: "accent on the dark band" },
   { fg: "--accent-contrast", bg: "--accent", min: AA_BODY, note: "text on accent fill" },
   { fg: "--text", bg: "--accent-subtle", min: AA_BODY, note: "text on tinted panel" },
   { fg: "--accent", bg: "--accent-subtle", min: AA_LARGE, note: "accent on tinted panel" },

@@ -90,7 +90,7 @@ export function Assistant({
   );
 
   return (
-    <div className="rounded-lg border border-border bg-bg p-5">
+    <div className="rounded-lg border border-band bg-band p-5">
       <div className="relative mx-auto aspect-square w-full max-w-sm">
         <canvas
           ref={canvasRef}
@@ -103,7 +103,7 @@ export function Assistant({
           see it, and as the live region that announces changes. */}
       <p
         aria-live="polite"
-        className="mt-2 text-center text-2xs tracking-[0.2em] text-[#ffb020]"
+        className="mt-2 text-center text-2xs tracking-[0.2em] text-band-accent"
       >
         {LABEL[mode]}
       </p>
@@ -115,23 +115,23 @@ export function Assistant({
           aria-pressed={speaking}
           className={`rounded border px-3 py-1.5 text-2xs transition-colors ${
             speaking
-              ? "border-[#ffb020] text-[#ffb020]"
-              : "border-white/20 text-white/50 hover:text-white/80"
+              ? "border-band-accent text-band-accent"
+              : "border-band-muted/40 text-band-muted hover:text-band-text"
           }`}
         >
           {speaking ? "Voice on" : "Voice off"}
         </button>
 
         {voices.length > 0 && (
-          <label className="flex items-center gap-2 font-mono text-2xs text-white/50">
+          <label className="flex items-center gap-2 font-mono text-2xs text-band-muted">
             <span className="sr-only">Assistant voice</span>
             <select
               value={current?.name ?? ""}
               onChange={(e) => chooseVoice(e.target.value)}
-              className="max-w-[16rem] rounded border border-white/20 bg-transparent px-2 py-1 text-white/70 outline-none focus-visible:border-[#ffb020]"
+              className="max-w-[16rem] rounded border border-band-muted/40 bg-transparent px-2 py-1 text-band-text outline-none focus-visible:border-band-accent"
             >
               {voices.map((v) => (
-                <option key={v.name} value={v.name} className="bg-bg">
+                <option key={v.name} value={v.name} className="bg-band text-band-text">
                   {v.preferred ? "preferred · " : ""}
                   {v.name} · {v.lang}
                 </option>
@@ -141,16 +141,16 @@ export function Assistant({
         )}
       </div>
 
-      <p className="mt-3 text-center text-2xs leading-relaxed text-white/35">
+      <p className="mt-3 text-center text-2xs leading-relaxed text-band-muted">
         {current?.preferred ? (
           <>
-            Speaking with <span className="text-white/60">{current.name}</span> (
+            Speaking with <span className="text-band-text">{current.name}</span> (
             {current.lang}), an African English voice installed on your device.
           </>
         ) : current ? (
           <>
             Your device has no African English voice installed, so this falls back
-            to <span className="text-white/60">{current.name}</span> ({current.lang}).
+            to <span className="text-band-text">{current.name}</span> ({current.lang}).
             The voice list belongs to your operating system; a web page can choose
             from it but cannot add to it.
           </>
