@@ -52,7 +52,6 @@ import {
   type ChipLayout,
 } from "./board-layout";
 import {
-  designator,
   type BenchProject,
   type ProbeTarget,
 } from "./types";
@@ -210,13 +209,6 @@ export function Bench({ projects }: { projects: BenchProject[] }) {
           />
         ) : null}
 
-        <span className={`${styles.silk} ${styles.silkStart}`} aria-hidden="true">
-          Bench-01 · Rev C
-        </span>
-        <span className={`${styles.silk} ${styles.silkEnd}`} aria-hidden="true">
-          {projects.length} {projects.length === 1 ? "module" : "modules"}
-        </span>
-
         <ul className={styles.index}>
           {projects.map((project, index) => {
             const href = `/projects/${project.slug}`;
@@ -242,7 +234,6 @@ export function Bench({ projects }: { projects: BenchProject[] }) {
                     router.push(href);
                   }}
                 >
-                  <span className={styles.designator}>{designator(index)}</span>
                   <span className={styles.title}>{project.title}</span>
                   <span className={styles.pitch}>{project.pitch}</span>
                 </Link>
@@ -259,7 +250,6 @@ export function Bench({ projects }: { projects: BenchProject[] }) {
         {current && active !== null ? (
           <>
             <p className={styles.readoutHead}>
-              <span className={styles.readoutDes}>{designator(active)}</span>
               <span className={styles.readoutTitle}>{current.title}</span>
               {current.metric ? (
                 <span className={styles.readoutStatus}>
@@ -270,10 +260,7 @@ export function Bench({ projects }: { projects: BenchProject[] }) {
             <p className={styles.readoutPitch}>{current.pitch}</p>
           </>
         ) : live ? (
-          <p className={styles.readoutIdle}>
-            Probe a module, point at one, or press{" "}
-            <span className={styles.readoutKey}>Tab</span> to walk the board.
-          </p>
+          <p className={styles.readoutIdle} />
         ) : (
           <p className={styles.readoutIdle}>
             Every project on this site is a part on one board.

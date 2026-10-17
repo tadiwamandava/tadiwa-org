@@ -37,11 +37,6 @@ export interface ProbeTarget {
   visible: boolean;
 }
 
-/** Reference designator, the way a real board labels its parts: U1, U2, … */
-export function designator(index: number): string {
-  return `U${index + 1}`;
-}
-
 export const STATUS_LABEL: Record<BenchProject["status"], string> = {
   shipped: "Shipped",
   building: "Building",

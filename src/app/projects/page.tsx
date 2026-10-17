@@ -40,10 +40,6 @@ export default async function ProjectsPage(props: PageProps<"/projects">) {
     <Container wide className="py-16">
       <header className="max-w-2xl">
         <h1 className="font-display text-4xl tracking-tight">Projects</h1>
-        <p className="mt-4 text-lg leading-relaxed text-muted">
-          Each one has a writeup: how it works, what I tried that didn&rsquo;t,
-          and where the numbers came from.
-        </p>
       </header>
 
       {allProjects.length === 0 ? (

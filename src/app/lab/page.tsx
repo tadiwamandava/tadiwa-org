@@ -66,10 +66,6 @@ export default function LabPage() {
     <Container className="py-16">
       <header>
         <h1 className="font-display text-4xl tracking-tight">Lab</h1>
-        <p className="mt-4 text-lg leading-relaxed text-muted">
-          These run in your browser, on code I wrote. Nothing is happening on
-          a server off-screen.
-        </p>
       </header>
 
       <ul className="mt-12 space-y-px overflow-hidden rounded-lg border border-border">
