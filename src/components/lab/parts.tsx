@@ -24,7 +24,7 @@ export function LabSection({
 }) {
   return (
     <section className="mt-16 scroll-mt-20 first:mt-0">
-      <h2 className="flex items-baseline gap-3 border-b border-border pb-2 font-mono text-xs tracking-[0.14em] text-muted uppercase">
+      <h2 className="flex items-baseline gap-3 border-b border-border pb-2 text-xs tracking-[0.14em] text-muted uppercase">
         {n && <span className="text-subtle tabular-nums">{n}</span>}
         {label}
       </h2>

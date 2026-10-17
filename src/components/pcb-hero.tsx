@@ -56,7 +56,7 @@ export function PcbHero() {
           >
             The bench
           </h1>
-          <p className="font-mono text-2xs tracking-wide text-subtle uppercase">
+          <p className="text-2xs tracking-wide text-subtle uppercase">
             Every project, as one board
           </p>
         </div>

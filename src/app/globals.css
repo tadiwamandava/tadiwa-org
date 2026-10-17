@@ -51,39 +51,49 @@
    That duplication existed so a media-query dark theme and a toggle-selected
    dark theme could not drift; with nothing to toggle, it is gone. */
 :root {
-  /* --- surfaces: near-black page, two lifted steps --------------------- */
-  --bg: #09090b;
-  --surface: #131316;
-  --surface-2: #1c1c20;
+  /* --- surfaces: warm near-black, two lifted steps ----------------------
+     Hand-mixed rather than lifted off a Tailwind ramp. The previous values
+     were zinc-950/800/500 with a teal-400 accent, which is the stock dark
+     palette of every generated app, and the opposite of what this site's own
+     brief asked for. Hue sits around 30deg throughout, so the greys read warm
+     against the ochre instead of fighting it. */
+  --bg: #13110f;
+  --surface: #1b1815;
+  --surface-2: #24201c;
 
-  /* --- text ------------------------------------------------------------ */
-  --text: #ffffff;
-  --text-muted: #a1a1aa;
-  --text-subtle: #8b8b94;
+  /* --- text ------------------------------------------------------------
+     Not #fff. Pure white on a warm ground reads as a colour mistake, and at
+     this size it glares; #f6f2ec carries the same hue as the surfaces. */
+  --text: #f6f2ec;
+  --text-muted: #b3a89c;
+  --text-subtle: #928678;
 
   /* --- lines -----------------------------------------------------------
      --border is a decorative hairline. --border-strong identifies a control
      (inputs, toggles) and therefore clears WCAG 1.4.11's 3:1. Do not swap. */
-  --border: #27272a;
-  --border-strong: #71717a;
+  --border: #2e2924;
+  --border-strong: #766a5d;
 
-  /* --- accent ---------------------------------------------------------- */
-  --accent: #2dd4bf;
-  --accent-hover: #5eead4;
-  --accent-contrast: #09090b;
-  --accent-subtle: #10302c;
-  --accent-bright: #2dd4bf;
+  /* --- accent ----------------------------------------------------------
+     One hue, and a muted ochre rather than a neon. It has to clear 4.5:1 on
+     all three surfaces as link text, which is what rules out the brighter
+     versions of this colour. */
+  --accent: #d9a05b;
+  --accent-hover: #e8b878;
+  --accent-contrast: #13110f;
+  --accent-subtle: #332518;
+  --accent-bright: #d9a05b;
 
   /* --- project status: ranked by tone, named by the label -------------- */
-  --status-shipped: #e4e4e7;
-  --status-building: #2dd4bf;
-  --status-planned: #8b8b94;
+  --status-shipped: #e8e2d9;
+  --status-building: #d9a05b;
+  --status-planned: #928678;
 
   /* --- benchmark marks: emphasis hierarchy, not a categorical pair ----- */
-  --chart-mine: #2dd4bf;
-  --chart-reference: #71717a;
+  --chart-mine: #d9a05b;
+  --chart-reference: #6b6054;
 
-  --focus: #2dd4bf;
+  --focus: #d9a05b;
 
   color-scheme: dark;
 }
@@ -122,13 +132,14 @@
   --font-sans:
     "Helvetica Neue", Helvetica, Arial, "Segoe UI", Roboto, system-ui,
     sans-serif;
-  /* Display only. Saira carries headings; body and mono stay on the system
-     stack, so the two faces a reader spends the most time in cost nothing.
-     The fallback is the same stack the body uses, and next/font matches its
-     metrics at build, so a slow font never moves the layout. */
+  /* Display only. Source Serif carries headings; body and mono stay on the
+     system stack, so the two faces a reader spends the most time in cost
+     nothing. The fallback is a serif stack rather than the body's sans, so a
+     slow font does not flash a different voice. next/font matches metrics at
+     build, so nothing moves when it swaps in. */
   --font-display:
-    var(--font-saira), "Helvetica Neue", Helvetica, Arial, system-ui,
-    sans-serif;
+    var(--font-display-face), Charter, "Bitstream Charter", "Iowan Old Style",
+    Georgia, "Times New Roman", serif;
   --font-mono:
     ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
     "Liberation Mono", monospace;
@@ -203,12 +214,13 @@
   h2,
   h3,
   h4 {
-    /* A grotesque needs more negative tracking and more weight than the
-       serif it replaced, or large headings read loose and thin. */
+    /* A serif at display size wants far less negative tracking than a
+       squarish grotesque did, and semibold rather than bold: Source Serif's
+       700 is heavy enough on a dark ground to fill in its own counters. */
     font-family: var(--font-display);
-    font-weight: 700;
-    line-height: 1.08;
-    letter-spacing: -0.028em;
+    font-weight: 600;
+    line-height: 1.12;
+    letter-spacing: -0.012em;
     text-wrap: balance;
   }
 

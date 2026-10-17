@@ -23,7 +23,7 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
     <Container wide className="py-8">
       <div className="mb-6 flex flex-wrap items-baseline justify-between gap-3 border-b border-border pb-3">
         <div>
-          <h1 className="font-mono text-sm tracking-[0.14em] text-text uppercase">
+          <h1 className="text-sm tracking-[0.14em] text-text uppercase">
             Content admin
           </h1>
           <p className="mt-1 text-xs text-subtle">
@@ -35,7 +35,7 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
         <nav aria-label="Admin" className="flex items-center gap-4">
           <a
             href="/admin"
-            className="font-mono text-2xs tracking-wide text-muted uppercase underline decoration-dotted underline-offset-4 hover:text-accent"
+            className="text-2xs tracking-wide text-muted uppercase underline decoration-dotted underline-offset-4 hover:text-accent"
           >
             Index
           </a>
@@ -43,7 +43,7 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
             <form action={signOutAction}>
               <button
                 type="submit"
-                className="font-mono text-2xs tracking-wide text-muted uppercase underline decoration-dotted underline-offset-4 hover:text-accent"
+                className="text-2xs tracking-wide text-muted uppercase underline decoration-dotted underline-offset-4 hover:text-accent"
               >
                 Sign out
               </button>

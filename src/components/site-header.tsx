@@ -21,7 +21,7 @@ export function SiteHeader() {
             {SITE.name}
             <span className="text-accent">.</span>
           </span>
-          <span className="block font-mono text-2xs tracking-wide text-subtle">
+          <span className="block text-2xs tracking-wide text-subtle">
             {SITE.role}
           </span>
         </Link>

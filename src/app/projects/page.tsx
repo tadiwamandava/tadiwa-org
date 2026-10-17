@@ -68,7 +68,7 @@ export default async function ProjectsPage(props: PageProps<"/projects">) {
               </p>
               <Link
                 href="/projects"
-                className="mt-4 inline-block font-mono text-xs tracking-wide text-accent uppercase underline decoration-dotted underline-offset-4 transition-colors hover:text-text"
+                className="mt-4 inline-block text-xs tracking-wide text-accent uppercase underline decoration-dotted underline-offset-4 transition-colors hover:text-text"
               >
                 Clear filters
               </Link>

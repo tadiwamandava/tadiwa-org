@@ -59,7 +59,7 @@ export function PageSection({
         {action && (
           <Link
             href={action.href}
-            className="font-mono text-2xs tracking-wide text-accent uppercase underline decoration-dotted underline-offset-4 transition-colors hover:text-text"
+            className="text-2xs tracking-wide text-accent uppercase underline decoration-dotted underline-offset-4 transition-colors hover:text-text"
           >
             {action.label} →
           </Link>
@@ -87,7 +87,7 @@ export function StatusPill({
   const { label, cls } = STATUS_COPY[status];
   return (
     <span
-      className={`inline-flex items-center gap-1.5 font-mono text-2xs tracking-wide uppercase ${cls}`}
+      className={`inline-flex items-center gap-1.5 text-2xs tracking-wide uppercase ${cls}`}
     >
       <span
         className="size-1.5 rounded-full bg-current"
@@ -116,7 +116,7 @@ export function SectionHeading({
 }) {
   return (
     <div className="mb-6 flex items-baseline justify-between gap-4 border-b border-border pb-2">
-      <h2 className="font-mono text-xs tracking-[0.14em] text-muted uppercase">
+      <h2 className="text-xs tracking-[0.14em] text-muted uppercase">
         {children}
       </h2>
       {action && (
@@ -151,7 +151,7 @@ export function MetricStat({
       <div
         className={
           pending
-            ? "rounded border border-dashed border-border-strong px-1.5 py-0.5 font-mono text-2xs tracking-wide text-subtle uppercase"
+            ? "rounded border border-dashed border-border-strong px-1.5 py-0.5 text-2xs tracking-wide text-subtle uppercase"
             : "font-mono text-xl font-medium text-text tabular-nums"
         }
       >

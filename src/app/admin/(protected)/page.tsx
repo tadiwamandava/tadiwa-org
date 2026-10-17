@@ -73,7 +73,7 @@ function EntryList({
 }) {
   return (
     <section>
-      <h2 className="mb-2 flex items-baseline gap-2 border-b border-border pb-1.5 font-mono text-2xs tracking-[0.14em] text-muted uppercase">
+      <h2 className="mb-2 flex items-baseline gap-2 border-b border-border pb-1.5 text-2xs tracking-[0.14em] text-muted uppercase">
         {title}
         <span className="text-subtle tabular-nums">{entries.length}</span>
       </h2>
@@ -161,6 +161,6 @@ const STATUS_TONE = {
 function StatusTag({ status }: { status: string }) {
   const tone = STATUS_TONE[status as keyof typeof STATUS_TONE] ?? "text-muted";
   return (
-    <span className={`font-mono text-2xs tracking-wide uppercase ${tone}`}>{status}</span>
+    <span className={`text-2xs tracking-wide uppercase ${tone}`}>{status}</span>
   );
 }

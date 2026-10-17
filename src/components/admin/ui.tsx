@@ -20,12 +20,12 @@ export const inputClass =
 
 export const buttonClass =
   "inline-flex items-center gap-1.5 rounded-sm border border-border-strong bg-surface " +
-  "px-2.5 py-1 font-mono text-2xs tracking-wide text-text uppercase transition-colors " +
+  "px-2.5 py-1 text-2xs tracking-wide text-text uppercase transition-colors " +
   "hover:bg-surface-2 disabled:cursor-not-allowed disabled:opacity-50";
 
 export const primaryButtonClass =
   "inline-flex items-center gap-1.5 rounded-sm border border-accent bg-accent px-3 py-1.5 " +
-  "font-mono text-2xs tracking-wide text-accent-contrast uppercase transition-colors " +
+  "text-2xs tracking-wide text-accent-contrast uppercase transition-colors " +
   "hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50";
 
 export function FieldLabel({
@@ -40,7 +40,7 @@ export function FieldLabel({
   return (
     <label
       htmlFor={htmlFor}
-      className="block font-mono text-2xs tracking-wide text-muted uppercase"
+      className="block text-2xs tracking-wide text-muted uppercase"
     >
       {children}
       {required && (
@@ -86,7 +86,7 @@ export function Panel({
       }`}
     >
       {title && (
-        <h2 className="mb-2 font-mono text-2xs tracking-[0.14em] text-muted uppercase">
+        <h2 className="mb-2 text-2xs tracking-[0.14em] text-muted uppercase">
           {title}
         </h2>
       )}
@@ -97,7 +97,7 @@ export function Panel({
 
 export function SectionRule({ children }: { children: ReactNode }) {
   return (
-    <h2 className="mt-8 mb-3 border-b border-border pb-1.5 font-mono text-2xs tracking-[0.14em] text-muted uppercase">
+    <h2 className="mt-8 mb-3 border-b border-border pb-1.5 text-2xs tracking-[0.14em] text-muted uppercase">
       {children}
     </h2>
   );
@@ -118,7 +118,7 @@ export function Tag({
   } as const;
   return (
     <span
-      className={`inline-flex items-center rounded-sm border px-1.5 py-px font-mono text-2xs tracking-wide uppercase ${tones[tone]}`}
+      className={`inline-flex items-center rounded-sm border px-1.5 py-px text-2xs tracking-wide uppercase ${tones[tone]}`}
     >
       {children}
     </span>

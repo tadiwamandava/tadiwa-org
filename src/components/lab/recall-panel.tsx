@@ -66,7 +66,7 @@ export function RecallTable({
             query, and mean time per query, as the search parameter ef increases.
           </caption>
           <thead>
-            <tr className="border-b border-border text-left font-mono text-2xs text-subtle uppercase">
+            <tr className="border-b border-border text-left text-2xs text-subtle uppercase">
               <th scope="col" className="pb-2 pr-3 font-normal">
                 ef
               </th>
@@ -139,7 +139,7 @@ export function RecallTable({
               <tr className="border-t border-border">
                 <th
                   scope="row"
-                  className="py-1.5 pr-3 text-left font-mono text-2xs font-normal text-subtle uppercase"
+                  className="py-1.5 pr-3 text-left text-2xs font-normal text-subtle uppercase"
                 >
                   scan
                 </th>
@@ -209,7 +209,7 @@ function EfSlider({
   return (
     <div className="mt-5 border-t border-border pt-4">
       <label className="flex flex-wrap items-center gap-x-4 gap-y-2">
-        <span className="font-mono text-2xs tracking-[0.12em] text-muted uppercase">
+        <span className="text-2xs tracking-[0.12em] text-muted uppercase">
           ef_search
         </span>
         <input

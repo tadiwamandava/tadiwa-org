@@ -37,7 +37,7 @@ export default async function ProjectPage(props: PageProps<"/projects/[slug]">) 
         <Container className="py-14">
           <Link
             href="/projects"
-            className="font-mono text-2xs tracking-[0.12em] text-subtle uppercase transition-colors hover:text-accent"
+            className="text-2xs tracking-[0.12em] text-subtle uppercase transition-colors hover:text-accent"
           >
             ← Projects
           </Link>
@@ -61,7 +61,7 @@ export default async function ProjectPage(props: PageProps<"/projects/[slug]">) 
                       : {})}
                     className="inline-flex items-center gap-1.5 rounded border border-border-strong px-3 py-1.5 text-sm transition-colors hover:border-accent hover:text-accent"
                   >
-                    <span className="font-mono text-2xs text-subtle uppercase">
+                    <span className="text-2xs text-subtle uppercase">
                       {a.kind}
                     </span>
                     {a.label}
@@ -122,14 +122,14 @@ export default async function ProjectPage(props: PageProps<"/projects/[slug]">) 
                     <h3 className="font-display text-lg leading-snug">
                       {d.made}
                       {d.regret && (
-                        <span className="ml-2 align-middle font-mono text-2xs tracking-wide text-accent uppercase">
+                        <span className="ml-2 align-middle text-2xs tracking-wide text-accent uppercase">
                           would revisit
                         </span>
                       )}
                     </h3>
                   </div>
                   <p className="pl-8 text-sm text-subtle">
-                    <span className="font-mono text-2xs tracking-wide uppercase">
+                    <span className="text-2xs tracking-wide uppercase">
                       Rejected
                     </span>
                     <span className="ml-2">{d.rejected}</span>
@@ -183,7 +183,7 @@ export default async function ProjectPage(props: PageProps<"/projects/[slug]">) 
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="border-b border-border pb-2 font-mono text-xs tracking-[0.14em] text-muted uppercase">
+    <h2 className="border-b border-border pb-2 text-xs tracking-[0.14em] text-muted uppercase">
       {children}
     </h2>
   );

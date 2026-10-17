@@ -1,31 +1,32 @@
 import type { Metadata, Viewport } from "next";
-import { Saira } from "next/font/google";
+import { Source_Serif_4 } from "next/font/google";
 import { SiteHeader } from "@/components/site-header";
 import { PaletteMount } from "@/components/search/palette-mount";
 import { SITE } from "@/lib/site";
 import "./globals.css";
 
 /* One web font, for display only.
-   Saira is a squarish grotesque, and it is here because the reference layout
-   this page follows sets its headings in Industry (Fort Foundry). Industry is
-   a commercial licence and its files cannot be copied off another site, so
-   this is the closest open equivalent: same semi-condensed squarish
-   proportions and flat terminals, under the SIL Open Font License.
-   If the licence is ever bought, this is the one line that changes.
 
-   Body and mono stay on the system stack. That is not a compromise, it is what
-   the reference does too, and it keeps the two faces a reader spends the most
-   time in at zero bytes.
+   Source Serif 4, not Saira. Saira was chosen to approximate Industry, the
+   commercial face on a site this layout was referenced from, which made the
+   headline voice a substitute for somebody else's decision. A squarish
+   grotesque on near-black with a single bright accent is also the exact
+   costume every generated portfolio wears.
 
-   The VARIABLE cut, not static weights. Asking for 600 and 700 shipped two
-   files and covered neither the 400 that some display elements resolve to, so
-   those rendered in the fallback while their neighbours rendered in Saira.
-   One variable file covers the whole axis and is smaller than the static cuts
-   it replaces. Latin only, and next/font computes fallback metrics at build
-   so nothing reflows when it swaps in. */
-const display = Saira({
+   A serif is the opposite choice and the honest one here: this site argues
+   through writing, and a text face designed for reading says that before a
+   word is read. Source Serif is a workhorse rather than a fashion, which is
+   the point, and it is open-licensed.
+
+   Body and mono stay on the system stack, so the two faces a reader spends
+   the most time in cost zero bytes.
+
+   The VARIABLE cut, not static weights: one file covers the whole axis and
+   is smaller than the static cuts it replaces. Latin only, and next/font
+   computes fallback metrics at build so nothing reflows when it swaps in. */
+const display = Source_Serif_4({
   subsets: ["latin"],
-  variable: "--font-saira",
+  variable: "--font-display-face",
   display: "swap",
 });
 

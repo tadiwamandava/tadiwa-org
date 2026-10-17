@@ -288,7 +288,7 @@ export function GraphMap({
 
       {path.length > 0 && (
         <Panel className="mt-4">
-          <h3 className="font-mono text-2xs tracking-[0.12em] text-muted uppercase">
+          <h3 className="text-2xs tracking-[0.12em] text-muted uppercase">
             The last descent
           </h3>
           <ol className="mt-3 space-y-1.5">
@@ -322,7 +322,7 @@ function LayerTable({ layers, selected }: { layers: LayerStats[]; selected: numb
   const max = Math.max(...layers.map((l) => l.nodes));
   return (
     <Panel>
-      <h3 className="font-mono text-2xs tracking-[0.12em] text-muted uppercase">
+      <h3 className="text-2xs tracking-[0.12em] text-muted uppercase">
         The pyramid
       </h3>
       <table className="mt-3 w-full border-collapse">
@@ -330,7 +330,7 @@ function LayerTable({ layers, selected }: { layers: LayerStats[]; selected: numb
           Nodes and edges per layer, layer 0 holding every node.
         </caption>
         <thead>
-          <tr className="text-left font-mono text-2xs text-subtle uppercase">
+          <tr className="text-left text-2xs text-subtle uppercase">
             <th scope="col" className="pb-1.5 font-normal">
               Layer
             </th>

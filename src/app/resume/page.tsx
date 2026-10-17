@@ -323,7 +323,7 @@ function VariantToggle({ current }: { current: ResumeVariantId }) {
 function ConfirmBanner({ items }: { items: Placeholder[] }) {
   return (
     <aside className="mt-8 rounded border-l-2 border-accent bg-accent-subtle px-4 py-3.5">
-      <p className="font-mono text-2xs tracking-[0.12em] text-accent uppercase">
+      <p className="text-2xs tracking-[0.12em] text-accent uppercase">
         {items.length} unconfirmed {items.length === 1 ? "field" : "fields"}
       </p>
       <p className="mt-1.5 text-sm leading-relaxed">
@@ -365,7 +365,7 @@ function SheetSection({
 }) {
   return (
     <section className={`${styles.section} mt-7`}>
-      <h2 className="mb-3 border-b border-border pb-1.5 font-mono text-2xs tracking-[0.14em] text-muted uppercase">
+      <h2 className="mb-3 border-b border-border pb-1.5 text-2xs tracking-[0.14em] text-muted uppercase">
         {label}
       </h2>
       {children}
@@ -477,7 +477,7 @@ function SkillRow({
 }) {
   return (
     <div className="flex flex-col gap-x-4 gap-y-0.5 sm:flex-row">
-      <dt className="w-40 shrink-0 pt-0.5 font-mono text-2xs tracking-[0.1em] text-subtle uppercase">
+      <dt className="w-40 shrink-0 pt-0.5 text-2xs tracking-[0.1em] text-subtle uppercase">
         {label}
       </dt>
       <dd className="text-sm leading-relaxed text-muted">{children}</dd>
@@ -536,7 +536,7 @@ function Fact({ value }: { value: string }) {
 
 function Label({ children }: { children: React.ReactNode }) {
   return (
-    <span className="font-mono text-2xs tracking-[0.1em] text-subtle uppercase">
+    <span className="text-2xs tracking-[0.1em] text-subtle uppercase">
       {children}
     </span>
   );

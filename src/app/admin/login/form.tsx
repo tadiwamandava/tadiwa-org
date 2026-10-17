@@ -13,7 +13,7 @@ export function LoginForm() {
     <form action={action} className="mt-8 max-w-sm">
       <label
         htmlFor="admin-password"
-        className="block font-mono text-2xs tracking-wide text-subtle uppercase"
+        className="block text-2xs tracking-wide text-subtle uppercase"
       >
         Password
       </label>

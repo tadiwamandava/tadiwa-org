@@ -78,7 +78,7 @@ export default function HomePage() {
                 key={demo.href}
                 className="group relative flex flex-col rounded-lg border border-border bg-surface p-5 transition-colors hover:border-border-strong"
               >
-                <p className="font-mono text-2xs tracking-wide text-subtle uppercase">
+                <p className="text-2xs tracking-wide text-subtle uppercase">
                   {demo.meta}
                 </p>
                 <h3 className="mt-3 font-display text-xl leading-snug">
