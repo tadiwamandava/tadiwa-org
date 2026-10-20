@@ -9,7 +9,7 @@ export function SiteHeader() {
   const hasWriting = getAllPosts().some((post) => !post.draft);
   return (
     <header className={styles.header}>
-      <PixelField variant="bar" />
+      <PixelField />
       <div className={styles.inner}>
         {/* The mark is the pixel field, not the name. Still a link, because
             this is the only way home from every other page and a logo-position

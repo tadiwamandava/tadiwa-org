@@ -1,16 +1,8 @@
 .header {
-  position: sticky; top: 0; z-index: 40;
-  /* Colour first, grid on top. The bar is sticky, so content scrolls beneath
-     it; a texture with no opaque ground would let that show through. Same 4px
-     cell, same colour and same origin as PixelField, so the two grids line up
-     and the header reads as the top of one field rather than a band with its
-     own pattern. */
-  background-color: var(--bg);
+  --header-blend: 128px;
+  position: sticky; top: 0; z-index: 40; isolation: isolate;
 }
-/* The fade under the header is gone. It painted opaque --bg over the top
-   16px of the hero, which was invisible when the bar was a flat colour and is
-   a wash across the field's brightest rows now that the bar is the same grid.
-   The two meet directly; the continuity is the point. */
+.header::before { content: ""; position: absolute; z-index: -1; inset: 0 0 calc(-1 * var(--header-blend)); background: linear-gradient(to bottom, var(--bg) 0, var(--bg) calc(100% - var(--header-blend)), transparent 100%); pointer-events: none; }
 .inner { position: relative; z-index: 1; max-width: var(--container-wide); min-height: 84px; margin: auto; padding: 16px 36px; display: flex; align-items: center; gap: 32px; }
 .brand { display: flex; align-items: center; justify-content: flex-start; min-height: 44px; width: 44px; }
 /* The same 4px grid and the same cell colour as PixelField, so the header

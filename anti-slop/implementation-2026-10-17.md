@@ -1,5 +1,17 @@
 # Website revision review
 
+## 2026-10-19: one continuous pixel field
+
+Supersedes the two-field overlap below. A single canvas now spans the navigation and the 128px band beneath it, removing the junction between separate pixel grids. Both the texture and header backing fade gradually below the navigation. Pointer tracking uses the same coordinate space across the entire field. No layout height, visible copy, or controls were added.
+
+PASS: production build including TypeScript, full ESLint, whitespace checks, and a generated-HTML assertion confirming exactly one canvas on the homepage. R-01/R-07/C-1 PASS by source and the explicitly requested continuity purpose. Browser verification remains BLOCKED by the existing “No browser is available” response; the visual transition and scrolling behavior remain unverified. No overall delivery-gate PASS is claimed.
+
+## 2026-10-19: blend the two pixel fields
+
+The current header already has no visible name; its small home-link mark remains. The latest request concerns the seam between the header and hero. Both now contain separate animated pixel canvases, and the previous header fade had been removed in the current source. The header canvas and its opaque backing now extend 36px below the bar and fade out, while the hero canvas fades in over its first 24px. The overlap replaces the hard join without intercepting clicks or changing layout height. Comments were updated to describe the actual overlap.
+
+PASS: production build including TypeScript, targeted ESLint, and whitespace checks. R-01/R-07/C-1 PASS by source and the requested continuity purpose. Unchanged behavior retains its prior verification scope. Browser verification remains BLOCKED: a fresh connection returned “No browser is available.” Actual scroll, mobile, and visual seam checks remain unverified; no overall delivery-gate PASS is claimed.
+
 ## Follow-up: soften the header boundary
 
 Removed the header's bottom border and added a 16px background-to-transparent fade beneath it, as requested. The non-interactive overlay blends the sticky header into the pixel field without changing layout or animation timing. R-01/C-1 PASS by the explicit transition purpose. PASS: production build including TypeScript and whitespace checks. The existing browser-verification limitations remain; this change has not been visually approved in a browser.

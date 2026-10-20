@@ -3,25 +3,15 @@
 import { useEffect, useRef } from "react";
 import styles from "./pixel-field.module.css";
 
-/**
- * `bar` fills its container and does not fade; `hero` keeps the 128px band and
- * the downward mask. Same cells, same colours, same loop, so the header reads
- * as the top of one field rather than a different material.
- *
- * Per-cell brightness is independent noise, so two instances need no shared
- * seed to look continuous. What would break continuity is one of them being
- * static while the other moves, which is why the header runs the real canvas
- * instead of a CSS grid.
- */
-export function PixelField({ variant = "hero" }: { variant?: "hero" | "bar" }) {
+/** One canvas spans the navigation and the fading band below it. */
+export function PixelField() {
   const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const canvas = ref.current;
     const host = canvas?.parentElement;
-    const hero = host?.parentElement;
     const context = canvas?.getContext("2d");
-    if (!canvas || !host || !hero || !context) return;
+    if (!canvas || !host || !context) return;
 
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const pointer = window.matchMedia("(hover: hover) and (pointer: fine)");
@@ -119,8 +109,8 @@ export function PixelField({ variant = "hero" }: { variant?: "hero" | "bar" }) {
       else { cancelAnimationFrame(frame); frame = 0; inside = false; energy.fill(0); }
     });
     visibilityObserver.observe(host);
-    hero.addEventListener("pointermove", move, { passive: true });
-    hero.addEventListener("pointerleave", leave);
+    document.addEventListener("pointermove", move, { passive: true });
+    document.addEventListener("pointerleave", leave);
     motion.addEventListener("change", preferences);
     pointer.addEventListener("change", preferences);
     document.addEventListener("visibilitychange", pageVisibility);
@@ -130,8 +120,8 @@ export function PixelField({ variant = "hero" }: { variant?: "hero" | "bar" }) {
       cancelAnimationFrame(frame);
       resizeObserver.disconnect();
       visibilityObserver.disconnect();
-      hero.removeEventListener("pointermove", move);
-      hero.removeEventListener("pointerleave", leave);
+      document.removeEventListener("pointermove", move);
+      document.removeEventListener("pointerleave", leave);
       motion.removeEventListener("change", preferences);
       pointer.removeEventListener("change", preferences);
       document.removeEventListener("visibilitychange", pageVisibility);
@@ -141,7 +131,7 @@ export function PixelField({ variant = "hero" }: { variant?: "hero" | "bar" }) {
 
   return (
     <div
-      className={`${styles.field} ${variant === "bar" ? styles.bar : ""}`}
+      className={styles.field}
       aria-hidden="true"
     >
       <canvas ref={ref} />

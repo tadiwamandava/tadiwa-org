@@ -3,7 +3,6 @@ import { getFeaturedProjects, getAllPosts } from "@/lib/content";
 import { SITE } from "@/lib/site";
 import { EngineeringStack } from "@/components/engineering-stack/engineering-stack";
 import { ExperienceList } from "@/components/experience-list";
-import { PixelField } from "@/components/pixel-field";
 import styles from "./page.module.css";
 
 export default function HomePage() {
@@ -13,7 +12,6 @@ export default function HomePage() {
   return (
     <div className={styles.home}>
       <section className={styles.hero} aria-labelledby="hero-heading">
-        <PixelField />
         <div className={`${styles.container} ${styles.heroGrid}`}>
           <div className={styles.heroCopy}>
             <p className={styles.byline}>Computer Engineering · University of Oklahoma</p>
