@@ -515,9 +515,12 @@ function ContactItems() {
               lines at narrow widths, and a leading dot would start a line with
               punctuation. */}
           {i < items.length - 1 && (
-            <span className="mx-2 text-border-strong" aria-hidden>
-              ·
-            </span>
+            <>
+              <span className="mx-2 text-border-strong" aria-hidden>
+                ·
+              </span>
+              <wbr />
+            </>
           )}
         </li>
       ))}
@@ -543,9 +546,18 @@ function Label({ children }: { children: React.ReactNode }) {
 }
 
 function Dot() {
+  // The <wbr> goes AFTER the dot. The margins around these separators are
+  // visual, not whitespace, so the whole row is one unbreakable token to the
+  // browser and the tools row ran 20px past the viewport at every width,
+  // desktop included. <wbr> marks where it may break and adds no box, so the
+  // print sheet is unaffected. After, not before, because breaking before the
+  // separator would start a line with punctuation.
   return (
-    <span className="mx-1.5 text-border-strong" aria-hidden>
-      ·
-    </span>
+    <>
+      <span className="mx-1.5 text-border-strong" aria-hidden>
+        ·
+      </span>
+      <wbr />
+    </>
   );
 }

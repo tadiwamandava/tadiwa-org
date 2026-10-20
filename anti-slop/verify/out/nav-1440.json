@@ -1,0 +1,115 @@
+{
+  "__conditions": {
+    "width": 1440,
+    "height": 900,
+    "dpr": 1,
+    "pointerFine": true,
+    "reducedMotion": false,
+    "scheme": "dark",
+    "print": false,
+    "overflowX": false,
+    "url": "/"
+  },
+  "__consoleErrors": [],
+  "__failures": [],
+  "result": {
+    "ok": true,
+    "width": 1440,
+    "stops": [
+      {
+        "path": "/",
+        "headerInner": 116,
+        "pageContainer": 116,
+        "h1": 116,
+        "h1Text": "TadiwaMandava.",
+        "sheetWrap": null,
+        "sheetBox": null,
+        "sheetInner": null,
+        "innerWidth": 1440,
+        "scrollWidth": 1440,
+        "overflowX": false,
+        "ariaCurrent": [],
+        "navCount": 3
+      },
+      {
+        "path": "/projects",
+        "headerInner": 116,
+        "pageContainer": 112,
+        "h1": 112,
+        "h1Text": "Projects",
+        "sheetWrap": null,
+        "sheetBox": null,
+        "sheetInner": null,
+        "innerWidth": 1440,
+        "scrollWidth": 1440,
+        "overflowX": false,
+        "ariaCurrent": [
+          "Projects"
+        ],
+        "navCount": 3
+      },
+      {
+        "path": "/lab",
+        "headerInner": 116,
+        "pageContainer": 112,
+        "h1": 112,
+        "h1Text": "Lab",
+        "sheetWrap": null,
+        "sheetBox": null,
+        "sheetInner": null,
+        "innerWidth": 1440,
+        "scrollWidth": 1440,
+        "overflowX": false,
+        "ariaCurrent": [
+          "Lab"
+        ],
+        "navCount": 3
+      },
+      {
+        "path": "/resume",
+        "headerInner": 116,
+        "pageContainer": 112,
+        "h1": 112,
+        "h1Text": "Résumé",
+        "sheetWrap": 368,
+        "sheetBox": 768,
+        "sheetInner": 704,
+        "innerWidth": 1440,
+        "scrollWidth": 1460,
+        "overflowX": true,
+        "ariaCurrent": [
+          "Résumé"
+        ],
+        "navCount": 3
+      }
+    ],
+    "misaligned": [
+      {
+        "path": "/projects",
+        "headerInner": 116,
+        "pageContainer": 112,
+        "h1": 112
+      },
+      {
+        "path": "/lab",
+        "headerInner": 116,
+        "pageContainer": 112,
+        "h1": 112
+      },
+      {
+        "path": "/resume",
+        "headerInner": 116,
+        "pageContainer": 112,
+        "h1": 112
+      }
+    ],
+    "overflowing": [
+      "/resume"
+    ],
+    "history": {
+      "back": true,
+      "forward": true
+    },
+    "problems": []
+  }
+}

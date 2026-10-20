@@ -1,0 +1,103 @@
+{
+  "__conditions": {
+    "width": 639,
+    "height": 900,
+    "dpr": 1,
+    "pointerFine": true,
+    "reducedMotion": false,
+    "scheme": "dark",
+    "print": false,
+    "overflowX": false,
+    "url": "/"
+  },
+  "__consoleErrors": [],
+  "__failures": [],
+  "result": {
+    "ok": true,
+    "width": 639,
+    "stops": [
+      {
+        "path": "/",
+        "headerInner": 20,
+        "pageContainer": 20,
+        "h1": 0,
+        "h1Text": "TadiwaMandava.",
+        "sheetWrap": null,
+        "sheetBox": null,
+        "sheetInner": null,
+        "innerWidth": 639,
+        "scrollWidth": 639,
+        "overflowX": false,
+        "ariaCurrent": [],
+        "navCount": 3
+      },
+      {
+        "path": "/projects",
+        "headerInner": 20,
+        "pageContainer": 20,
+        "h1": 20,
+        "h1Text": "Projects",
+        "sheetWrap": null,
+        "sheetBox": null,
+        "sheetInner": null,
+        "innerWidth": 639,
+        "scrollWidth": 639,
+        "overflowX": false,
+        "ariaCurrent": [
+          "Projects"
+        ],
+        "navCount": 3
+      },
+      {
+        "path": "/lab",
+        "headerInner": 20,
+        "pageContainer": 20,
+        "h1": 20,
+        "h1Text": "Lab",
+        "sheetWrap": null,
+        "sheetBox": null,
+        "sheetInner": null,
+        "innerWidth": 639,
+        "scrollWidth": 639,
+        "overflowX": false,
+        "ariaCurrent": [
+          "Lab"
+        ],
+        "navCount": 3
+      },
+      {
+        "path": "/resume",
+        "headerInner": 20,
+        "pageContainer": 20,
+        "h1": 20,
+        "h1Text": "Résumé",
+        "sheetWrap": 20,
+        "sheetBox": 639,
+        "sheetInner": 599,
+        "innerWidth": 639,
+        "scrollWidth": 920,
+        "overflowX": true,
+        "ariaCurrent": [
+          "Résumé"
+        ],
+        "navCount": 3
+      }
+    ],
+    "misaligned": [
+      {
+        "path": "/",
+        "headerInner": 20,
+        "pageContainer": 20,
+        "h1": 0
+      }
+    ],
+    "overflowing": [
+      "/resume"
+    ],
+    "history": {
+      "back": true,
+      "forward": true
+    },
+    "problems": []
+  }
+}
