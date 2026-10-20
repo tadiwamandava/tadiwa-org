@@ -232,7 +232,15 @@
   }
 
   .section + .section {
-    margin-top: 1rem !important;
+    /* 0.5 rather than 1. At a budget of two bullets the sheet measured
+       965px against the 950px letter text block, so it spilled 15px onto a
+       second page. Taking 0.5rem off each of the four section gaps closes
+       that and leaves roughly 12px spare, without touching the type size:
+       the rules under the headings already separate the sections, so the gap
+       was carrying less than it looked. These are the numbers that decide
+       one page vs. two, so they are measured against a generated PDF rather
+       than guessed. */
+    margin-top: 0.5rem !important;
   }
 
   .section > h2 {

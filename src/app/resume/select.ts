@@ -73,7 +73,7 @@ const TIER_BULLETS: Record<Tier, number> = {
  * room for about eight project bullets plus a skills block. When the corpus
  * outgrows that, this number is the knob rather than the font size.
  */
-const PAGE_BULLET_BUDGET = 8;
+const PAGE_BULLET_BUDGET = 2;
 
 /**
  * Weighted relevance for one project under one variant.
@@ -154,7 +154,16 @@ export function selectProjects(
       // hide the hole and put marketing copy on a résumé.
       missingBullets: entry.project.resumeBullets.length === 0,
     };
-  });
+  })
+    // A project the budget could not reach is dropped, not printed as a bare
+    // heading. The budget used to cap bullets while still returning every
+    // qualifying project, so the lowest-ranked one reached the sheet as a
+    // title and a tech line with nothing underneath. Measured: "Bare-Metal
+    // RTOS on STM32" rendered at 38px with zero bullets.
+    //
+    // The corpus-hole case above is deliberately kept: that one has no bullets
+    // because none were written, and the page is supposed to say so.
+    .filter((entry) => entry.bullets.length > 0 || entry.missingBullets);
 }
 
 /* ---------------------------------------------------------------------------
