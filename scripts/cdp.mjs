@@ -47,6 +47,9 @@
 //   CDP_PDF=<file>     print to PDF. NOTE: printToPDF returns PDF bytes, not a
 //                      page count. Parse the file if you need one.
 //   CDP_FULLPAGE=1     screenshot beyond the viewport (whole scroll height)
+//   CDP_KEYS="..."     real key events before the expression runs, space
+//                      separated, e.g. "Tab Tab Meta+k Escape". Needed for
+//                      :focus-visible, which .focus() never produces.
 //   CDP_STRICT=1       also exit nonzero on console errors, not just on
 //                      uncaught exceptions
 //   CDP_GRANT=...      Browser.grantPermissions list, e.g. audioCapture
@@ -212,6 +215,40 @@ try {
     if (!ok) fail.push(`CDP_READY never became truthy within ${BUDGET}ms: ${process.env.CDP_READY}`);
   } else {
     await sleep(BUDGET);
+  }
+
+  // Real keyboard input. Element.focus() is unreliable in headless Chrome -
+  // it leaves document.activeElement unchanged often enough to report a
+  // working handler as broken - and it never produces :focus-visible, so a
+  // focus ring cannot be checked with it. Input.dispatchKeyEvent is genuine
+  // user input on both counts. CDP_KEYS="Tab Tab Meta+k Escape".
+  if (process.env.CDP_KEYS) {
+    const VK = {
+      Tab: [9, "Tab"], Enter: [13, "Enter"], Escape: [27, "Escape"],
+      ArrowUp: [38, "ArrowUp"], ArrowDown: [40, "ArrowDown"],
+      ArrowLeft: [37, "ArrowLeft"], ArrowRight: [39, "ArrowRight"],
+      Backspace: [8, "Backspace"], Space: [32, "Space"],
+    };
+    const MOD = { Alt: 1, Control: 2, Ctrl: 2, Meta: 4, Shift: 8 };
+    for (const token of process.env.CDP_KEYS.split(/\s+/).filter(Boolean)) {
+      const parts = token.split("+");
+      const name = parts.pop();
+      const modifiers = parts.reduce((m, q) => m | (MOD[q] ?? 0), 0);
+      const known = VK[name];
+      const isChar = !known && name.length === 1;
+      const code = known ? known[1] : "Key" + name.toUpperCase();
+      const vk = known ? known[0] : name.toUpperCase().charCodeAt(0);
+      const base = { modifiers, key: name, code, windowsVirtualKeyCode: vk, nativeVirtualKeyCode: vk };
+      const plainChar = isChar && !modifiers;
+      await cdp.send("Input.dispatchKeyEvent", {
+        ...base,
+        type: plainChar ? "keyDown" : "rawKeyDown",
+        ...(plainChar ? { text: name } : {}),
+      });
+      if (plainChar) await cdp.send("Input.dispatchKeyEvent", { ...base, type: "char", text: name });
+      await cdp.send("Input.dispatchKeyEvent", { ...base, type: "keyUp" });
+      await sleep(120);
+    }
   }
 
   // Record the conditions the page actually sees. A harness misconfiguration

@@ -75,8 +75,8 @@
         "sheetBox": 641,
         "sheetInner": 577,
         "innerWidth": 641,
-        "scrollWidth": 1124,
-        "overflowX": true,
+        "scrollWidth": 641,
+        "overflowX": false,
         "ariaCurrent": [
           "Résumé"
         ],
@@ -109,9 +109,7 @@
         "h1": 32
       }
     ],
-    "overflowing": [
-      "/resume"
-    ],
+    "overflowing": [],
     "history": {
       "back": true,
       "forward": true

@@ -19,8 +19,8 @@
       {
         "path": "/",
         "headerInner": 36,
-        "pageContainer": 32,
-        "h1": 0,
+        "pageContainer": 36,
+        "h1": 36,
         "h1Text": "TadiwaMandava.",
         "sheetWrap": null,
         "sheetBox": null,
@@ -75,8 +75,8 @@
         "sheetBox": 768,
         "sheetInner": 704,
         "innerWidth": 768,
-        "scrollWidth": 1124,
-        "overflowX": true,
+        "scrollWidth": 768,
+        "overflowX": false,
         "ariaCurrent": [
           "Résumé"
         ],
@@ -84,12 +84,6 @@
       }
     ],
     "misaligned": [
-      {
-        "path": "/",
-        "headerInner": 36,
-        "pageContainer": 32,
-        "h1": 0
-      },
       {
         "path": "/projects",
         "headerInner": 36,
@@ -109,9 +103,7 @@
         "h1": 32
       }
     ],
-    "overflowing": [
-      "/resume"
-    ],
+    "overflowing": [],
     "history": {
       "back": true,
       "forward": true
