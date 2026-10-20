@@ -20,17 +20,35 @@ export function PixelField() {
     let x = -1000, y = -1000, inside = false, visible = true;
     let frame = 0, previous = 0, time = 0;
 
+    // The field shimmers for a moment after it appears, then settles and the
+    // loop stops. Measured before this existed: 59.9 animation-frame
+    // callbacks per second, for as long as the page was open. The 30fps cap
+    // below throttles the WORK, not the request, and the header is sticky, so
+    // the field never scrolls out of view and the IntersectionObserver never
+    // suspends it. Pointer movement over the field wakes it again.
+    const SETTLE_MS = 5000, FADE_MS = 900;
+    let wake = 0;
+
     function paint(now: number) {
       frame = 0;
       if (!visible || document.hidden) return;
       const animated = !motion.matches;
-      if (animated && previous && now - previous < 1000 / 30) {
+      if (!wake) wake = now;
+      // 1 while the field is lively, falling to 0 across FADE_MS. At 1 the
+      // sum below is exactly the old animated value; at 0 it is exactly
+      // base[i], which is what reduced motion already renders. So settling is
+      // a fade towards a frame the component was always able to draw.
+      const life = animated
+        ? Math.min(1, Math.max(0, (SETTLE_MS - (now - wake)) / FADE_MS))
+        : 0;
+      const running = animated && life > 0;
+      if (running && previous && now - previous < 1000 / 30) {
         frame = requestAnimationFrame(paint);
         return;
       }
       const elapsed = previous ? Math.min((now - previous) / 1000, 0.1) : 1 / 60;
       previous = now;
-      if (animated) time += elapsed;
+      if (running) time += elapsed;
       const interactive = animated && inside && pointer.matches;
       const decay = Math.exp(-elapsed * 5);
       let settling = false;
@@ -46,13 +64,13 @@ export function PixelField() {
         const phase = base[i] * 270;
         const shimmer = (Math.sin(time * (0.5 + base[i] * 5) + phase) + 1) / 2;
         const drift = (Math.sin(px * 0.012 + py * 0.018 - time * 0.45) + 1) / 2;
-        const ambient = animated ? base[i] * 0.45 + shimmer * 0.12 + drift * 0.045 : base[i];
+        const ambient = base[i] * (1 - 0.55 * life) + (shimmer * 0.12 + drift * 0.045) * life;
         context!.globalAlpha = Math.min(0.32, ambient + energy[i] * 0.24);
         context!.fillRect(px, py, 2, 2);
       }
       context!.globalAlpha = 1;
       host!.dataset.ready = "true";
-      if (animated || settling) frame = requestAnimationFrame(paint);
+      if (running || settling) frame = requestAnimationFrame(paint);
     }
 
     function schedule() {
@@ -84,6 +102,10 @@ export function PixelField() {
       x = event.clientX - rect.left;
       y = event.clientY - rect.top;
       inside = y >= -110 && y <= height + 110;
+      // Only a pointer actually over the field wakes it. Waking on any mouse
+      // movement anywhere on the page would keep it running almost always,
+      // which is the thing being fixed.
+      if (inside) wake = event.timeStamp || performance.now();
       schedule();
     }
 
@@ -97,6 +119,7 @@ export function PixelField() {
       cancelAnimationFrame(frame);
       frame = 0;
       previous = 0;
+      wake = performance.now();
       inside = false;
       energy.fill(0);
       schedule();
@@ -105,7 +128,7 @@ export function PixelField() {
     resizeObserver.observe(host);
     const visibilityObserver = new IntersectionObserver(([entry]) => {
       visible = entry.isIntersecting;
-      if (visible) { previous = 0; schedule(); }
+      if (visible) { previous = 0; wake = performance.now(); schedule(); }
       else { cancelAnimationFrame(frame); frame = 0; inside = false; energy.fill(0); }
     });
     visibilityObserver.observe(host);

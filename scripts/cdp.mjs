@@ -245,7 +245,6 @@ try {
         type: plainChar ? "keyDown" : "rawKeyDown",
         ...(plainChar ? { text: name } : {}),
       });
-      if (plainChar) await cdp.send("Input.dispatchKeyEvent", { ...base, type: "char", text: name });
       await cdp.send("Input.dispatchKeyEvent", { ...base, type: "keyUp" });
       await sleep(120);
     }
