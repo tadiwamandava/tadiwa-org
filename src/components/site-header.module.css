@@ -3,7 +3,7 @@
   position: sticky; top: 0; z-index: 40; isolation: isolate;
 }
 .header::before { content: ""; position: absolute; z-index: -1; inset: 0 0 calc(-1 * var(--header-blend)); background: linear-gradient(to bottom, var(--bg) 0, var(--bg) calc(100% - var(--header-blend)), transparent 100%); pointer-events: none; }
-.inner { position: relative; z-index: 1; max-width: var(--container-wide); min-height: 84px; margin: auto; padding: 16px 36px; display: flex; align-items: center; gap: 32px; }
+.inner { position: relative; z-index: 1; max-width: var(--container-wide); min-height: 84px; margin: auto; padding: 16px var(--gutter); display: flex; align-items: center; gap: 32px; }
 .brand { display: flex; align-items: center; justify-content: flex-start; min-height: 44px; width: 44px; }
 /* The same 4px grid and the same cell colour as PixelField, so the header
    reads as the top of that band rather than as a separate ornament. Static
@@ -32,7 +32,7 @@
 .contact { display: flex; align-items: center; min-height: 44px; padding: 10px 12px; color: var(--text); font-size: 14px; text-decoration: underline; text-underline-offset: 5px; }
 .contact:hover { color: var(--accent); }
 @media (max-width: 640px) {
-  .inner { min-height: 76px; gap: 12px; flex-wrap: wrap; padding: 14px 20px 10px; }
+  .inner { min-height: 76px; gap: 12px; flex-wrap: wrap; padding: 14px var(--gutter) 10px; }
 
   .contact { margin-left: auto; padding: 8px 16px; }
   .nav { order: 3; flex-basis: 100%; margin: 0; }

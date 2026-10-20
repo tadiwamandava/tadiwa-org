@@ -92,6 +92,11 @@
   --container-measure: 68ch;
   /* Wide landing-page layout; prose retains its own readable measure. */
   --container-wide: 80rem;
+
+  /* The page gutter. One value, so the header, the home page, every
+     Container page and the résumé sheet share a left edge. The step lives in
+     a media query at the end of this file. */
+  --gutter: 20px;
 }
 
 /* ============================================================================
@@ -597,4 +602,16 @@
 ::view-transition-new(root) {
   animation-duration: 180ms;
   animation-timing-function: cubic-bezier(0.2, 0, 0.13, 1);
+}
+
+/* The gutter step. Measured before this existed: at 641px the header bar
+   started at 36px, the home page at 24px and every Container page at 32px -
+   three left edges on one site, and the résumé sheet a fourth at 368px.
+   32 rather than 36 because it sits on the 8px grid and already matches both
+   Container’s sm:px-8 and the résumé sheet, so twelve pages and the
+   résumé do not move and only the header and home page shift 4px. */
+@media (min-width: 640px) {
+  :root {
+    --gutter: 32px;
+  }
 }

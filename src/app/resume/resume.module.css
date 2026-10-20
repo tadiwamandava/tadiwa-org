@@ -25,14 +25,8 @@
 .sheetWrap {
   margin-inline: auto;
   max-width: 48rem;
-  padding-inline: 1.25rem;
+  padding-inline: var(--gutter);
   padding-block: 2.5rem 5rem;
-}
-
-@media (min-width: 640px) {
-  .sheetWrap {
-    padding-inline: 2rem;
-  }
 }
 
 .sheet {
@@ -46,7 +40,6 @@
 .sheet a { overflow-wrap: anywhere; }
 
 @media (max-width: 420px) {
-  .sheetWrap { padding-inline: 12px; }
   .sheet { padding: 24px 18px; }
 }
 

@@ -23,7 +23,7 @@ export function Container({
   className?: string;
 }) {
   return (
-    <div className={`mx-auto max-w-(--container-wide) px-5 sm:px-8 ${wide ? className : ""}`}>
+    <div className={`mx-auto max-w-(--container-wide) px-(--gutter) ${wide ? className : ""}`}>
       {wide ? children : <div className={`max-w-3xl ${className}`}>{children}</div>}
     </div>
   );

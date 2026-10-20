@@ -1,7 +1,7 @@
 .home { min-width: 0; }
-.container { width: 100%; max-width: var(--container-wide); margin-inline: auto; padding-inline: 36px; }
+.container { width: 100%; max-width: var(--container-wide); margin-inline: auto; padding-inline: var(--gutter); }
 .hero { position: relative; isolation: isolate; border-bottom: 1px solid var(--border); overflow: clip; }
-.hero::after { content: ""; position: absolute; bottom: -1px; left: max(36px, calc((100% - var(--container-wide)) / 2 + 36px)); width: 64px; height: 2px; background: var(--accent); }
+.hero::after { content: ""; position: absolute; bottom: -1px; left: max(var(--gutter), calc((100% - var(--container-wide)) / 2 + var(--gutter))); width: 64px; height: 2px; background: var(--accent); }
 .heroGrid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 32px; align-items: center; padding-block: 48px; }
 .byline { margin-bottom: 28px; color: var(--text-muted); font-size: 14px; }
 .hero h1 { margin: 0; font-family: var(--font-display); font-size: clamp(38px, 4.6vw, 64px); font-weight: 400; letter-spacing: -.055em; line-height: 1.15; }
@@ -61,7 +61,6 @@
   .projectRow { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 15px 28px; }
 }
 @media (max-width: 760px) {
-  .container { padding-inline: 24px; }
   .heroGrid { grid-template-columns: minmax(0, 1fr); gap: 16px; padding-block: 48px 32px; }
   .hero h1 { font-size: clamp(32px, 8vw, 58px); }
   .intro { font-size: 17px; }
@@ -75,5 +74,5 @@
   .contactSection { padding-block: 50px; }
   .postList a { grid-template-columns: minmax(0, 1fr); gap: 8px; }
 }
-@media (max-width: 380px) { .container { padding-inline: 20px; } .byline { font-size: 13px; } }
+@media (max-width: 380px) { .byline { font-size: 13px; } }
 @media (prefers-reduced-motion: reduce) { .home *, .home *::before { transition: none; animation: none; } }

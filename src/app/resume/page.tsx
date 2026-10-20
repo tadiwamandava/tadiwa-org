@@ -100,7 +100,7 @@ export default async function ResumePage(props: PageProps<"/resume">) {
       <header
         className={`${styles.noPrint} border-b border-border bg-surface`}
       >
-        <div className="mx-auto max-w-(--container-wide) px-5 py-14 sm:px-8">
+        <div className="mx-auto max-w-(--container-wide) px-(--gutter) py-14">
           <div className="max-w-3xl">
           <h1 className="mt-5 font-display text-4xl leading-tight tracking-tight">
             Résumé
