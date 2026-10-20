@@ -1,5 +1,90 @@
 # Website revision review
 
+## 2026-10-20: browser verification, finally performed
+
+Supersedes every BLOCKED browser row below. Those entries are accurate history
+— the provider really did return `[]` and "No browser is available" — but they
+are no longer the current state. `scripts/cdp.mjs` drives real Chrome over the
+DevTools Protocol, and the walkthrough has now been run.
+
+Status vocabulary: **Passed** = the stated check ran and met its criteria.
+**Failed** = it ran and exposed a defect. **Not tested** = outside this pass.
+
+### What made it possible
+
+The driver existed but could not have produced a trustworthy walkthrough.
+
+- It passed the URL on Chrome's command line, so the load began before the
+  debugger attached and every override — viewport, emulated media — applied to
+  a page already loading. It now opens `about:blank`, configures the session,
+  and calls `Page.navigate`.
+- `CDP_VIEWPORT` forced `mobile: true` unconditionally, so
+  `(hover: hover) and (pointer: fine)` was **false at every width**. Measured
+  at 1440px: `pointerFine` false before, true with `CDP_MOBILE=0`. Every
+  pointer behaviour on this site would have been recorded as dead, with the
+  fault in the harness.
+- Its message pump dropped every event without an `id`, so page exceptions and
+  console errors were invisible. It now subscribes to
+  `Runtime.exceptionThrown` and `Log.entryAdded` and exits nonzero.
+
+### Three reported failures that were the harness, not the site
+
+Recorded because the cost of trusting them would have been "fixing" working
+code.
+
+| Reported | Actually |
+|---|---|
+| Tilt did not reset on `pointerleave` | React derives enter/leave from the `pointerout`/`pointerover` pair, so a synthetic `pointerleave` never reaches `onPointerLeave`. `pointerout` with a `relatedTarget` resets it correctly. |
+| Focusing a board did not select its layer | `Element.focus()` leaves `document.activeElement` unchanged often enough in headless Chrome to look broken. With real `Input.dispatchKeyEvent`: 9 tabs selects layer 0, 10 tabs selects layer 1. |
+| Focused board had `outline-style: none` | `.focus()` never matches `:focus-visible`. Under real keys every stop in the tab order reports `focusVisible` with a solid 2px outline. |
+
+A fourth: an early résumé PDF parsed as one page. It was a PDF of
+`loading.tsx`'s Suspense fallback. Readiness now waits for the sheet to have
+real height and for the status element to be gone.
+
+### Failed, and fixed in this pass
+
+| Defect | Evidence |
+|---|---|
+| `/resume` scrolled sideways at **every** width, 1440 included | `scrollWidth` 1460 vs 1440. Skill separators are margins, not whitespace, so `AdonisJS·arm-none-eabi-gcc·AVX…` was one 867px unbreakable token. `<wbr>` after each separator; now exact at every width. |
+| Four competing left edges | At 641px: header 36, home 24, `Container` pages 32, résumé sheet 12 on phones. One `--gutter`; now 20/20, 32/32, 112/112 on every route. |
+| `.hero::after` ignored the gutter | Hardcoded 36px, hung outside the content edge below 760px. |
+| The pixel field never stopped | **59.9 rAF callbacks/sec, indefinitely.** The 30fps cap throttles the work inside the callback, not the request, and a sticky header never leaves the viewport. Now 60 → 0 → 60 on pointer → 0. |
+| A project printed as a bare heading | The bullet budget capped bullets but still returned every qualifying project. "Bare-Metal RTOS on STM32" rendered at 38px with zero bullets. |
+| The résumé printed on **two** pages | 1611px against the 950px letter text block, 170% of a page, against an explicit one-page constraint. Now 941px, parsed as one page. |
+
+### Passed
+
+| Area | Evidence |
+|---|---|
+| Navigation | Header links, soft nav, `history.back()`/`forward()`, direct route loads, at 320/375/640/641/768/1024/1440. |
+| Gutter alignment | Header bar and content container share a left edge on every route at every width above. |
+| Horizontal overflow | `scrollWidth <= innerWidth` on every route and width tested. |
+| Stack selectors | All three: `aria-pressed` moves, exactly one pressed and exactly one `data-active`, detail link text and href swap, panel is `aria-live="polite"`. |
+| Pointer tilt | Sets `--pitch`/`--turn`/`--reflection`, tracks pointer position, clears on `pointerout`. |
+| Keyboard | Tab order: skip link, brand, nav, hero actions, three boards, selectors. Selection follows focus. Focus ring solid 2px at every stop. |
+| Experience list | Both entries open and close. |
+| Command palette | Real `Cmd+K` opens it, focus lands on the combobox, `aria-expanded` true; typing `rtos` returns the RTOS project; `aria-activedescendant` and `aria-selected` track; Escape closes and returns focus. |
+| Palette failure path | With the index fetch forced to reject before page script, the `role="alert"` message appears and says shortcuts still work. |
+| Reduced motion | Pixel field static immediately, 0 callbacks/sec, still rendered. |
+| 404 | Renders "Nothing at this address." with working home links. Its one console error is the 404 response itself. |
+| Routes | `/lab`, `/lab/search`, `/lab/inference`, `/writing`, `/projects` load with no console errors and no overflow. |
+| Résumé PDF | Parses as one page, content complete, nothing clipped. |
+
+### Not tested
+
+- **Lab demo interiors.** The pages load, but the HNSW rerun control, the
+  inference download/generate path, and their opt-in download behaviour were
+  not driven. `CDP_NET` exists for this and was not spent.
+- **Admin.** Not exercised, including the invalid-password path.
+- **`error.tsx`.** Not reachable by URL; no claim is made.
+- **Voice.** Not exercised.
+- **Print review beyond page count.** The PDF was parsed and read for
+  clipping, but link targets and section breaks were not audited.
+
+No overall delivery-gate PASS is claimed. The contrast gate now runs 35 pairs,
+not the 31 recorded below.
+
 ## 2026-10-19: one continuous pixel field
 
 Supersedes the two-field overlap below. A single canvas now spans the navigation and the 128px band beneath it, removing the junction between separate pixel grids. Both the texture and header backing fade gradually below the navigation. Pointer tracking uses the same coordinate space across the entire field. No layout height, visible copy, or controls were added.
