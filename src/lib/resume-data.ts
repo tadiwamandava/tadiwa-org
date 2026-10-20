@@ -151,6 +151,7 @@ export interface ExperienceEntry {
   location: string;
   start: string;
   end: string;
+  projectSlug?: string;
   /** Which variants show this entry. Employment almost always shows on both,
    *  a screener who sees a gap asks about the gap. */
   variants: ResumeVariantId[];
@@ -166,6 +167,7 @@ export const EXPERIENCE: ExperienceEntry[] = [
     location: "Norman, OK",
     start: "January 2026",
     end: "Present",
+    projectSlug: "k20-curation",
     variants: ["software", "hardware"],
     bullets: [
       "Develop and deploy front-end and back-end web applications and Unity/C# educational games used by K\u201312 teachers and students; test across Center projects, reproducing and filing defects",

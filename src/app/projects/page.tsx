@@ -40,7 +40,6 @@ export default async function ProjectsPage(props: PageProps<"/projects">) {
     <Container wide className="py-16">
       <header className="max-w-2xl">
         <h1 className="font-display text-4xl tracking-tight">Projects</h1>
-        <p className="mt-5 text-lg leading-relaxed text-muted">Filter by domain or language. Each writeup explains the implementation and the problems I worked through.</p>
       </header>
 
       {allProjects.length === 0 ? (
@@ -70,7 +69,7 @@ export default async function ProjectsPage(props: PageProps<"/projects">) {
               </Link>
             </div>
           ) : (
-            <div className="mt-8 grid gap-4 sm:grid-cols-2">
+            <div className="mt-8 border-t border-border-strong">
               {filtered.map((project) => (
                 <ProjectCard key={project.slug} project={project} />
               ))}

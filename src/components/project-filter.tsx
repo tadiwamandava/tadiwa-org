@@ -97,11 +97,11 @@ function FilterGroup({
                 aria-current={active ? "true" : undefined}
                 className={
                   active
-                    ? "inline-flex min-h-11 items-center gap-1.5 rounded border border-accent bg-accent px-3 py-2 text-2xs text-accent-contrast transition-colors"
+                    ? "inline-flex min-h-11 items-center gap-1.5 border-b-2 border-accent px-3 py-2 text-2xs text-text"
                     // Border-only when inactive. Filled chips at this count
                     // (eleven languages) turn the top of the page into a wall
                     // of grey blocks that outweighs the work below it.
-                    : "inline-flex min-h-11 items-center gap-1.5 rounded border border-border-strong px-3 py-2 text-2xs text-subtle transition-colors hover:border-accent hover:text-text"
+                    : "inline-flex min-h-11 items-center gap-1.5 border-b-2 border-transparent px-3 py-2 text-2xs text-subtle hover:text-text"
                 }
               >
                 {value}
@@ -140,8 +140,9 @@ export function ProjectFilter({
   const hasActiveFilter = Boolean(selected.domain || selected.lang);
 
   return (
-    <div className="mt-10 flex flex-wrap items-start justify-between gap-x-8 gap-y-4 border-y border-border py-5">
-      <div className="flex w-full flex-col gap-2.5">
+    <details key={`${selected.domain ?? ""}/${selected.lang ?? ""}`} open={hasActiveFilter} className="mt-8 border-y border-border py-2">
+      <summary className="min-h-11 cursor-pointer content-center text-sm text-muted">Filter projects</summary>
+      <div className="flex w-full flex-col gap-2.5 py-4">
         <FilterGroup
           id="domain"
           label="Domain"
@@ -163,11 +164,11 @@ export function ProjectFilter({
       {hasActiveFilter && (
         <Link
           href="/projects"
-          className="shrink-0 text-2xs text-accent underline decoration-dotted underline-offset-4 transition-colors hover:text-text"
+          className="inline-flex min-h-11 items-center text-sm text-accent underline underline-offset-4 hover:text-text"
         >
           Clear filters
         </Link>
       )}
-    </div>
+    </details>
   );
 }

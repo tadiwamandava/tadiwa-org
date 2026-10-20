@@ -2,13 +2,19 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { tearClip } from "./tear";
+
 /**
  * A draggable seam between two renderings of the same page.
  *
  * The technique is the comparison slider from Emil Kowalski's skill: stack the
- * two layers, clip the top one with `clip-path: inset(0 X% 0 0)` and move X
- * with the pointer. No extra DOM per frame, and clip-path is composited, so
- * dragging stays on the GPU.
+ * two layers, clip the top one and move the clip with the pointer. No extra
+ * DOM per frame, and clip-path is composited, so dragging stays on the GPU.
+ *
+ * The edge is a tear rather than a cut. `inset()` can only give a straight
+ * line, so the clip is a `polygon()` whose right side is a correlated random
+ * walk, generated once in ./tear and translated by the drag. See that file
+ * for why the shape is fixed and why the walk is correlated.
  *
  * The seam percentage is written straight to the element's style rather than
  * through React state or a CSS custom property on a parent. Both of the
@@ -35,7 +41,7 @@ export function Seam({
   const place = useCallback((next: number) => {
     const v = Math.min(92, Math.max(8, next));
     if (clipped.current) {
-      clipped.current.style.clipPath = `inset(0 ${100 - v}% 0 0)`;
+      clipped.current.style.clipPath = tearClip(v);
     }
     if (handle.current) {
       handle.current.style.left = `${v}%`;

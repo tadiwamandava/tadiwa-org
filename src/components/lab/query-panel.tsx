@@ -147,7 +147,7 @@ export function QueryPanel({
             <Caption>
               Cosine similarity, 1.00 being identical.{" "}
               {run.source === "chunk"
-                ? "The query chunk can appear among its own results. Compare the other matches to see which passages are nearby."
+                ? "The query chunk can appear among its own results."
                 : "The query was embedded in this tab and never left it."}{" "}
               {misses === 0
                 ? `All ${run.hits.length} returned results match the exhaustive scan.`

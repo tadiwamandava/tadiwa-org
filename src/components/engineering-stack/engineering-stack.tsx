@@ -1,169 +1,142 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useId, useRef, useState } from "react";
+import { useId, useState, type CSSProperties, type PointerEvent } from "react";
 import styles from "./engineering-stack.module.css";
 
 const layers = [
-  {
-    name: "Silicon", number: "01", title: "RISC-V core and verification",
-    description: "A pipelined RV32I core checked against a reference simulator. The diagram shows the instruction stages from fetch to writeback.",
-    href: "/projects/riscv-cpu-verification", link: "Read the RISC-V writeup",
-    detail: "FETCH → DECODE → EXECUTE → MEMORY → WRITEBACK",
-  },
-  {
-    name: "Systems", number: "02", title: "Scheduling and storage",
-    description: "A real-time kernel schedules the work. A crash-safe storage engine keeps the data. Two projects at the hardware/software boundary.",
-    href: "/projects/rtos-stm32", link: "Read the RTOS writeup",
-    detail: "SCHEDULE → EXECUTE → WRITE → PERSIST",
-  },
-  {
-    name: "Intelligence", number: "03", title: "Language-model inference",
-    description: "A language-model forward pass, written in C++. Follow the path from input tokens through attention to the next prediction.",
-    href: "/projects/llm-inference-engine", link: "Read the inference writeup",
-    detail: "EMBED → ATTEND → PROJECT → NEXT TOKEN",
-  },
+  { name: "CPU", title: "RISC-V core and verification", href: "/projects/riscv-cpu-verification" },
+  { name: "Kernel", title: "STM32 real-time kernel", href: "/projects/rtos-stm32" },
+  { name: "Inference", title: "Language-model inference", href: "/projects/llm-inference-engine" },
 ] as const;
 
-/** Illustrative architecture, not live telemetry or a claim that these projects share a runtime. */
-function BoardDrawing({ layer }: { layer: number }) {
+function Circuit({ layer }: { layer: number }) {
   return (
-    <svg viewBox="0 0 280 280" fill="none" aria-hidden="true">
-      <g className={styles.traces} stroke="currentColor" strokeWidth="1">
-        {[0, 90, 180, 270].map((angle) => (
-          <g key={angle} transform={`rotate(${angle} 140 140)`}>
-            <path d="M105 85V52L87 34V12M125 85V12M145 85V42L166 21V12M165 85V60L202 23H268" />
-            <circle cx="87" cy="12" r="3" /><circle cx="125" cy="12" r="3" /><circle cx="268" cy="23" r="3" />
-          </g>
-        ))}
-        <rect x="16" y="16" width="248" height="248" rx="8" strokeDasharray="2 7" />
-      </g>
-      {layer === 0 && <g className={styles.diagram}>
-        <rect x="60" y="78" width="160" height="124" rx="8" />
-        <text x="140" y="105">RV32I</text>
-        {["IF", "ID", "EX", "MEM", "WB"].map((label, i) => (
-          <g key={label}>
-            <rect x={69 + i * 29} y="123" width="25" height="35" rx="3" />
-            <text x={81.5 + i * 29} y="144" className={styles.smallText}>{label}</text>
-          </g>
-        ))}
-        <path d="M78 174h124m-124 8h85" />
-      </g>}
-      {layer === 1 && <g className={styles.diagram}>
-        <rect x="58" y="69" width="164" height="142" rx="8" />
-        <text x="140" y="93">SCHEDULE / STORE</text>
-        {[0, 1, 2].map((row) => <g key={row}><path d={`M72 ${116 + row * 20}h136`} /><rect x={80 + row * 31} y={108 + row * 20} width="46" height="10" rx="2" /></g>)}
-        <path d="M77 181h30m13 0h30m13 0h30M77 191h30m13 0h30m13 0h30" />
-      </g>}
-      {layer === 2 && <g className={styles.diagram}>
-        {[90, 140, 190].flatMap((x, col) => [104, 140, 176].map((y, row) => <g key={`${col}-${row}`}>
-          {col < 2 && [104, 140, 176].map((endY) => <path key={endY} d={`M${x} ${y}L${x + 50} ${endY}`} className={styles.neuralWire} />)}
-          <circle cx={x} cy={y} r="7" />
-        </g>))}
-        <text x="140" y="72">INFERENCE</text><text x="140" y="215" className={styles.smallText}>INPUT → ATTENTION → OUTPUT</text>
-      </g>}
-      <text x="24" y="249" className={styles.boardNumber}>TM / {layers[layer].number}</text>
+    <svg viewBox="0 0 320 320" fill="none" aria-hidden="true">
+      <rect x="9" y="9" width="302" height="302" rx="8" stroke="#46505a" />
+      <rect x="14" y="14" width="292" height="292" rx="5" stroke="#222b32" />
+      {[0, 90, 180, 270].map((angle) => (
+        <g key={angle} transform={`rotate(${angle} 160 160)`}>
+          {Array.from({ length: 10 }, (_, i) => {
+            const x = 102 + i * 13;
+            const end = 42 + i * 25;
+            return <g key={i}>
+              <path d={`M${x} 108V${73 - (i % 3) * 8}L${end} ${44 - (i % 3) * 8}V19`} stroke={i % 3 === layer ? "#9b7042" : "#394752"} strokeWidth={i % 3 === layer ? "1.4" : "1"} />
+              <rect x={end - 2} y="16" width="4" height="8" rx="1" fill="#b29a6b" />
+            </g>;
+          })}
+          {[0, 1, 2, 3].map((i) => <g key={i}>
+            <rect x={85 + i * 43} y="65" width="16" height="8" rx="1" fill="#0b1014" stroke="#52606a" strokeWidth=".7" />
+            <path d={`M${87 + i * 43} 66v6m12-6v6`} stroke="#a3a5a0" strokeWidth="2" />
+          </g>)}
+          <circle cx="28" cy="28" r="6" fill="#0c1116" stroke="#756957" strokeWidth="2" />
+          <circle cx="28" cy="28" r="2.5" fill="#333c44" />
+          {Array.from({ length: 14 }, (_, i) => <rect key={`contact-${i}`} x={108 + i * 8} y="87" width="3" height="11" rx=".8" fill="#c0a675" />)}
+        </g>
+      ))}
+      <rect x="96" y="96" width="128" height="128" rx="4" fill="#080d12" stroke="#7c7156" />
     </svg>
   );
 }
 
-export function EngineeringStack() {
-  const root = useRef<HTMLDivElement>(null);
-  const [active, setActive] = useState(2);
-  const [manualSpread, setManualSpread] = useState<number | null>(null);
-  const [paused, setPaused] = useState(false);
-  const panelId = useId();
-  const current = layers[active];
-
-  useEffect(() => {
-    const element = root.current;
-    if (!element) return;
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const desktop = window.matchMedia("(min-width: 761px) and (pointer: fine)");
-    let frame = 0;
-    const update = () => {
-      frame = 0;
-      let spread = manualSpread ?? 0;
-      if (manualSpread === null && desktop.matches && !reducedMotion.matches) {
-        const hero = element.closest("section");
-        const top = hero?.getBoundingClientRect().top ?? 84;
-        spread = Math.max(0, Math.min(1, (84 - top) / 140));
-      }
-      element.style.setProperty("--spread", String(spread));
-      element.dataset.expanded = String(spread > 0.5);
-    };
-    const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
-    update();
-    window.addEventListener("scroll", schedule, { passive: true });
-    window.addEventListener("resize", schedule);
-    reducedMotion.addEventListener("change", schedule);
-    desktop.addEventListener("change", schedule);
-    const observer = new IntersectionObserver(([entry]) => {
-      element.dataset.visible = String(entry.isIntersecting);
-    });
-    observer.observe(element);
-    return () => {
-      cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", schedule);
-      window.removeEventListener("resize", schedule);
-      reducedMotion.removeEventListener("change", schedule);
-      desktop.removeEventListener("change", schedule);
-      observer.disconnect();
-    };
-  }, [manualSpread]);
-
-  function selectLayer(index: number) {
-    setActive(index);
-    setManualSpread(1);
-  }
-
+function Die({ layer }: { layer: number }) {
+  const id = useId().replace(/:/g, "");
   return (
-    <div ref={root} className={styles.stack} data-paused={paused} data-visible="false"
-      onKeyDown={() => { if (root.current) root.current.dataset.keyboard = "true"; }}
-      onPointerDown={() => { if (root.current) root.current.dataset.keyboard = "false"; }}>
-      <div className={styles.heading}>Silicon to software <span>Select a layer below</span></div>
-      <div className={styles.stage} role="group" aria-label="Explorable engineering stack">
-        <div className={styles.floor} aria-hidden="true" />
-        <div className={styles.guides} aria-hidden="true"><i /><i /><i /></div>
-        {layers.map((layer, index) => (
-          <div className={`${styles.layer} ${styles[`layer${index}`]}`} key={layer.name} data-active={index === active}>
-            <Link href={layer.href} className={styles.board} aria-label={`${layer.name}: ${layer.link}`}
-              onFocus={() => selectLayer(index)}>
-              <BoardDrawing layer={index} />
-              {index === 2 && <div className={styles.lid} aria-hidden="true"><span>tm<span>.</span></span><small>HARDWARE / SOFTWARE</small></div>}
-            </Link>
-            <span className={styles.layerLabel} aria-hidden="true">{layer.number}<b>{layer.name}</b><span>↗</span></span>
-          </div>
-        ))}
-        <div className={styles.signalTrack} aria-hidden="true" />
-        <div className={styles.packet} aria-hidden="true" />
-        <div className={styles.output} aria-hidden="true"><span>OUTPUT / NEXT TOKEN</span><code>hello<span className={styles.outputCursor}>_</span></code></div>
-      </div>
-      <div className={styles.toolbar}>
-        <button type="button" className={styles.explore} onClick={() => selectLayer((active + 1) % layers.length)}>
-          Show next layer <span aria-hidden="true">↓</span>
-        </button>
-        <button type="button" className={styles.iconButton} onClick={() => setManualSpread(0)} aria-label="Assemble the stack" title="Assemble the stack">↺</button>
-        <button type="button" className={`${styles.iconButton} ${styles.pause}`} onClick={() => setPaused(!paused)} aria-label={paused ? "Play signal animation" : "Pause signal animation"} aria-pressed={paused} title={paused ? "Play signal" : "Pause signal"}>{paused ? "▷" : "Ⅱ"}</button>
+    <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
+      <defs>
+        <linearGradient id={`${id}-silicon`} x2="1" y2="1">
+          <stop stopColor="#786c53" /><stop offset=".35" stopColor="#3b494b" /><stop offset=".7" stopColor="#202c36" /><stop offset="1" stopColor="#5d5360" />
+        </linearGradient>
+        <pattern id={`${id}-etch`} width="3" height="3" patternUnits="userSpaceOnUse">
+          <path d="M0 .4H3M.4 0V3" stroke="#c8b98c" strokeWidth=".3" opacity=".45" />
+        </pattern>
+      </defs>
+      <rect x="1" y="1" width="118" height="118" fill={`url(#${id}-silicon)`} stroke="#b9b194" />
+      {layer === 2 && Array.from({ length: 4 }, (_, row) => Array.from({ length: 4 }, (_, col) => <g key={`${row}-${col}`}>
+        <rect x={8 + col * 27} y={8 + row * 27} width="23" height="23" fill="#192831" stroke="#b5a77e" strokeWidth=".6" />
+        <rect x={10 + col * 27} y={10 + row * 27} width="19" height="19" fill={`url(#${id}-etch)`} />
+      </g>))}
+      {layer === 0 && Array.from({ length: 5 }, (_, col) => <g key={col}>
+        <rect x={8 + col * 21} y="8" width="17" height={col % 2 ? 62 : 78} fill="#192831" stroke="#b5a77e" strokeWidth=".7" />
+        <rect x={10 + col * 21} y="10" width="13" height={col % 2 ? 58 : 74} fill={`url(#${id}-etch)`} />
+        <path d={`M${16 + col * 21} 89v15h${col % 2 ? 8 : -8}`} stroke="#c0a06a" strokeWidth=".7" />
+      </g>)}
+      {layer === 1 && <g>
+        <rect x="30" y="30" width="60" height="60" fill="#192831" stroke="#b5a77e" />
+        <rect x="34" y="34" width="52" height="52" fill={`url(#${id}-etch)`} />
+        {[0, 90, 180, 270].map((angle) => <g key={angle} transform={`rotate(${angle} 60 60)`}>
+          <rect x="9" y="9" width="102" height="13" fill="#252b32" stroke="#978d71" strokeWidth=".5" />
+          {Array.from({ length: 13 }, (_, i) => <path key={i} d={`M${12 + i * 8} 10v11`} stroke="#a69e7a" strokeWidth=".6" />)}
+          <path d="M40 23v6m10-6v6m10-6v6m10-6v6m10-6v6" stroke="#d2ac72" strokeWidth=".7" />
+        </g>)}
+      </g>}
+      <path d="M4 16V4h12M104 116h12v-12" stroke="#e1d7b9" strokeWidth="1.5" />
+    </svg>
+  );
+}
+
+function Mounts() {
+  return (
+    <span className={styles.mounts} aria-hidden="true">
+      {[0, 1, 2, 3].map((corner) => (
+        <span className={styles.mount} key={corner}>
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M7 3.4h10l5 8.6-5 8.6H7L2 12Z" fill="#66717a" stroke="#a9b0b2" strokeWidth=".7" />
+            <circle cx="12" cy="12" r="6.2" fill="#252f38" stroke="#9b947d" strokeWidth=".8" />
+            <path d="m9 7 6 10M7 9l10 6" stroke="#0c1319" strokeWidth="1.8" />
+            <path d="m7 4 10 .1 4 7" stroke="#c9ccbf" strokeWidth=".7" />
+          </svg>
+        </span>
+      ))}
+    </span>
+  );
+}
+
+export function EngineeringStack() {
+  const [active, setActive] = useState(2);
+  const panelId = useId();
+  function tilt(event: PointerEvent<HTMLDivElement>) {
+    if (event.pointerType !== "mouse" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = Math.max(-0.5, Math.min(0.5, (event.clientX - rect.left) / rect.width - 0.5));
+    const y = Math.max(-0.5, Math.min(0.5, (event.clientY - rect.top) / rect.height - 0.5));
+    event.currentTarget.style.setProperty("--pitch", `${57 - y * 6}deg`);
+    event.currentTarget.style.setProperty("--turn", `${-37 + x * 8}deg`);
+    event.currentTarget.style.setProperty("--reflection", `${45 + x * 35}%`);
+  }
+  function resetTilt(event: PointerEvent<HTMLDivElement>) {
+    for (const name of ["--pitch", "--turn", "--reflection"]) event.currentTarget.style.removeProperty(name);
+  }
+  return (
+    <div className={styles.stack} style={{ "--active-layer": active } as CSSProperties}>
+      <div className={styles.stage} role="group" aria-label="Engineering project stack" onPointerMove={tilt} onPointerLeave={resetTilt}>
+        <div className={styles.light} aria-hidden="true" />
+        <div className={styles.assembly}>
+          <div className={styles.shadow} aria-hidden="true" />
+          {layers.map((layer, index) => (
+            <div key={layer.name} className={`${styles.layer} ${styles[`layer${index}`]}`} data-active={active === index}>
+              <span className={styles.front} aria-hidden="true" /><span className={styles.back} aria-hidden="true" />
+              <span className={styles.left} aria-hidden="true" /><span className={styles.right} aria-hidden="true" />
+              <Link href={layer.href} className={styles.board} aria-label={layer.title} onFocus={() => setActive(index)}>
+                <Circuit layer={index} />
+                <Mounts />
+                <span className={styles.package} aria-hidden="true">
+                  <span className={styles.packageFront} /><span className={styles.packageSide} />
+                  <span className={styles.die}><Die layer={index} /></span>
+                </span>
+              </Link>
+            </div>
+          ))}
+        </div>
       </div>
       <div className={styles.selector} role="group" aria-label="Choose an engineering layer">
         {layers.map((layer, index) => (
-          <button key={layer.name} type="button" aria-pressed={active === index} aria-controls={panelId} onClick={() => selectLayer(index)}>
-            <span>{layer.number}</span>{layer.name}
-          </button>
+          <button key={layer.name} type="button" aria-pressed={active === index} aria-controls={panelId} onClick={() => setActive(index)}>{layer.name}</button>
         ))}
       </div>
-      <div id={panelId} className={styles.detail} aria-live="polite" aria-atomic="true">
-        <p className={styles.detailPath}>{current.detail}</p>
-        <h2>{current.title}</h2>
-        <p>{current.description}</p>
-        <div className={styles.links}>
-          <Link href={current.href}>{current.link} <span aria-hidden="true">↗</span></Link>
-          {active === 1 && <Link href="/projects/lsm-storage-engine">Storage engine <span aria-hidden="true">↗</span></Link>}
-          {active === 2 && <Link href="/lab/inference">Run it live <span aria-hidden="true">↗</span></Link>}
-        </div>
+      <div className={styles.detail} id={panelId} aria-live="polite" aria-atomic="true">
+        <Link href={layers[active].href}>{layers[active].title}<span aria-hidden="true">↗</span></Link>
       </div>
-      <p className={styles.footnote}>A visual map of my projects · illustrative signal flow</p>
     </div>
   );
 }

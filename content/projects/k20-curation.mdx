@@ -11,8 +11,7 @@ featured: true
 pinOrder: 5
 sourceAvailable: false
 sourceNote: >-
-  Client-owned codebase, so there is no public repository. The running
-  application is public, linked below.
+  The source code is client-owned and is not public.
 
 hardestThing: >-
   The codebase was plain JSX with no type coverage, already deployed and in use, and
@@ -25,24 +24,21 @@ decisions:
   - made: Incremental TypeScript migration, file-by-file, with `allowJs` on
     rejected: A big-bang rewrite on a long-lived branch
     why: >-
-      A rewrite branch would have diverged from a codebase that was still shipping
-      features weekly, and every day of divergence made the merge worse. Keeping
-      `allowJs: true` meant typed and untyped modules coexisted, so every commit was
-      deployable and the migration could pause whenever a feature took priority.
+      Weekly releases continued during the migration. With `allowJs: true`,
+      typed and untyped modules could coexist, so I could deploy each converted
+      module and pause the migration when feature work took priority.
   - made: AdonisJS over a bare Express setup
     rejected: Express with hand-assembled middleware, validation, and ORM
     why: >-
-      A solo developer on a client deadline cannot also maintain a bespoke framework.
-      Adonis brought validation, migrations, and an ORM as one coherent piece with
-      one set of conventions. The cost is a smaller ecosystem than Express, a real
-      trade I would make again at this team size, and would reconsider on a team of five.
+      Adonis provided validation, migrations, and an ORM within one framework.
+      That reduced integration work for a solo developer on a client deadline,
+      at the cost of a smaller ecosystem than Express.
   - made: PostgreSQL with explicit migrations from day one
     rejected: A document store, or an ORM with auto-syncing schema
     why: >-
-      The content model was relational: items, collections, tags, and curators with
-      real foreign keys between them. Auto-sync schema tools are pleasant until the
-      first production data migration, at which point the absence of a reviewable
-      migration history becomes the problem.
+      Items, collections, tags, and curators form a relational model. Foreign
+      keys enforce those relationships, and explicit migrations give schema
+      changes a reviewable history.
 
 wouldDoDifferently:
   - >-
@@ -91,7 +87,7 @@ front end, AdonisJS API, PostgreSQL underneath, deployed and used in production.
 The application was already live when I began the TypeScript migration.
 New features still had to ship while I converted the existing modules.
 
-## The migration, concretely
+## TypeScript migration
 
 The starting point was a JSX codebase with no type coverage and an active feature
 roadmap. The approach:
@@ -102,11 +98,10 @@ roadmap. The approach:
    that use them.
 4. Keep strict settings enabled on converted modules.
 
-The payoff was the class of bug that stopped happening: the API returned nullable
-fields that the UI rendered unconditionally, and TypeScript surfaced every one of those
-sites at compile time instead of leaving them for a curator to find.
+The migration exposed API fields that could be null but were rendered
+unconditionally by the UI. I added checks at those call sites.
 
-## What production taught me
+## Rendering and query latency
 
 Feedback often described the symptom without identifying the cause. “The list
 feels slow” meant a rendering problem on one screen and a query problem on
@@ -115,9 +110,3 @@ another. I had to reproduce each report before deciding where to fix it.
 I also left instrumentation too late. Without request-latency measurements,
 performance conversations were harder to resolve. I would add that visibility
 earlier on the next project.
-
-<Callout kind="note">
-The code is client-owned, so there is no public repository, but the app is live
-at hive.k20center.ou.edu. The architecture, the migration strategy, and every
-decision above are mine to discuss in detail.
-</Callout>

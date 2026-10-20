@@ -80,12 +80,6 @@ export default async function ProjectPage(props: PageProps<"/projects/[slug]">) 
       </header>
 
       <Container className="py-14">
-        {/* ---- what's hard ----------------------------------------------- */}
-        <section className="mb-14">
-          <SectionLabel>What&rsquo;s hard about it</SectionLabel>
-          <p className="mt-3 text-lg leading-relaxed">{project.hardestThing}</p>
-        </section>
-
         {/* ---- body ------------------------------------------------------- */}
         <div className="prose">
           <Mdx source={project.body} />
@@ -112,14 +106,11 @@ export default async function ProjectPage(props: PageProps<"/projects/[slug]">) 
         {project.decisions.length > 0 && (
           <section className="mt-16">
             <SectionLabel>Design decisions</SectionLabel>
-            <ol className="mt-5 space-y-8">
-              {project.decisions.map((d, i) => (
+            <ul className="mt-5 space-y-8">
+              {project.decisions.map((d) => (
                 <li key={d.made} className="grid gap-2">
                   <div className="flex items-baseline gap-3">
-                    <span className="font-mono text-xs text-subtle tabular-nums">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <h3 className="font-display text-lg leading-snug">
+                    <h3 className="font-sans text-lg font-medium leading-snug">
                       {d.made}
                       {d.regret && (
                         <span className="ml-2 align-middle text-2xs text-accent">
@@ -128,16 +119,16 @@ export default async function ProjectPage(props: PageProps<"/projects/[slug]">) 
                       )}
                     </h3>
                   </div>
-                  <p className="pl-8 text-sm text-subtle">
+                  <p className="text-sm text-subtle">
                     <span className="text-2xs">
                       Rejected
                     </span>
                     <span className="ml-2">{d.rejected}</span>
                   </p>
-                  <p className="pl-8 leading-relaxed text-muted">{d.why}</p>
+                  <p className="leading-relaxed text-muted">{d.why}</p>
                 </li>
               ))}
-            </ol>
+            </ul>
           </section>
         )}
 

@@ -12,7 +12,7 @@ export const SITE = {
 
   /** The 30-second pitch. This is the single most-read sentence on the site. */
   description:
-    "Computer engineering junior at the University of Oklahoma, building across the hardware/software boundary: storage engines, RTOS kernels, RISC-V silicon, and the inference stack that runs on this page.",
+    "Tadiwa Mandava, computer engineering at the University of Oklahoma. Projects in RISC-V verification, embedded kernels, storage, and language-model inference.",
 
   url: "https://tadiwa.org",
 

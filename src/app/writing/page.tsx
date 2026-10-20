@@ -16,15 +16,11 @@ export default function WritingPage() {
     <Container className="py-16">
       <header>
         <h1 className="font-display text-4xl tracking-tight">Writing</h1>
-        <p className="mt-4 text-lg leading-relaxed text-muted">
-          Notes on implementation, debugging, and decisions I would revisit.
-        </p>
       </header>
 
       {posts.length === 0 ? (
         <div className="mt-12 border-y border-border py-8 text-muted">
-          <p>No standalone posts yet. The project pages already include implementation notes.</p>
-          <Link href="/projects" className="mt-4 inline-flex min-h-11 items-center text-text underline">Read the project writeups</Link>
+          <p>No posts yet.</p>
         </div>
       ) : (
         <ul className="mt-12 divide-y divide-border border-y border-border">

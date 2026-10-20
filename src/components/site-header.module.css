@@ -1,19 +1,49 @@
-.header { position: sticky; top: 0; z-index: 40; background: color-mix(in srgb, var(--bg) 92%, transparent); border-bottom: 1px solid var(--border); backdrop-filter: blur(12px); }
-.inner { max-width: var(--container-wide); min-height: 84px; margin: auto; padding: 16px 36px; display: flex; align-items: center; gap: 32px; }
-.brand { display: flex; align-items: center; min-height: 44px; gap: 10px; font-family: var(--font-display); font-size: 25px; letter-spacing: -1.5px; }
-.dot { color: var(--accent); }
+.header {
+  position: sticky; top: 0; z-index: 40;
+  /* Colour first, grid on top. The bar is sticky, so content scrolls beneath
+     it; a texture with no opaque ground would let that show through. Same 4px
+     cell, same colour and same origin as PixelField, so the two grids line up
+     and the header reads as the top of one field rather than a band with its
+     own pattern. */
+  background-color: var(--bg);
+}
+/* The fade under the header is gone. It painted opaque --bg over the top
+   16px of the hero, which was invisible when the bar was a flat colour and is
+   a wash across the field's brightest rows now that the bar is the same grid.
+   The two meet directly; the continuity is the point. */
+.inner { position: relative; z-index: 1; max-width: var(--container-wide); min-height: 84px; margin: auto; padding: 16px 36px; display: flex; align-items: center; gap: 32px; }
+.brand { display: flex; align-items: center; justify-content: flex-start; min-height: 44px; width: 44px; }
+/* The same 4px grid and the same cell colour as PixelField, so the header
+   reads as the top of that band rather than as a separate ornament. Static
+   CSS: a second canvas in a sticky header would paint on every scroll frame
+   for a 112px decoration. One cell is held in the accent, where the wordmark's
+   full stop used to be. */
+.mark { display: block; width: 6px; height: 6px; background: var(--accent); }
+
+/* The only cue that this is a link. Without it the mark is a texture and
+   nobody finds their way home. Transition on background-image alone, not all,
+   and 160ms, the duration this project's motion notes give for press and
+   hover feedback. */
+.brand { transition: opacity 160ms cubic-bezier(0.23, 1, 0.32, 1); }
+@media (hover: hover) and (pointer: fine) {
+  /* The canvas already brightens under the pointer, so the only cue the link
+     needs is its own cell growing. */
+  .brand:hover .mark { transform: scale(1.6); }
+}
+.brand:active { opacity: 0.7; }
+.brand:focus-visible { outline: 2px solid var(--focus); outline-offset: 6px; border-radius: 2px; }
+.brand { transition: opacity 160ms cubic-bezier(0.23, 1, 0.32, 1); }
+.mark { transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1); }
 .nav { margin-left: auto; }
 .nav ul { display: flex; gap: 12px; align-items: center; font-size: 14px; }
 .nav a { display: flex; align-items: center; min-height: 44px; }
-.contact { display: flex; align-items: center; gap: 28px; min-height: 44px; padding: 10px 21px; background: var(--text); color: var(--bg); border-radius: 999px; font-size: 13px; font-weight: 600; transition: background 160ms ease, transform 160ms ease; }
-.contact:hover { background: var(--accent); }
-.contact:active { transform: scale(.97); }
+.contact { display: flex; align-items: center; min-height: 44px; padding: 10px 12px; color: var(--text); font-size: 14px; text-decoration: underline; text-underline-offset: 5px; }
+.contact:hover { color: var(--accent); }
 @media (max-width: 640px) {
   .inner { min-height: 76px; gap: 12px; flex-wrap: wrap; padding: 14px 20px 10px; }
-  .brand { font-size: 23px; }
+
   .contact { margin-left: auto; padding: 8px 16px; }
   .nav { order: 3; flex-basis: 100%; margin: 0; }
   .nav ul { justify-content: space-between; gap: 0; }
   .nav a { padding: 10px 8px; }
 }
-@media (prefers-reduced-motion: reduce) { .contact { transition: none; } }

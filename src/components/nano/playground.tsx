@@ -544,7 +544,7 @@ export function NanoPlayground({
             : mode === "grounded"
               ? "Retrieves passages from this site and asks the model to use them. Check the sources listed below the answer."
               : mode === "chat"
-                ? "Answers without retrieved sources. Compare the same question in Grounded mode."
+                ? "Answers without retrieved sources."
                 : "Continues the prompt as plain text."}
         </p>
       </div>
@@ -555,7 +555,7 @@ export function NanoPlayground({
           <p className="max-w-2xl text-sm leading-relaxed text-muted">
             Download {smolWeightBytes ? mb(smolWeightBytes) : "the model weights"}{" "}
             to run SmolLM2 locally. The weights are cached in this browser;
-            generation runs on your device. Choose Load the model to begin.
+            generation runs on your device.
           </p>
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <button
@@ -871,8 +871,7 @@ export function NanoPlayground({
         {model === "kimi" ? (
           <>
             The hosted option sends your question to the server and an external
-            model API. Compare its answer with the local model and inspect the
-            retrieved passages shown with each response.
+            model API.
           </>
         ) : model === "smol" ? (
           <>

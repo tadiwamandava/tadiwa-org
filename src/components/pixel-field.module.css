@@ -1,0 +1,10 @@
+.field { position: absolute; z-index: -1; inset: 0 0 auto; height: 128px; pointer-events: none; mask-image: linear-gradient(to bottom, #000 0%, #0009 35%, #0002 72%, transparent 100%); -webkit-mask-image: linear-gradient(to bottom, #000 0%, #0009 35%, #0002 72%, transparent 100%); }
+.field::before { content: ""; position: absolute; inset: 0; background-image: repeating-conic-gradient(from 90deg, #c6ccd42e 0% 25%, transparent 0% 100%); background-size: 4px 4px; }
+.field canvas { display: block; width: 100%; height: 100%; opacity: 0; }
+.field[data-ready="true"]::before { visibility: hidden; }
+.field[data-ready="true"] canvas { opacity: 1; }
+
+/* The header strip. Fills its container, no fade: the bar meets the hero's
+   band directly and a mask on either side of that join is the seam. z-index 0
+   keeps it under .inner, which is raised to 1. */
+.bar { inset: 0; height: 100%; z-index: 0; mask-image: none; -webkit-mask-image: none; }

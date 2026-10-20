@@ -68,8 +68,7 @@ export default function SearchLabPage() {
 
           <p className="mt-5 max-w-2xl text-xl leading-relaxed text-muted">
             A Rust HNSW graph searches {facts.count} passages from this site.
-            Inspect its layers, run a query, and compare its results with a full
-            scan. The WebAssembly engine is {kb(facts.wasmGzip)} when gzipped.
+            The WebAssembly engine is {kb(facts.wasmGzip)} when gzipped.
           </p>
 
           <div className="mt-8 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4">
@@ -97,14 +96,12 @@ export default function SearchLabPage() {
             <p>
               I implemented graph construction, neighbour selection, search,
               the quantised vector format, and WebAssembly bindings in{" "}
-              <Code>crates/hnsw/src/</Code>. Select an existing passage to query
-              immediately, or download the embedding model to enter your own text.
+              <Code>crates/hnsw/src/</Code>.
             </p>
             <p>
               With only {facts.count} passages, a full scan is a useful baseline.
               Each recall measurement compares the graph&apos;s results against{" "}
-              <Code>brute_force</Code>. Timings are measured in this tab; adjust
-              the search effort to see its effect on recall and computation.
+              <Code>brute_force</Code>. Timings are measured in this tab.
             </p>
           </div>
         </LabSection>
@@ -121,10 +118,6 @@ export default function SearchLabPage() {
               <Code>lib.rs</Code> handles the JavaScript boundary and the
               introspection API used here. The Rust tests compare recall with
               exhaustive search results.
-            </p>
-            <p>
-              Other things you can run are in the{" "}
-              <Link href="/lab">lab</Link>.
             </p>
           </div>
         </LabSection>

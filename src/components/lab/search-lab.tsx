@@ -293,12 +293,10 @@ export function SearchLab() {
 
           <LabSection n="03" label="Recall, measured live">
             <p className="mt-5 max-w-2xl leading-relaxed text-muted">
-              HNSW is an <em>approximate</em> index. It is allowed to miss, and
-              the only meaningful way to say how much is to ask it the same
-              questions as an exhaustive scan and count the disagreements. That
-              is what the table below is doing, in this tab, right now, one row
-              per <span className="font-mono text-[0.95em]">ef</span>, against{" "}
-              {fmt.count(corpusSize)} queries the index has never seen.
+              Each row compares HNSW with an exhaustive scan across{" "}
+              {fmt.count(corpusSize)} generated queries. The search parameter{" "}
+              <span className="font-mono text-[0.95em]">ef</span> controls how
+              many candidates the graph considers.
             </p>
             <div className="mt-6">
               <RecallTable
@@ -316,11 +314,8 @@ export function SearchLab() {
                 running={sweeping}
                 captionSuffix={
                   <>
-                    Each query is the normalised midpoint of two chunk vectors,
-                    a point that is in the corpus&rsquo;s neighbourhood but is not
-                    any row of it, so the graph has to navigate rather than land
-                    on its own answer. The pairing is seeded, so this table is
-                    the same table on every load and on every machine.{" "}
+                    Queries are normalised midpoints of seeded pairs of chunk
+                    vectors. The query set is repeatable; timings vary by run.{" "}
                     <button
                       type="button"
                       onClick={() => setRunId((n) => n + 1)}
@@ -328,9 +323,7 @@ export function SearchLab() {
                       className="font-mono text-accent underline decoration-dotted underline-offset-4 disabled:text-subtle disabled:no-underline"
                     >
                       {sweeping ? "measuring…" : "measure again"}
-                    </button>{" "}
-, the recall column will not move; the timings will, which is
-                    what a millisecond-scale benchmark on a shared CPU looks like.
+                    </button>
                   </>
                 }
               />
@@ -339,10 +332,8 @@ export function SearchLab() {
 
           <LabSection n="04" label="Run a query">
             <p className="mt-5 max-w-2xl leading-relaxed text-muted">
-              The same search the ⌘K palette runs, with the meter left on. Pick
-              any chunk and its vector becomes the query; the readout is what
-              that cost, next to what an exhaustive scan of all{" "}
-              {fmt.count(corpusSize)} vectors would have cost.
+              Query results include graph traversal counts and timings,
+              compared with a scan of all {fmt.count(corpusSize)} vectors.
             </p>
             <QueryPanel
               chunks={lab.chunks}

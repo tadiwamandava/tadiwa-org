@@ -43,8 +43,6 @@ export default function InferenceLabPage() {
       </h1>
       <p className="mt-5 max-w-2xl text-lg leading-relaxed text-muted">
         I wrote a transformer forward pass in C++ and compiled it to WebAssembly.
-        Try local generation below, compare the model&apos;s answers with retrieved
-        sources, and inspect the engine&apos;s test results.
       </p>
 
       <dl className="mt-8 grid grid-cols-2 gap-5 sm:grid-cols-3">
@@ -221,9 +219,6 @@ export default function InferenceLabPage() {
           )}
         </div>
       </section>
-      <p className="mt-14 text-sm">
-        <Link href="/lab" className="inline-flex min-h-11 items-center text-accent underline underline-offset-4">Back to the lab</Link>
-      </p>
     </Container>
   );
 }
